@@ -19,7 +19,7 @@ import {
 import type { BudgetMatrix, GlBudgetNameView, BudgetEntryView } from '@/lib/glBudgets';
 import type { DimensionValue } from '@/lib/types';
 
-export type Dims = { caption1: string; caption2: string; dim1: DimensionValue[]; dim2: DimensionValue[] };
+type Dims = { caption1: string; caption2: string; dim1: DimensionValue[]; dim2: DimensionValue[] };
 
 /* ================================================================== names */
 

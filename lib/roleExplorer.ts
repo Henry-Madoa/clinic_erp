@@ -17,7 +17,7 @@ import type { SessionUser } from './types.ts';
 
 export type ExplorerKind = 'page' | 'report' | 'admin';
 
-export interface ExplorerPage {
+interface ExplorerPage {
   label: string;
   path: string;
   icon?: string;

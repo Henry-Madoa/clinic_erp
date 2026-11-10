@@ -44,7 +44,3 @@ export function compareNo(a: string, b: string): number {
 /** `candidate` is past `limit` (the line's Ending No.). */
 export const noExceeds = (candidate: string, limit: string | null | undefined): boolean =>
   !!limit && compareNo(candidate, limit) > 0;
-
-/** `candidate` has reached the line's Warning No. (BC starts warning here). */
-export const noReachesWarning = (candidate: string, warning: string | null | undefined): boolean =>
-  !!warning && compareNo(candidate, warning) >= 0;

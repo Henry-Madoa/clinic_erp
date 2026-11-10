@@ -108,12 +108,3 @@ export function isValidFormula(formula: string): boolean {
     return false;
   }
 }
-
-/** The identifiers a formula references — used to check a formula only names known rows/columns. */
-export function formulaIdentifiers(formula: string): string[] {
-  try {
-    return [...new Set(tokenize(String(formula ?? '')).filter((t) => t.kind === 'id').map((t) => t.value))];
-  } catch {
-    return [];
-  }
-}

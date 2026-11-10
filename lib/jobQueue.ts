@@ -5,9 +5,8 @@
  * app has no separate worker process). AL's own Recurrence (a Day/Time-of-day pattern) is
  * simplified here to a plain "every N minutes" interval plus an optional earliest-start date.
  *
- * Operations jobs: recurring contract billing and renewals (lib/contracts.ts), month-end project WIP
- * (lib/projects.ts), the SLA monitor (lib/serviceDesk.ts), the statutory compliance calendar
- * (lib/compliance.ts) and the timesheet chaser (lib/timesheets.ts).
+ * Clinic jobs: SMS appointment reminders, the nightly no-show sweep, closing stale visits, and
+ * purging expired sessions.
  */
 import { one, all, run, audit } from './db.ts';
 import { AppError } from './errors.ts';
@@ -20,8 +19,7 @@ import './mailer.ts';
 import './sms.ts';
 import { hostname } from 'node:os';
 import { submitDue } from './etims.ts';
-import type { Actor, JobQueueEntry, JobQueueRunStatus, JobQueueStatus, JobQueueType } from './types.ts';
-
+import type { Actor, JobQueueEntry, JobQueueStatus, JobQueueType } from './types.ts';
 
 /** One named runner per JobQueueType — the dispatch table both the manual "Run now" button and
  *  the unattended poller call through. A handler throws to signal failure (caught and recorded
@@ -53,16 +51,6 @@ const JOB_HANDLERS: Record<JobQueueType, (user: Actor) => Promise<string>> = {
   },
 };
 
-/** Human-readable names for the job types, for the Admin Centre picker. */
-export const JOB_TYPE_LABELS: Record<JobQueueType, string> = {
-  APPOINTMENT_REMINDERS: 'Appointment Reminders (SMS)',
-  NO_SHOW_SWEEP: 'Mark Missed Appointments as No-show',
-  STALE_VISITS: 'Stale Open Visits Alert',
-  SESSION_PURGE: 'Session Purge',
-  OUTBOX_DISPATCH: 'Message Outbox Dispatch',
-  ETIMS_SUBMIT: 'KRA eTIMS Submission',
-};
-
 /** This instance's name on a lease — the host plus the process, so two replicas on one box differ. */
 const INSTANCE = `${hostname()}#${process.pid}`;
 /** A run may hold its lease this long before another instance may assume it died mid-run. */
@@ -71,7 +59,7 @@ const LEASE_MINUTES = 30;
 export const listJobQueueEntries = (): Promise<JobQueueEntry[]> =>
   all<JobQueueEntry>('SELECT * FROM job_queue_entry ORDER BY code');
 
-export const getJobQueueEntry = (id: number): Promise<JobQueueEntry | undefined> =>
+const getJobQueueEntry = (id: number): Promise<JobQueueEntry | undefined> =>
   one<JobQueueEntry>('SELECT * FROM job_queue_entry WHERE id = ?', id);
 
 /** now + run_every_minutes, expressed the way every other IsoDateTime in this app is: a plain

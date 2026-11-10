@@ -27,7 +27,7 @@ export function FormatProvider({ org, children }: { org: OrgBrand | null; childr
   return <FormatContext.Provider value={value}>{children}</FormatContext.Provider>;
 }
 
-export interface Formatter extends FormatConfig {
+interface Formatter extends FormatConfig {
   cur: (cents: Cents | null | undefined, opts?: MoneyOptions) => string;
   curShort: (cents: Cents | null | undefined) => string;
   fdate: typeof formatDate;

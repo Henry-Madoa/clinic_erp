@@ -7,15 +7,14 @@ import type { Actor } from './types.ts';
 
 /*
  * Outgoing e-mail and which notifications use it — Admin Centre → Integrations → Email &
- * Notifications. Ported from bc_member_portal's lib/mail-settings.ts (Gmail SMTP with an app
- * password), with Resend kept as a second provider since this system already spoke to it.
+ * Notifications. Gmail SMTP with an app password, or Resend as a second provider.
  *
  * The app password / API key is sealed at rest and never sent to the browser. Until e-mail is set
  * up and switched on here, the RESEND_API_KEY / RESEND_FROM_EMAIL environment variables are used
  * (as before); with neither, the outbox parks messages as "not configured".
  */
 
-export type MailProvider = 'gmail' | 'resend';
+type MailProvider = 'gmail' | 'resend';
 
 /** The notifications an administrator can switch on or off. */
 export const NOTIFICATIONS = {
@@ -26,7 +25,7 @@ export const NOTIFICATIONS = {
 } as const;
 export type NotificationKey = keyof typeof NOTIFICATIONS;
 
-export interface MailSettingsInput {
+interface MailSettingsInput {
   enabled: boolean;
   provider: MailProvider;
   /** The sending address: the Gmail / Workspace account, or a Resend-verified address. */
@@ -48,7 +47,7 @@ export interface MailSettingsInfo extends Omit<MailSettingsInput, 'secret'> {
 }
 
 /** What a send needs. */
-export interface MailTransportConfig { provider: MailProvider; fromAddress: string; fromName: string; replyTo: string; secret: string }
+interface MailTransportConfig { provider: MailProvider; fromAddress: string; fromName: string; replyTo: string; secret: string }
 
 const DEFAULT_NOTIFICATIONS: Record<NotificationKey, boolean> = { approvals: true, ticketUpdates: true, paymentReceipt: true, hrNotices: true };
 const BLANK: Omit<MailSettingsInput, 'secret'> = { enabled: false, provider: 'gmail', fromAddress: '', fromName: '', replyTo: '', notifications: DEFAULT_NOTIFICATIONS };

@@ -8,7 +8,7 @@ import { useToast } from './toast';
 import { useResultDialog } from './result-dialog';
 import type { ActionResult, FormValues } from '@/lib/types';
 
-export interface FormModalProps<T> {
+interface FormModalProps<T> {
   title: string;
   wide?: boolean;
   onClose: () => void;

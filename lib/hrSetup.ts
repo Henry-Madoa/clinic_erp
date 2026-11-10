@@ -17,7 +17,7 @@ import type {
 export const listJobGrades = (): Promise<HrJobGrade[]> =>
   all<HrJobGrade>('SELECT * FROM hr_job_grade ORDER BY code');
 
-export interface JobGradeInput {
+interface JobGradeInput {
   id?: number | null; code: string; name: string;
   noticePeriodDays?: number; probationNoticePeriodDays?: number;
   leaveAllowanceAmount?: number; trainingAllowanceAmount?: number; overtimeAllowanceAmount?: number;

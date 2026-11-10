@@ -42,9 +42,6 @@ export async function registerPatientRequest(v: FormValues): Promise<ActionResul
 export async function updatePatientRequest(mrn: string, v: FormValues): Promise<ActionResult<{ saved: true }>> {
   return actionResult(async () => { await patients.updatePatient(mrn, v, await requireAction('PATIENTS_MANAGE')); refreshPatient(mrn); return ok; });
 }
-export async function setPatientPhotoRequest(mrn: string, url: string | null): Promise<ActionResult<{ saved: true }>> {
-  return actionResult(async () => { await patients.setPatientPhoto(mrn, url, await requireAction('PATIENTS_MANAGE')); refreshPatient(mrn); return ok; });
-}
 export async function revealPatientIdRequest(mrn: string): Promise<ActionResult<{ value: string | null }>> {
   return actionResult(async () => ({ value: await patients.revealIdNumber(mrn, await requireAction('PATIENTS_PII_VIEW')) }));
 }
@@ -83,9 +80,6 @@ export async function appointmentStatusRequest(no: string, status: 'CONFIRMED' |
 }
 export async function bookFollowUpRequest(visitNo: string, v: FormValues): Promise<ActionResult<{ no: string }>> {
   return actionResult(async () => { const r = await appts.bookFollowUp(visitNo, v, await requireAction('APPOINTMENTS_MANAGE')); refreshVisit(visitNo); revalidatePath('/appointments', 'layout'); return r; });
-}
-export async function freeSlotsRequest(date: string, department: string, clinicianId: number | null): Promise<ActionResult<string[]>> {
-  return actionResult(async () => { await requireAction('APPOINTMENTS_READ'); return appts.freeSlots(String(date), String(department), clinicianId ? Number(clinicianId) : null); });
 }
 
 /* ------------------------------------------------------------------ visits & queues */

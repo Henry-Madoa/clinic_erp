@@ -12,7 +12,6 @@
 import { one, all } from './db.ts';
 import { accountBalances, trialBalance } from './accounting.ts';
 import { getIncomeStatement, getBalanceSheet } from './reports.ts';
-import { addDays } from './dateFormula.ts';
 import { today } from './format.ts';
 import { addMonths } from './dateFormula.ts';
 import type { Cents, IsoDate } from './types.ts';
@@ -20,17 +19,15 @@ import type { Cents, IsoDate } from './types.ts';
 /* ------------------------------------------------------------------- shared */
 
 /** The last `n` calendar months as `YYYY-MM`, oldest first (includes the current month). */
-export function recentMonths(n = 12): string[] {
+function recentMonths(n = 12): string[] {
   const base = `${today().slice(0, 8)}01`;
   return Array.from({ length: n }, (_, i) => addMonths(base, -(n - 1 - i)).slice(0, 7));
 }
 
-export interface MonthPoint { month: string; [k: string]: string | number }
-
 /** Payroll and cost-of-sales lines for the operating ratios. */
 const PAYROLL_CODES = ['6010', '6015', '6016', '6017'];
 /** Cash in hand and at bank — petty cash, the cashier till, the cash office, the bank, M-Pesa and cards. */
-export const CASH_CODES = ['1010', '1012', '1015', '1020', '1030', '1040'];
+const CASH_CODES = ['1010', '1012', '1015', '1020', '1030', '1040'];
 /** Drugs, consumables and reagents used — the clinic's direct cost of care. */
 const CONSUMABLE_CODES = ['5010', '5020', '5030'];
 const RECEIVABLES_CODE = '1220';
@@ -40,7 +37,7 @@ const CLAIM_REJECTIONS_CODE = '6152';
 
 /* ---------------------------------------------------------- Finance Manager */
 
-export interface FinanceManagerRoleCenter {
+interface FinanceManagerRoleCenter {
   kpi: { surplus: Cents; income: Cents; expense: Cents; cash: Cents; receivables: Cents; unbilled: Cents; patientOwed: Cents };
   pl: { month: string; income: Cents; expense: Cents; surplus: Cents }[];
   incomeMix: { name: string; amount: Cents }[];
@@ -114,7 +111,7 @@ function humaniseDoc(t: string): string {
 
 /* ----------------------------------------------------------------- Accountant */
 
-export interface AccountantRoleCenter {
+interface AccountantRoleCenter {
   kpi: { balanced: boolean; outOfBalanceBy: Cents; draftJournals: number; journalsThisMonth: number; agedArTotal: Cents; agedApTotal: Cents };
   journalsByMonth: { month: string; journals: number; amount: Cents }[];
   bySource: { name: string; amount: Cents; entries: number }[];
@@ -199,7 +196,7 @@ function sumAgedBalance(report: unknown): Cents {
 
 /* -------------------------------------------------------------------- HR & Payroll */
 
-export interface HrPayrollRoleCenter {
+interface HrPayrollRoleCenter {
   kpi: {
     headcountActive: number; headcountNew: number; headcountPendingApproval: number;
     pendingApprovals: number; leaveApplicationsPending: number; payrollPeriodStatus: string | null;

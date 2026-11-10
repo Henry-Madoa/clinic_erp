@@ -9,7 +9,7 @@ import { findMatchingWorkflow, startWorkflow } from './workflow.ts';
 import { buildFilterClause, type FilterCondition, type FilterFieldDef } from './listFilters.ts';
 import { buildOrderClause, type SortState } from './listSort.ts';
 import { addDaysIso } from './format.ts';
-import type {AccountingPeriod, Actor, BankAccount, BankAccountListRow, BankAccountLedgerEntryWithJournal, BankReconciliation, BankReconciliationWorksheet, Cents, GlAccount, GlAccountStructureType, GlAccountType, IsoDate, Journal, JournalLineInput, JournalLineWithAccount, JournalListRow, JournalRelatedEntries, LedgerLine, PostedJournal, TrialBalanceRow} from './types.ts';
+import type {AccountingPeriod, Actor, Cents, GlAccount, GlAccountStructureType, GlAccountType, IsoDate, Journal, JournalLineInput, JournalLineWithAccount, JournalListRow, JournalRelatedEntries, LedgerLine, PostedJournal, TrialBalanceRow} from './types.ts';
 
 export interface TrialBalanceReport {
   rows: TrialBalanceRow[];

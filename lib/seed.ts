@@ -40,7 +40,6 @@ import * as dentalLib from './clinic/dental.ts';
 import * as claimsLib from './clinic/claims.ts';
 import * as apptLib from './clinic/appointments.ts';
 import { ICD10_COMMON, LAB_CATALOGUE, DRUG_FORMULARY, DENTAL_PROCEDURES, CLINIC_SERVICES } from './clinic/referenceData.ts';
-import { encryptField, lastFour } from './fieldCrypto.ts';
 import type { Actor, Cents, GlAccountStructureType, GlAccountType, IsoDate, IsoDateTime } from './types.ts';
 
 const K = (n: number): Cents => Math.round(n * 100); // shillings -> cents
@@ -318,7 +317,7 @@ const ADMIN_PASSWORD = process.env.ADMIN_INITIAL_PASSWORD?.trim() || 'Admin@Ways
  * The demonstration sign-ins. Every password meets the password policy; production disables all
  * of them except the administrator, who gets a one-off password (see hardenForProduction()).
  */
-export const DEMO_USERS: [username: string, fullName: string, role: string, password: string, profiles: string[]][] = [
+const DEMO_USERS: [username: string, fullName: string, role: string, password: string, profiles: string[]][] = [
   [ADMIN_USERNAME, ADMIN_USERNAME === 'admin' ? 'Henry Ngari Githaiga' : ADMIN_USERNAME, 'System Administrator', ADMIN_PASSWORD,
     ['SUPER', 'RECEPTION', 'CLINICIAN', 'NURSE', 'DENTAL', 'LAB', 'PHARMACY', 'CASHIER', 'CLAIMS', 'FINANCE_MANAGER', 'ACCOUNTANT', 'HR_PAYROLL', 'SELF_SERVICE']],
   ['director', 'Dr. Amina Wanjiru', 'Medical Director', 'Director@Wayside2026', ['SUPER', 'CLINICIAN', 'FINANCE_MANAGER']],
@@ -994,7 +993,7 @@ const hhmm = (mins: number): string => `${String(Math.floor(mins / 60)).padStart
  * The clinic's money before the demo starts: opening equity in the bank, and three months of staff
  * costs and rent (in a live clinic these come from Payroll and Payables).
  */
-export async function seedOpeningPosition(today: IsoDate): Promise<void> {
+async function seedOpeningPosition(today: IsoDate): Promise<void> {
   const { postJournal } = await import('./accounting.ts');
   const start = addMonths(`${today.slice(0, 8)}01`, -4);
   await postJournal({
@@ -1317,7 +1316,7 @@ async function seedClinicActivity(today: IsoDate): Promise<{ visits: number; pat
 
 /* ================================================================ entry point */
 
-export interface SeedResult {
+interface SeedResult {
   seeded: boolean;
   /** False when only the reference data went in (a production first boot). */
   demo?: boolean;
@@ -1332,7 +1331,7 @@ export interface SeedResult {
  * fifteen sign-ins with published passwords) or just the setup a live clinic starts from. Demo
  * data is the default everywhere except a production build, where SEED_DEMO_DATA=true has to ask.
  */
-export function demoSeedWanted(): boolean {
+function demoSeedWanted(): boolean {
   const flag = process.env.SEED_DEMO_DATA?.trim().toLowerCase();
   if (flag === 'true' || flag === '1' || flag === 'yes') return true;
   if (flag === 'false' || flag === '0' || flag === 'no') return false;
@@ -1410,5 +1409,3 @@ async function indentSeededChart(): Promise<void> {
   );
 }
 
-// Exported for the test suite's own fixtures.
-export { encryptField as _encryptField, lastFour as _lastFour };

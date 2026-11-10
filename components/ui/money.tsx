@@ -3,7 +3,7 @@
 import { useFormat } from './format-provider';
 import type { Cents } from '@/lib/types';
 
-export interface MoneyProps {
+interface MoneyProps {
   cents: Cents | null | undefined;
   /** Fraction digits. 0 for the compact table columns. */
   decimals?: number;
@@ -17,13 +17,4 @@ export interface MoneyProps {
 export function Money({ cents, decimals = 2, symbol = true, short = false }: MoneyProps) {
   const { cur, curShort } = useFormat();
   return <>{short ? curShort(cents) : cur(cents, { decimals, showSymbol: symbol })}</>;
-}
-
-/** Money coloured by sign — credits read green, debits red. */
-export function SignedMoney({ cents, decimals = 2 }: Pick<MoneyProps, 'cents' | 'decimals'>) {
-  return (
-    <span className={(cents ?? 0) < 0 ? 'neg' : 'pos'}>
-      <Money cents={cents} decimals={decimals} />
-    </span>
-  );
 }

@@ -11,11 +11,9 @@ import { AppError } from './errors.ts';
 import { postJournal } from './accounting.ts';
 import { currentExchangeFactor, baseCurrencyCode } from './currency.ts';
 import type {
-  Actor, BankAccPostingGroup, BankAccPostingGroupView, CashManagementSetup, Cents, Currency,
-  CurrencyExchangeRate, CurrencyView, ExternalBank, ExternalBankBranch, IsoDate,
+  Actor, BankAccPostingGroupView, CashManagementSetup, Cents, Currency,
+  CurrencyExchangeRate, CurrencyView, ExternalBank, IsoDate,
 } from './types.ts';
-
-export { currentExchangeFactor } from './currency.ts';
 
 const norm = (v: unknown): string => String(v ?? '').trim();
 const now = (): string => new Date().toISOString();
@@ -29,9 +27,6 @@ export const listBankAccPostingGroups = (): Promise<BankAccPostingGroupView[]> =
      FROM bank_acc_posting_group g JOIN gl_account a ON a.id = g.gl_account_id
      ORDER BY g.code`,
   );
-
-export const getBankAccPostingGroup = (code: string): Promise<BankAccPostingGroup | undefined> =>
-  one<BankAccPostingGroup>('SELECT * FROM bank_acc_posting_group WHERE code = ?', code);
 
 export interface BankAccPostingGroupInput { code: string; description: string; glAccountId: number }
 
@@ -59,42 +54,7 @@ export const listExternalBanks = (): Promise<(ExternalBank & { branch_count: num
   all(`SELECT b.*, (SELECT COUNT(*) FROM external_bank_branch br WHERE br.bank_code = b.code) AS branch_count
        FROM external_bank b ORDER BY b.code`);
 
-export const listExternalBankBranches = (bankCode?: string): Promise<ExternalBankBranch[]> =>
-  all<ExternalBankBranch>(
-    `SELECT * FROM external_bank_branch ${bankCode ? 'WHERE bank_code = @bankCode' : ''} ORDER BY bank_code, branch_code`,
-    { bankCode },
-  );
 
-export interface ExternalBankInput { code: string; name: string }
-export interface ExternalBankBranchInput { branchCode: string; branchName: string }
-
-export async function createExternalBank(i: ExternalBankInput, branches: ExternalBankBranchInput[], user: Actor): Promise<{ id: number }> {
-  if (!norm(i.code) || !norm(i.name)) throw new AppError('Code and name are required', 'VALIDATION');
-  if (await hasAnyRow('external_bank', 'code = ?', norm(i.code))) throw new AppError('A bank with this code already exists', 'DUPLICATE');
-  const info = await run('INSERT INTO external_bank (code, name, created_at, created_by) VALUES (?,?,?,?)', norm(i.code).toUpperCase(), norm(i.name), now(), user.username);
-  await replaceExternalBankBranches(norm(i.code).toUpperCase(), branches);
-  await audit(user, 'EXTERNAL_BANK_CREATE', 'external_bank', info.lastInsertRowid, { code: i.code });
-  return { id: Number(info.lastInsertRowid) };
-}
-
-export async function updateExternalBank(id: number, i: ExternalBankInput, branches: ExternalBankBranchInput[], user: Actor): Promise<void> {
-  const before = await one<{ code: string }>('SELECT code FROM external_bank WHERE id = ?', id);
-  if (!before) throw new AppError('Bank not found', 'NOT_FOUND');
-  await run('UPDATE external_bank SET name = ? WHERE id = ?', norm(i.name), id);
-  await replaceExternalBankBranches(before.code, branches);
-  await audit(user, 'EXTERNAL_BANK_UPDATE', 'external_bank', id, {});
-}
-
-async function replaceExternalBankBranches(bankCode: string, branches: ExternalBankBranchInput[]): Promise<void> {
-  await run('DELETE FROM external_bank_branch WHERE bank_code = ?', bankCode);
-  for (const b of branches) {
-    if (!norm(b.branchCode)) continue;
-    await run(
-      'INSERT INTO external_bank_branch (bank_code, branch_code, branch_name) VALUES (?,?,?)',
-      bankCode, norm(b.branchCode).toUpperCase(), norm(b.branchName),
-    );
-  }
-}
 
 /* --------------------------------------------------------------- Currencies */
 
@@ -108,7 +68,7 @@ const CCY_SELECT = `
   LEFT JOIN gl_account rl ON rl.id = c.realized_losses_account_id`;
 
 export const listCurrencies = (): Promise<CurrencyView[]> => all<CurrencyView>(`${CCY_SELECT} ORDER BY c.is_base DESC, c.code`);
-export const getCurrency = (code: string): Promise<Currency | undefined> => one<Currency>('SELECT * FROM currency WHERE code = ?', code);
+const getCurrency = (code: string): Promise<Currency | undefined> => one<Currency>('SELECT * FROM currency WHERE code = ?', code);
 export const listActiveCurrencies = (): Promise<Currency[]> => all<Currency>('SELECT * FROM currency WHERE blocked = 0 ORDER BY is_base DESC, code');
 export const listExchangeRates = (currencyCode?: string): Promise<CurrencyExchangeRate[]> =>
   all<CurrencyExchangeRate>(
@@ -159,7 +119,7 @@ export async function updateCurrency(id: number, i: CurrencyInput, user: Actor):
   await audit(user, 'CURRENCY_UPDATE', 'currency', id, {});
 }
 
-export interface ExchangeRateInput { currencyCode: string; startingDate: IsoDate; exchangeRateAmount: number; relationalExchRateAmount: number }
+interface ExchangeRateInput { currencyCode: string; startingDate: IsoDate; exchangeRateAmount: number; relationalExchRateAmount: number }
 
 export async function saveExchangeRate(i: ExchangeRateInput, user: Actor): Promise<void> {
   if (!norm(i.currencyCode) || !i.startingDate) throw new AppError('Currency and starting date are required', 'VALIDATION');

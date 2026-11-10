@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
 import { redirect } from 'next/navigation';
 import { getOrgBrand } from '@/lib/org';
+import { defaultLoginBackground } from '@/lib/cloudinary';
 import { getCurrentUser } from '@/lib/session';
 import { LoginForm } from './login-form';
 import { ThemeToggle } from '@/components/layout/theme-toggle';
@@ -11,7 +12,8 @@ const cssUrl = (u: string): string => `url("${u.replace(/["\\\n\r]/g, '')}")`;
 export default async function LoginPage() {
   if (await getCurrentUser()) redirect('/dashboard');
   const org = await getOrgBrand();
-  const bg = org?.background ?? null;
+  // The organisation's own upload, else the stock image — both served from Cloudinary.
+  const bg = org?.background ?? defaultLoginBackground();
   const style = bg ? ({ '--login-bg': cssUrl(bg), '--login-shade': String((org?.background_overlay ?? 45) / 100) } as CSSProperties) : undefined;
 
   return (

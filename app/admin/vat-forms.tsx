@@ -5,7 +5,7 @@ import { FormModal } from '@/components/ui/form-modal';
 import { Field } from '@/components/ui/field';
 import { GlAccountField } from '@/components/ui/gl-account-select';
 import {
-  saveVatBusinessGroupRequest, saveVatProductGroupRequest, saveVatPostingSetupRequest, deleteVatPostingSetupRequest,
+  saveVatBusinessGroupRequest, saveVatProductGroupRequest, saveVatPostingSetupRequest,
 } from '@/app/actions/cashMgmt';
 import type {
   GlAccount, VatBusinessPostingGroup, VatPostingSetupView, VatProductPostingGroup,
@@ -80,13 +80,5 @@ export function VatPostingSetupRowButton({ row, busGroups, prodGroups, accounts,
         </FormModal>
       ) : null}
     </>
-  );
-}
-
-export function DeleteVatSetupButton({ busCode, prodCode }: { busCode: string; prodCode: string }) {
-  const [busy, setBusy] = useState(false);
-  return (
-    <button type="button" className="btn sm ghost danger" disabled={busy}
-      onClick={async () => { setBusy(true); await deleteVatPostingSetupRequest(busCode, prodCode); setBusy(false); location.reload(); }}>×</button>
   );
 }

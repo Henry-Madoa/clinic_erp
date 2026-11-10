@@ -1,5 +1,5 @@
 /* VAT + Withholding Tax — split out of lib/types.ts; import from '@/lib/types', never from here directly. */
-import type { Cents, DocumentStatus, Flag, IsoDate, IsoDateTime, SignatureBlock } from '../types.ts';
+import type { Cents, DocumentStatus, Flag, IsoDate, IsoDateTime } from '../types.ts';
 
 /* --------------------------------------------------------------- VAT + Withholding Tax */
 
@@ -23,7 +23,7 @@ export interface VatProductPostingGroup {
   created_by: string | null;
 }
 
-export interface VatPostingSetup {
+interface VatPostingSetup {
   id: number;
   vat_bus_posting_group_code: string;
   vat_prod_posting_group_code: string;
@@ -69,7 +69,7 @@ export interface VatEntry {
   created_at: IsoDateTime | null;
 }
 
-export interface WhtCertificate {
+interface WhtCertificate {
   id: number;
   no: string;
   vendor_id: number;
@@ -105,41 +105,6 @@ export interface WhtCertificateDetail extends WhtCertificateView {
   lines: WhtCertificateLine[];
 }
 
-/** The one place the AL "Payment Voucher Lines".Amount arithmetic lives. */
-export interface LineTaxResult {
-  vatBase: Cents;
-  vatAmount: Cents;
-  netOfVat: Cents;
-  whtBase: Cents;
-  whtOne: Cents;
-  whtTwo: Cents;
-  netPaid: Cents;
-}
-
-export interface WhtCertificateSlipLine {
-  wht_code: string;
-  description: string;
-  rate: number;
-  base: Cents;
-  wht_amount: Cents;
-}
-
-export interface WhtCertificateSlip {
-  org_name: string;
-  org_address: string;
-  org_pin: string | null;
-  certificate_no: string;
-  certificate_date: IsoDate;
-  vendor_name: string;
-  vendor_pin: string | null;
-  payment_voucher_no: string;
-  gross_amount: Cents;
-  total_wht: Cents;
-  total_wht_words: string;
-  lines: WhtCertificateSlipLine[];
-  /** The issuing officer's signature on file, resolved at print time (lib/userSignatures.ts). */
-  issued_by_signature: SignatureBlock | null;
-}
 
 export interface VatInputListingRow {
   vat_prod_posting_group_code: string;
@@ -170,7 +135,7 @@ export interface WhtAnalysisRow {
 export type PaymentMode = 'Bank Transfer' | 'Cheque' | 'Cash' | 'M-Pesa';
 export const PAYMENT_MODES: PaymentMode[] = ['Bank Transfer', 'Cheque', 'Cash', 'M-Pesa'];
 
-export type EmployeeStatus =
+type EmployeeStatus =
   | 'NEW' | 'PENDING_APPROVAL' | 'ACTIVE' | 'ON_LEAVE' | 'PENDING_FINAL_PAYMENT' | 'INACTIVE' | 'TERMINATED';
 
 /** AL Tab52203636 "Salary Scale Pointers" — a notch on a job grade's salary scale. */
@@ -179,7 +144,7 @@ export interface HrSalaryScale {
   sequence: number; status: 'ACTIVE' | 'INACTIVE'; created_at: IsoDateTime | null; created_by: string | null;
 }
 /** AL Tab52203627 "Income/Deduction Configuration" — one earning / deduction a notch confers. */
-export interface HrSalaryScaleBenefit {
+interface HrSalaryScaleBenefit {
   id: number; salary_scale_id: number; transaction_code_id: number; amount_cents: Cents; notes: string | null;
 }
 export interface HrSalaryScaleBenefitView extends HrSalaryScaleBenefit {
@@ -466,7 +431,7 @@ export interface EmployeeExitFinalDueLine {
   id: number; exit_no: string; due_type: EmployeeExitDueType; description: string | null; amount_cents: Cents;
 }
 
-export interface EmployeeExitClearanceLine {
+interface EmployeeExitClearanceLine {
   id: number; exit_no: string; section_id: number; cleared: boolean;
   cleared_by: string | null; cleared_at: IsoDateTime | null; remarks: string | null;
 }
@@ -479,8 +444,8 @@ export interface EmployeeExitClearanceLineView extends EmployeeExitClearanceLine
  * HR & Payroll — Leave Management (ported from Business Central AL, object range 52203xxx).
  * ================================================================================================ */
 
-export type LeaveGender = 'ANY' | 'MALE' | 'FEMALE';
-export type LeaveBalanceTreatment = 'IGNORE' | 'CARRY_FORWARD' | 'CONVERT_CASH';
+type LeaveGender = 'ANY' | 'MALE' | 'FEMALE';
+type LeaveBalanceTreatment = 'IGNORE' | 'CARRY_FORWARD' | 'CONVERT_CASH';
 
 export interface HrLeaveType {
   id: number; code: string; name: string;
@@ -540,7 +505,7 @@ export interface HrLeaveAdjustment {
 
 export interface HrLeaveAdjustmentView extends HrLeaveAdjustment { leave_type_name: string; line_count: number }
 
-export interface HrLeaveAdjustmentLine {
+interface HrLeaveAdjustmentLine {
   id: number; adjustment_no: string; employee_id: number; days: number;
 }
 export interface HrLeaveAdjustmentLineView extends HrLeaveAdjustmentLine {
@@ -630,7 +595,7 @@ export interface PayrollTransactionCode {
   status: string; created_at: IsoDateTime | null; created_by: string | null;
 }
 
-export type PayrollPeriodStatus = 'OPEN' | 'PENDING_APPROVAL' | 'APPROVED' | 'CLOSED';
+type PayrollPeriodStatus = 'OPEN' | 'PENDING_APPROVAL' | 'APPROVED' | 'CLOSED';
 
 export interface PayrollPeriod {
   id: number; period_name: string; start_date: IsoDate; end_date: IsoDate; status: PayrollPeriodStatus;
@@ -638,7 +603,7 @@ export interface PayrollPeriod {
   created_at: IsoDateTime | null; created_by: string | null;
 }
 
-export interface EmployeePayrollTransaction {
+interface EmployeePayrollTransaction {
   id: number; employee_id: number; transaction_code_id: number; payroll_period_id: number;
   amount_cents: Cents; original_amount_cents: Cents | null; balance_cents: Cents | null;
   no_of_periods: number | null; executed_periods: number; stopped: boolean; temporary: boolean;
@@ -656,7 +621,7 @@ export interface EmployeePayrollTransactionView extends EmployeePayrollTransacti
 /** AL Tab52203619 "Payroll Period Transaction" — one computed line of an employee's payroll for
  *  a period. Basic pay, the tax workings, statutories and net pay carry the run's own codes and
  *  no transaction_code_id; only Earnings & Deductions lines point at a code. */
-export interface PayrollPeriodTransaction {
+interface PayrollPeriodTransaction {
   id: number; payroll_period_id: number; employee_id: number;
   transaction_code: string; transaction_code_id: number | null; transaction_name: string;
   transaction_type: 'INCOME' | 'DEDUCTION' | 'COMPANY_DEDUCTION' | 'MEMO' | 'NET';

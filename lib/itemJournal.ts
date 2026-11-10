@@ -3,10 +3,9 @@
  * Purchase/Sale/Transfer/Consumption/Output entry types, no serial/lot tracking, no Item
  * Charges). No AL source exists for any of this: the AL extension this core was ported from never
  * touched BC's stock Inventory tables, so this module is built from Business Central domain
- * knowledge rather than ported field-for-field, matched to this codebase's own conventions —
- * closest precedent is lib/bankersCheques.ts (maker-checker document -> postJournal()).
+ * knowledge rather than ported field-for-field, matched to this codebase's own conventions (a maker-checker document -> postJournal()).
  *
- * Lifecycle: Open -> Pending Approval -> Approved -> Processed, same shape as bankers_cheque.
+ * Lifecycle: Open -> Pending Approval -> Approved -> Processed.
  *
  * Costing (item.costing_method — Business Central's own five):
  *   - Standard            unit_cost is always item.unit_cost; no lot tracking at all.

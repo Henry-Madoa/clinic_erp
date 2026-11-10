@@ -13,7 +13,7 @@ import type { DimensionValue, GlAccount } from '@/lib/types';
 const emptyLine = (): JournalLineDraft =>
   ({ account: '', narration: '', debit: '', credit: '', globalDimension1Id: '', globalDimension2Id: '' });
 
-export interface NewJournalButtonProps {
+interface NewJournalButtonProps {
   accounts: GlAccount[];
   globalDimension1Values: DimensionValue[];
   globalDimension2Values: DimensionValue[];

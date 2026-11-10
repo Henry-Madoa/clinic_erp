@@ -6,7 +6,7 @@ import type { Cents } from '../types.ts';
 /** One row in a Find Entries / Navigate bucket — every source document type links through
  *  its own posted-document page, so the href is resolved server-side per bucket rather than
  *  the client guessing a route pattern per module. */
-export interface JournalRelatedEntry {
+interface JournalRelatedEntry {
   label: string;
   amount: Cents;
   href: string;
@@ -14,7 +14,7 @@ export interface JournalRelatedEntry {
 
 /** One bucket of the Navigate summary (Business Central's "Navigate" action) — a count plus
  *  the entries themselves, for a document/table related to the journal being inspected. */
-export interface JournalRelatedBucket {
+interface JournalRelatedBucket {
   entries: JournalRelatedEntry[];
 }
 

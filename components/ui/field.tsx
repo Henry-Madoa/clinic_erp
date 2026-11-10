@@ -6,13 +6,13 @@ import {
   EMAIL_PATTERN, EMAIL_TITLE, PHONE_PATTERN, PHONE_TITLE, isEmail, isPhone, phoneDigits,
 } from '@/lib/validate';
 
-export type FieldType =
+type FieldType =
   | 'text' | 'password' | 'number' | 'date' | 'time' | 'email' | 'phone' | 'select' | 'textarea'
   | 'checkbox' | 'currency';
 
 export type SelectOption = string | { value: string | number | null; label: string; group?: string };
 
-export interface FieldProps {
+interface FieldProps {
   name: string;
   label: string;
   type?: FieldType;

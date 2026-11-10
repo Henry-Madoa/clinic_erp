@@ -8,7 +8,7 @@ export type EmployeeLedgerEntryType =
   | 'PAYROLL_CLAIM' | 'RECEIPT' | 'PAYMENT' | 'STAFF_CLAIM';
 
 /** The employee subledger — positive means the employee owes the company. */
-export interface EmployeeLedgerEntry {
+interface EmployeeLedgerEntry {
   id: number;
   employee_id: number;
   entry_type: EmployeeLedgerEntryType;
@@ -32,7 +32,7 @@ export interface EmployeeLedgerEntryView extends EmployeeLedgerEntry {
 export interface ImprestPurpose { code: string; description: string; status: 'ACTIVE' | 'INACTIVE' }
 
 export type ImprestRequestFor = 'Self' | 'Other';
-export type ImprestSurrenderStatus = 'Open' | 'Pending Approval' | 'Approved' | 'Closed';
+type ImprestSurrenderStatus = 'Open' | 'Pending Approval' | 'Approved' | 'Closed';
 export type ImprestSettlement = 'Receive Now' | 'Deduct from Payroll' | 'Pay Now' | 'Pay from Payroll';
 
 /**
@@ -124,7 +124,7 @@ export interface ImprestRequestView extends ImprestRequest {
 }
 
 /** AL Tab52203449 "Request Lines". */
-export interface ImprestRequestLine {
+interface ImprestRequestLine {
   id: number;
   request_no: string;
   line_no: number;
@@ -189,7 +189,7 @@ export interface PettyCashView extends PettyCash {
   lines: number;
 }
 
-export interface PettyCashLine {
+interface PettyCashLine {
   id: number;
   petty_cash_no: string;
   line_no: number;
@@ -251,7 +251,7 @@ export interface StaffClaimView extends StaffClaim {
   lines: number;
 }
 
-export interface StaffClaimLine {
+interface StaffClaimLine {
   id: number;
   claim_no: string;
   line_no: number;

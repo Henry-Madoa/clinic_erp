@@ -13,7 +13,6 @@ export function PostingGroupFormButton({ group, accounts, className = 'btn', chi
 }) {
   const [open, setOpen] = useState(false);
   const g = group ?? null;
-  const opts = accounts.map((a) => ({ value: a.id, label: `${a.code} — ${a.name}` }));
 
   return (
     <>

@@ -18,8 +18,8 @@
 import { all } from './db.ts';
 import type { SessionUser } from './types.ts';
 
-export type ObjectType = 'TABLE' | 'PAGE';
-export type Right = 'read' | 'insert' | 'modify' | 'delete';
+type ObjectType = 'TABLE' | 'PAGE';
+type Right = 'read' | 'insert' | 'modify' | 'delete';
 
 const humanize = (identifier: string): string => identifier
   .replace(/_/g, ' ')
@@ -43,7 +43,7 @@ export async function listPermissionTables(): Promise<{ name: string; label: str
     .map((r) => ({ name: r.table_name, label: humanize(r.table_name) }));
 }
 
-export interface PageObject {
+interface PageObject {
   code: string;
   label: string;
   route: string;
@@ -226,7 +226,7 @@ export const PAGES: PageObject[] = [
   { code: 'ADMIN_PAYROLL_TRANSACTION_CODES', label: 'Payroll Transaction Codes', route: '/admin/pool/hr-payroll/transaction-codes' },
 ];
 
-export interface ActionGrant {
+interface ActionGrant {
   page: string;
   tables: [table: string, right: Right][];
 }
@@ -242,8 +242,7 @@ export interface ActionGrant {
  * Two known bugs in the old catalogue are fixed as a side effect, not
  * carried forward: `ADMIN:CHANGE_LOG_MANAGE` was checked at 4 call sites but
  * never actually granted by any literal permission (only by the `*`
- * wildcard) — ADMIN_CHANGE_LOG_MANAGE below is real. `LOAN:WRITE_OFF` and
- * `REPORT:EXPORT` were declared and seeded but never checked anywhere —
+ * wildcard) — ADMIN_CHANGE_LOG_MANAGE below is real. `REPORT:EXPORT` was declared and seeded but never checked anywhere —
  * dropped, nothing maps to them.
  */
 export const ACTIONS = {
@@ -360,7 +359,6 @@ export const ACTIONS = {
       ['journal', 'insert'], ['journal_line', 'insert'], ['bank_account_ledger_entry', 'insert'],
     ],
   },
-
 
   // Till Closing — the cashier's end of day (lib/tillClosings.ts): cash count against the till's
   // ledger balance, variance booked to the organisation's shortage/overage accounts, cash handed
@@ -513,7 +511,7 @@ export const ACTIONS = {
   },
 
   // Receivables — Business Central Sales & Receivables (see lib/salesDocuments.ts,
-  // lib/cashReceipts.ts, lib/reminders.ts, lib/custLedger.ts). Sales documents are maker-checker
+  // lib/receipts.ts, lib/reminders.ts, lib/custLedger.ts). Sales documents are maker-checker
   // (Open -> Pending Approval -> Released -> Posted); posting a Sales Invoice / Credit Memo can
   // also move stock (Item lines) and dispose a fixed asset (Fixed Asset lines).
   RECEIVABLES_READ: {
@@ -585,7 +583,7 @@ export const ACTIONS = {
   },
 
   // Payables — Business Central Purchases & Payables (see lib/purchaseDocuments.ts,
-  // lib/paymentJournal.ts, lib/vendLedger.ts). The mirror of RECEIVABLES_*. Purchase documents
+  // lib/paymentVouchers.ts, lib/vendLedger.ts). The mirror of RECEIVABLES_*. Purchase documents
   // are maker-checker; posting a Purchase Invoice / Credit Memo can also receive stock (Item
   // lines) and acquire a fixed asset (Fixed Asset lines).
   PAYABLES_READ: {
@@ -854,8 +852,8 @@ export const ACTIONS = {
   ADMIN_AUDIT_VIEW: { page: 'ADMIN_AUDIT', tables: [['audit_log', 'read']] },
 
   // System Automation (Job Queue) — mirrors Business Central's Job Queue Entry: the admin sets
-  // up recurring background tasks (recurring billing, renewals, WIP, SLA and compliance — see
-  // lib/jobQueue.ts's JOB_HANDLERS) that the in-process scheduler (instrumentation.ts) polls and runs unattended.
+  // up recurring background tasks (appointment reminders, the no-show sweep, stale visits and
+  // session purging — see lib/jobQueue.ts's JOB_HANDLERS) that the in-process scheduler (instrumentation.ts) polls and runs unattended.
   // One grant covers the whole screen, including manually running an entry on demand — same
   // shape ACCOUNT_ACTIVATION_APPROVE bundles its own posting rights under a single action.
   // Business Central Web Services (Admin Centre → Integration): registering objects
@@ -1295,7 +1293,7 @@ export type ActionKey = keyof typeof ACTIONS;
 
 /* --------------------------------------------------------------- checks */
 
-export function canTable(user: SessionUser | null | undefined, table: string, right: Right): boolean {
+function canTable(user: SessionUser | null | undefined, table: string, right: Right): boolean {
   if (!user) return false;
   if (user.is_system) return true;
   return !!user.permissionSet.tables[table]?.[right];
@@ -1308,17 +1306,8 @@ export function canPage(user: SessionUser | null | undefined, page: string): boo
 }
 
 /** The screens inside a module page — the tabs of /receivables, /payables, and so on. */
-export function childPages(parent: string): PageObject[] {
+function childPages(parent: string): PageObject[] {
   return PAGES.filter((p) => p.parent === parent);
-}
-
-/**
- * Which of a module's tabs this user may open, keyed by the tab's page code. A module's tab strip
- * is built from this so a screen the user cannot execute is not offered, and the module's default
- * tab can fall through to the first one they can.
- */
-export function allowedChildPages(user: SessionUser | null | undefined, parent: string): Set<string> {
-  return new Set(childPages(parent).filter((p) => canPage(user, p.code)).map((p) => p.code));
 }
 
 export function canAction(user: SessionUser | null | undefined, key: ActionKey): boolean {

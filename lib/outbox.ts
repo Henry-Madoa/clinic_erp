@@ -22,7 +22,7 @@ import { one, all, run, audit } from './db.ts';
 import { AppError } from './errors.ts';
 import type { Actor, OutboxChannel, OutboxMessage, OutboxStatus } from './types.ts';
 
-export interface EnqueueInput {
+interface EnqueueInput {
   channel: OutboxChannel;
   recipient: string;
   subject?: string | null;
@@ -110,7 +110,7 @@ export async function dispatchOutbox(limit = 200): Promise<{ sent: number; retri
 
 /* ------------------------------------------------------------------ admin */
 
-export interface OutboxStats { queued: number; failed: number; sent_today: number }
+interface OutboxStats { queued: number; failed: number; sent_today: number }
 export const outboxStats = async (): Promise<OutboxStats> => {
   const r = await one<{ queued: number; failed: number; sent_today: number }>(
     `SELECT COUNT(*) FILTER (WHERE status IN ('QUEUED', 'SENDING')) AS queued,
@@ -130,7 +130,7 @@ export const listOutbox = (status?: OutboxStatus | 'ALL', search = '', limit = 3
     { like: `%${search.trim()}%`, status: status ?? null, limit },
   );
 
-export const getOutboxMessage = (id: number): Promise<OutboxMessage | undefined> => one<OutboxMessage>('SELECT * FROM message_outbox WHERE id = ?', id);
+const getOutboxMessage = (id: number): Promise<OutboxMessage | undefined> => one<OutboxMessage>('SELECT * FROM message_outbox WHERE id = ?', id);
 
 /** Put a FAILED (or CANCELLED) message back in the queue and try it now. */
 export async function retryMessage(id: number, user: Actor): Promise<{ ok: boolean; error?: string }> {

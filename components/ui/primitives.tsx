@@ -105,7 +105,7 @@ export const Spacer = () => <div className="spacer" />;
  * The pairs are keyed Fragments rather than wrapper elements — `.dl` is a
  * two-column grid and any real wrapper would become the grid item instead.
  */
-export type DefinitionItem = [term: ReactNode, value: ReactNode] | null | false | undefined;
+type DefinitionItem = [term: ReactNode, value: ReactNode] | null | false | undefined;
 
 export function DefinitionList({ items }: { items: DefinitionItem[] }) {
   return (

@@ -12,7 +12,6 @@ import { Card, EmptyState, Pill, TableWrap, Tabs, Toolbar, Spacer, type TabDefin
 import { SearchInput } from '@/components/ui/filters';
 import { DynamicFilterBar } from '@/components/ui/dynamic-filter';
 import { ExportButton } from '@/components/ui/export-button';
-import { SortLink } from '@/components/ui/sort-link';
 import { NewEditRequestButton, SubmitEditButton, DeleteEditButton, CancelEditApprovalButton, ApplyEditButton } from '../edit-actions';
 
 const TABS: TabDefinition[] = [

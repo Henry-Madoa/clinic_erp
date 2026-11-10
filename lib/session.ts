@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import { cache } from 'react';
 import { redirect } from 'next/navigation';
 import { SESSION_COOKIE, userFromToken } from './auth.ts';
-import { ACTIONS, canAction, canPage, canTable, type ActionKey, type Right } from './permissions.ts';
+import { ACTIONS, canAction, canPage, type ActionKey } from './permissions.ts';
 import { ForbiddenError } from './errors.ts';
 import type { SessionUser } from './types.ts';
 
@@ -24,13 +24,6 @@ export const getCurrentUser = cache(async (): Promise<SessionUser | null> => {
 export async function requireUser(): Promise<SessionUser> {
   const user = await getCurrentUser();
   if (!user) redirect('/login');
-  return user;
-}
-
-/** The current user, or a thrown ForbiddenError if they lack `right` on `table`. */
-export async function requireTable(table: string, right: Right): Promise<SessionUser> {
-  const user = await requireUser();
-  if (!canTable(user, table, right)) throw new ForbiddenError(`${table}:${right}`);
   return user;
 }
 
@@ -68,11 +61,6 @@ export async function requireAnyAction(...keys: ActionKey[]): Promise<SessionUse
 export async function currentCanAnyAction(...keys: ActionKey[]): Promise<boolean> {
   const user = await getCurrentUser();
   return keys.some((k) => canAction(user, k));
-}
-
-/** Non-throwing page-execute check for the current user — for UI visibility only. */
-export async function currentCanPage(page: string): Promise<boolean> {
-  return canPage(await getCurrentUser(), page);
 }
 
 /**

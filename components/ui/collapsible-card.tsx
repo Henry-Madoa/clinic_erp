@@ -3,7 +3,7 @@
 import { useState, type ReactNode } from 'react';
 import { Card } from './primitives';
 
-export interface CollapsibleCardProps {
+interface CollapsibleCardProps {
   title: ReactNode;
   sub?: ReactNode;
   /** Collapsed on first render — the default is expanded. */

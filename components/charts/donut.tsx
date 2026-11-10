@@ -8,13 +8,13 @@ import type { Cents } from '@/lib/types';
 /** SVG coordinates to 3 decimals — identical on server and client, invisible on screen. */
 const pt = (n: number): string => n.toFixed(3);
 
-export interface DonutSegment {
+interface DonutSegment {
   label: string;
   value: Cents;
   color: string;
 }
 
-export interface DonutProps {
+interface DonutProps {
   segments: DonutSegment[];
   size?: number;
   thickness?: number;

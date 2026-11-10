@@ -6,8 +6,3 @@
  */
 export type DocumentStatus =
   | 'Open' | 'Pending Approval' | 'Approved' | 'Processed';
-
-/** The channel money came in or went out through. */
-
-/** How a payment was actually made. */
-export type PayMode = 'CASH' | 'MPESA' | 'BANK' | 'EFT' | 'CHEQUE' | 'CARD';

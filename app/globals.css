@@ -131,7 +131,6 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
 .login-kicker, .login-card-kicker { text-transform: uppercase; letter-spacing: .32em; font-size: 11px; font-weight: 600; color: var(--login-gold); }
 .login-kicker { margin-bottom: 10px; }
 .login-brand h1 { font-family: var(--login-serif); font-weight: 600; font-size: clamp(30px, 3.4vw, 46px); letter-spacing: .2px; line-height: 1.12; margin-bottom: 0; }
-.login-rule { width: 72px; height: 2px; margin: 18px 0 16px; background: linear-gradient(90deg, var(--login-gold), transparent); }
 .login-brand .motto { font-family: var(--login-serif); font-style: italic; font-size: 20px; opacity: .92; }
 .login-card h2 { font-family: var(--login-serif); font-weight: 600; font-size: 30px; margin: 6px 0 4px; }
 .login-card-kicker { color: var(--brand-primary); }
@@ -149,7 +148,7 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
   padding: clamp(48px, 8svh, 64px) 16px 12px;
   background:
     linear-gradient(rgb(6 25 32 / var(--login-shade, .45)), rgb(6 25 32 / var(--login-shade, .45))),
-    #103842 var(--login-bg, url('/login-pharmacy.jpg')) center / cover no-repeat;
+    #103842 var(--login-bg, none) center / cover no-repeat;
 }
 .login-entry .login-brand {
   align-items: center;
@@ -505,11 +504,6 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
 .grid.split-aside { grid-template-columns: minmax(0, 1fr) 320px; }
 .grid.split-aside-lg { grid-template-columns: minmax(0, 1fr) 340px; }
 .stack-2 { margin-bottom: calc(var(--sp) * 2); }
-/* Card-width-responsive, unlike .g2/.g3/.g4 (which only ever respond to the *viewport*, not the
-   card's own rendered width) — for a metrics row living inside a card that's been paired
-   side-by-side with another and so is only ever half the page wide regardless of viewport, this
-   still wraps to fewer columns instead of squeezing every cell down to an unreadable sliver. */
-.grid.auto-fit { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); }
 @media (max-width: 1100px) { .g4, .g3 { grid-template-columns: repeat(2, minmax(0,1fr)); } }
 @media (max-width: 900px) {
   .grid.split-wide, .grid.split-narrow, .grid.split-side, .grid.split-side-sm,
@@ -539,7 +533,6 @@ tbody tr:last-child td { border-bottom: none; }
 tbody tr.clickable { cursor: pointer; }
 tbody tr.clickable:hover { background: var(--surface-2); }
 tbody tr.muted { opacity: .55; }
-tbody tr.struck { opacity: .5; text-decoration: line-through; }
 tbody tr.header-row { background: var(--surface-2); font-weight: 600; }
 .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .pos { color: var(--success); }
@@ -575,11 +568,6 @@ tbody tr.header-row { background: var(--surface-2); font-weight: 600; }
 .line-rows-grid td input:not([type=checkbox]), .line-rows-grid td select { min-width: 120px; }
 .line-rows-grid td input[type=date] { min-width: 150px; }
 .line-rows-grid td input[type=number] { min-width: 90px; }
-/* Caps a long list's height and scrolls internally instead of pushing the rest of the card
-   (and the page) down — the table's own header row stays put as you scroll its body. */
-.scroll-list { max-height: 260px; overflow-y: auto; }
-.scroll-list .table-wrap { margin: 0; padding: 0; }
-.scroll-list thead th { position: sticky; top: 0; background: var(--surface); z-index: 1; }
 /* Sortable column headers — the whole cell is the button */
 th.th-sort { padding: 0; }
 th.th-sort > button { all: unset; display: flex; align-items: center; gap: 5px; width: 100%; box-sizing: border-box;
@@ -695,8 +683,7 @@ input[type=checkbox]:disabled { opacity: .5; cursor: not-allowed; }
 .pill.bad { background: color-mix(in srgb, var(--danger) 12%, transparent); color: var(--danger); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
 .pill.info { background: var(--brand-primary-soft); color: var(--brand-primary); border-color: color-mix(in srgb, var(--brand-primary) 35%, transparent); }
 
-/* Multi-select filter chips (components/ui/multi-select-filter.tsx) — reuses the .pill shape
-   with a small inline remove button. */
+/* Filter chips — reuse the .pill shape with a small inline remove button. */
 .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
 .pill.chip { display: inline-flex; align-items: center; gap: 5px; }
 .pill.chip button {
@@ -704,7 +691,6 @@ input[type=checkbox]:disabled { opacity: .5; cursor: not-allowed; }
   color: inherit; cursor: pointer;
 }
 .pill.chip button:hover { opacity: .7; }
-
 
 .tabs { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: calc(var(--sp) * 2.5); overflow-x: auto; }
 .tabs a, .tabs button {
@@ -829,22 +815,6 @@ input[type=checkbox]:disabled { opacity: .5; cursor: not-allowed; }
 .progress-row .progress { flex: 1; }
 .progress-pct { font-size: 12.5px; font-weight: 600; font-variant-numeric: tabular-nums; min-width: 38px; text-align: right; }
 
-.job-stages { display: flex; align-items: center; gap: 6px; margin-bottom: calc(var(--sp) * 1.5); flex-wrap: wrap; }
-.job-stage { font-size: 11px; font-weight: 600; color: var(--text-muted); padding: 3px 10px; border-radius: 999px; border: 1px solid var(--border); background: var(--surface-2); }
-.job-stage.active { color: var(--brand-primary); border-color: var(--brand-primary); background: var(--brand-primary-soft); }
-.job-stage.done { color: var(--success); border-color: color-mix(in srgb, var(--success) 35%, transparent); background: color-mix(in srgb, var(--success) 12%, transparent); }
-.job-stage-arrow { color: var(--text-muted); font-size: 11px; }
-
-.job-current { font-size: 13px; margin: calc(var(--sp) * 1.5) 0; padding: 10px 12px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); min-height: 46px; }
-.job-current .job-current-stage { color: var(--text-muted); font-size: 11.5px; margin-top: 2px; }
-
-.job-counters { display: flex; gap: calc(var(--sp) * 2); margin-top: calc(var(--sp) * 2); }
-.job-counter { text-align: center; flex: 1; padding: 8px; background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm); }
-.job-counter b { display: block; font-size: 19px; font-variant-numeric: tabular-nums; }
-.job-counter span { font-size: 10.5px; color: var(--text-muted); text-transform: uppercase; letter-spacing: .03em; }
-.job-counter.ok b { color: var(--success); }
-.job-counter.bad b { color: var(--danger); }
-
 /* charts */
 .chart { width: 100%; }
 .chart-legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--text-muted); margin-top: 10px; }
@@ -911,7 +881,6 @@ input[type=checkbox]:disabled { opacity: .5; cursor: not-allowed; }
   background: var(--surface-2); flex: none;
 }
 .profile-photo .avatar { width: 52px; height: 52px; font-size: 17px; }
-.profile-photo .photo-actions { display: flex; flex-direction: column; gap: 6px; }
 
 .biometric-grid { display: flex; flex-direction: column; gap: calc(var(--sp) * 1.5); }
 .biometric-slot { display: flex; gap: 10px; align-items: flex-start; }
@@ -924,18 +893,6 @@ input[type=checkbox]:disabled { opacity: .5; cursor: not-allowed; }
 .biometric-placeholder { font-size: 10.5px; color: var(--text-muted); text-align: center; }
 .biometric-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 6px; }
 .biometric-label { font-size: 12px; font-weight: 500; }
-
-.attach-add {
-  display: flex; gap: var(--sp); align-items: flex-end; flex-wrap: wrap;
-  padding-bottom: calc(var(--sp) * 1.5); margin-bottom: calc(var(--sp) * 1.5);
-  border-bottom: 1px solid var(--border);
-}
-.attach-add .attach-label { display: block; font-size: 12px; font-weight: 500; margin-bottom: 5px; }
-.attach-add select { width: auto; min-width: 170px; }
-@media (max-width: 620px) {
-  .attach-add { align-items: stretch; }
-  .attach-add select { width: 100%; }
-}
 
 .bar-row { display: grid; grid-template-columns: 1fr 90px; gap: 10px; align-items: center; font-size: 12.5px; padding: 5px 0; }
 .bar-row .head { display: flex; justify-content: space-between; margin-bottom: 4px; }
@@ -993,7 +950,6 @@ input[type=checkbox]:disabled { opacity: .5; cursor: not-allowed; }
   .toolbar input[type=text] { flex: 1 1 100%; min-width: 0; }
   .toolbar select { flex: 1 1 auto; min-width: 0; }
   .toolbar .spacer { display: none; }
-
 
   .sticky-card { position: static; }
 }
@@ -1269,7 +1225,6 @@ body.print-preview .card { border: none; padding: 0; }
 /* ------------------------------------------------------------------ company badge */
 /* Which company this browser is working in (components/layout/company-badge.tsx); a copy is
    marked TEST in the warning tone so nobody mistakes it for the live company. */
-.company-badge-wrap { position: relative; flex: none; }
 .company-badge {
   display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 10px; max-width: 220px;
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); color: var(--text);
@@ -1280,14 +1235,8 @@ a.company-badge { text-decoration: none; }
 .company-badge.test { background: color-mix(in srgb, var(--warning) 12%, transparent); border-color: color-mix(in srgb, var(--warning) 45%, transparent); }
 .company-badge-name { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .company-badge-tag { font-size: 10px; font-weight: 700; letter-spacing: .06em; padding: 1px 6px; border-radius: 10px; background: var(--warning); color: #fff; }
-.company-menu {
-  position: absolute; top: calc(100% + 6px); left: 0; min-width: 260px; z-index: 30; padding: 4px;
-  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,0,0,.18);
-  display: flex; flex-direction: column;
-}
-.company-menu .doc-actions-item.active { background: color-mix(in srgb, var(--brand-primary) 10%, transparent); }
 @media (max-width: 1500px) { .company-badge { max-width: 170px; } }
-@media (max-width: 1100px) { .company-badge-name { display: none; } .company-badge { padding: 0 8px; } .company-menu { left: auto; right: 0; } }
+@media (max-width: 1100px) { .company-badge-name { display: none; } .company-badge { padding: 0 8px; } }
 
 /* ------------------------------------------------------------------ user menu */
 /* The avatar and the menu under it (components/layout/user-menu.tsx): My Settings, theme, Sign out. */
@@ -1319,36 +1268,6 @@ a.company-badge { text-decoration: none; }
 .sign-out-item svg { flex: none; opacity: .8; }
 @media (max-width: 1280px) { .user-menu-btn .whoami { display: none; } }
 
-/* ---------------------------------------------------------------- assistant */
-.assistant-fab {
-  position: fixed; right: 18px; bottom: 18px; z-index: 60; width: 46px; height: 46px; border-radius: 50%;
-  border: 1px solid var(--border); background: var(--brand-primary); color: #fff; font-size: 20px; cursor: pointer;
-  box-shadow: 0 6px 20px rgba(0,0,0,.25); display: grid; place-items: center;
-}
-.assistant-fab:hover { filter: brightness(1.08); }
-.assistant-panel {
-  position: fixed; right: 18px; bottom: 74px; z-index: 60; width: min(420px, calc(100vw - 32px)); height: min(640px, calc(100vh - 100px));
-  display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius);
-  box-shadow: 0 12px 40px rgba(0,0,0,.3); overflow: hidden;
-}
-.assistant-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 10px 12px; border-bottom: 1px solid var(--border); }
-.assistant-list { flex: 1; overflow: auto; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-.assistant-empty { margin: auto 0; }
-.assistant-suggest { display: flex; flex-wrap: wrap; gap: 6px; }
-.assistant-suggest .btn { white-space: normal; text-align: left; }
-.assistant-turn { display: flex; flex-direction: column; max-width: 92%; }
-.assistant-turn.user { align-self: flex-end; align-items: flex-end; }
-.assistant-turn.assistant { align-self: flex-start; }
-.assistant-bubble { padding: 8px 11px; border-radius: 12px; font-size: 13px; line-height: 1.5; background: var(--surface-2); border: 1px solid var(--border); }
-.assistant-turn.user .assistant-bubble { background: var(--brand-primary-soft); border-color: transparent; }
-.assistant-bubble p { margin: 0 0 6px; } .assistant-bubble p:last-child { margin-bottom: 0; }
-.assistant-bubble ul { margin: 4px 0; padding-left: 18px; }
-.assistant-bubble code { font-family: var(--mono, ui-monospace, monospace); font-size: 12px; }
-.assistant-tools { margin: 0 0 3px 4px; }
-.assistant-input { display: flex; gap: 6px; padding: 10px; border-top: 1px solid var(--border); }
-.assistant-input input { flex: 1; }
-@media print { .assistant-fab, .assistant-panel { display: none !important; } }
-
 /* Budget matrix (app/budgets): compact cells, account column pinned while the months scroll. */
 .budget-grid { border-collapse: collapse; font-size: 12.5px; min-width: 100%; }
 .budget-grid th, .budget-grid td { padding: 3px 6px; border-bottom: 1px solid var(--line, #e5e9ee); white-space: nowrap; }
@@ -1361,41 +1280,7 @@ a.company-badge { text-decoration: none; }
 .callout.bad { background: color-mix(in srgb, var(--danger) 9%, var(--surface)); border-color: color-mix(in srgb, var(--danger) 35%, transparent); }
 .callout.ok { background: color-mix(in srgb, var(--success) 9%, var(--surface)); border-color: color-mix(in srgb, var(--success) 35%, transparent); }
 
-/* ── Operations: CRM pipeline board, stage track, project progress ───────────────────────── */
-.kanban { display: grid; grid-template-columns: repeat(4, minmax(220px, 1fr)); gap: var(--sp); overflow-x: auto; padding-bottom: 4px; }
-.kanban-col { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 8px; display: flex; flex-direction: column; gap: 8px; min-width: 0; }
-.kanban-head { padding: 4px 6px 8px; border-bottom: 1px solid var(--border); }
-.kanban-card { display: block; background: var(--surface); border: 1px solid var(--border); border-left: 3px solid var(--brand-primary); border-radius: var(--radius-sm);
-  padding: 8px 10px; color: inherit; text-decoration: none; }
-.kanban-card:hover { box-shadow: 0 2px 8px rgba(10, 37, 64, .08); border-color: var(--brand-primary); }
-.kanban-title { font-weight: 600; line-height: 1.3; overflow-wrap: anywhere; }
-@media (max-width: 900px) { .kanban { grid-template-columns: repeat(4, 240px); } }
-
-.stage-track { display: flex; gap: 4px; flex-wrap: wrap; }
-.stage-step { flex: 1 1 110px; text-align: center; padding: 6px 8px; font-size: 12.5px; background: var(--surface-2); border: 1px solid var(--border);
-  color: var(--text-muted); clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%, 10px 50%); }
-.stage-step.done { background: color-mix(in srgb, var(--success) 14%, var(--surface)); color: var(--success); }
-.stage-step.current { background: var(--brand-primary); color: var(--brand-on-primary); font-weight: 600; }
-
-.progress-line { position: relative; height: 26px; border-radius: var(--radius-sm); background: var(--surface-2); border: 1px solid var(--border); overflow: hidden; }
-.progress-line .progress-fill { position: absolute; inset: 0 auto 0 0; background: color-mix(in srgb, var(--brand-primary) 22%, transparent); }
-.progress-line span { position: relative; display: block; line-height: 24px; padding: 0 10px; }
-
-/* Rows edited in place under the row (components/ui/row-editor.tsx). */
-tr.row-editor > td { background: var(--surface-2); padding: 12px; border-left: 3px solid var(--brand-primary); }
-tr.row-strong > td { font-weight: 600; background: color-mix(in srgb, var(--surface-2) 70%, transparent); }
-td.row-actions { white-space: nowrap; text-align: right; }
-td.row-actions .btn + .btn, td.row-actions .btn + button { margin-left: 4px; }
-
-/* The timesheet week grid and the contract lines grid. */
-.ts-grid select, .ts-grid input[type=text] { width: 100%; min-width: 0; }
-.ts-grid td.num input { width: 58px; text-align: right; padding: 4px; }
-.ts-grid input.invalid { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 8%, var(--surface)); }
-.ts-grid td.center { text-align: center; }
-
 /* Ticket conversation. */
 .thread { display: flex; flex-direction: column; gap: 10px; }
-.thread-item { border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 8px 12px; background: var(--surface); }
-.thread-item.internal { background: color-mix(in srgb, var(--warning) 8%, var(--surface)); border-style: dashed; }
 .note-box { padding: 8px 12px; border-left: 3px solid var(--success); background: color-mix(in srgb, var(--success) 7%, var(--surface)); }
 .warn-text { color: var(--warning); }

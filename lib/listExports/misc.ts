@@ -4,7 +4,6 @@ import { getOpenPayrollPeriod, listPeriodTransactions } from '../payroll.ts';
 import { listEmployees } from '../employees.ts';
 import { filterRows, type FilterFieldDef } from '../listFilters.ts';
 import { defineExport, money } from '../listExport.ts';
-import { humanise } from '../format.ts';
 
 /* These lists load whole (or are the recent window the screen shows), so their dynamic filters
    run in memory (lib/listFilters.ts filterRows) against these allow-lists. */
@@ -28,8 +27,7 @@ export const PAYROLL_RUN_FILTER_FIELDS: FilterFieldDef[] = [
   { key: 'net_pay', label: 'Net pay', type: 'number', cents: true },
 ];
 
-
-export interface PayrollRunRow {
+interface PayrollRunRow {
   id: number; employee_no: string; first_name: string; last_name: string; global_dimension_2_name: string | null;
   /** This run's net pay; null until payroll has run for the employee. */
   net_pay: number | null;
@@ -55,9 +53,6 @@ export async function payrollRunRows(): Promise<{ period: Awaited<ReturnType<typ
 
 export const MISC_EXPORTS = {
 
-
-
-
   budgets: defineExport({
     action: 'GL_BUDGETS_READ',
     sheet: 'Budgets', filename: 'budgets.xlsx',
@@ -74,8 +69,6 @@ export const MISC_EXPORTS = {
       { header: 'Created by', key: 'created_by', value: (b) => b.created_by },
     ],
   }),
-
-
 
   'financial-reports': defineExport({
     action: 'FINANCIAL_REPORTS_READ',

@@ -27,7 +27,7 @@ import type { Actor, Cents, FaDepreciationMethod, FaDepreciationSuggestion, IsoD
 /** Business Central's 30/360 day count between two ISO dates (from exclusive of nothing —
  *  both endpoints are real posting dates; BC counts the interval inclusive of the start day's
  *  remaining life, i.e. the plain difference). Clamps day-of-month to 30. */
-export function depreciationDays(fromDate: IsoDate, toDate: IsoDate): number {
+function depreciationDays(fromDate: IsoDate, toDate: IsoDate): number {
   if (!fromDate || !toDate || toDate <= fromDate) return 0;
   const [y1, m1, d1raw] = fromDate.split('-').map(Number);
   const [y2, m2, d2raw] = toDate.split('-').map(Number);
@@ -36,7 +36,7 @@ export function depreciationDays(fromDate: IsoDate, toDate: IsoDate): number {
   return (y2 - y1) * 360 + (m2 - m1) * 30 + (d2 - d1);
 }
 
-export interface DepreciationInputs {
+interface DepreciationInputs {
   depreciation_method: FaDepreciationMethod;
   depreciation_starting_date: IsoDate | null;
   depreciation_ending_date: IsoDate | null;
@@ -53,7 +53,7 @@ export interface DepreciationInputs {
   disposed: 0 | 1;
 }
 
-export interface DepreciationResult {
+interface DepreciationResult {
   /** Negative — the amount to post as a Depreciation FA Journal line (its own `amount` field is
    *  the absolute value; this is the signed ledger effect). */
   amount: Cents;
@@ -78,7 +78,7 @@ function straightLineYearRate(b: DepreciationInputs): number {
  * so it is safe to call speculatively (a live preview) as well as authoritatively (the batch and
  * postFaJournalLine). Returns zero for a Manual book, a disposed asset, or when nothing is due.
  */
-export function computeDepreciation(
+function computeDepreciation(
   b: DepreciationInputs, upToDate: IsoDate, finalRoundingAmount: Cents = 0,
 ): DepreciationResult {
   const zero: DepreciationResult = { amount: 0, days: 0, newBookValue: b.book_value };

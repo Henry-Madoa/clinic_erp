@@ -50,7 +50,7 @@ async function assertBillOpen(visitId: number): Promise<void> {
 
 /* ------------------------------------------------------------------ charges */
 
-export interface ChargeInput {
+interface ChargeInput {
   serviceItemId: number;
   quantity?: number;
   sourceType: ChargeSource;
@@ -380,7 +380,7 @@ export async function collectionsSummary(from: string, to: string): Promise<{
 }
 
 /** Visits with something to collect — the cashier's queue. */
-export interface CashierRow {
+interface CashierRow {
   visit_id: number; visit_no: string; visit_date: string; mrn: string; patient_name: string; payment_mode: string; scheme_name: string | null;
   stage: string; status: string; gross: Cents; paid: Cents; bill_no: string | null; bill_status: string | null; patient_share: Cents | null;
 }

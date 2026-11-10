@@ -8,12 +8,9 @@ import { updateOrg, getOrg } from '@/lib/org';
 import { setUserSignature } from '@/lib/userSignatures';
 import { setEmployeeImage } from '@/lib/employees';
 import { setEditRequestImage } from '@/lib/employeeEdits';
-import {
-  recordAttachment, deleteAttachment, listAttachments,
-} from '@/lib/attachments';
 import type { ActionKey } from '@/lib/permissions';
 import type {
-  ActionResult, Attachment, AttachmentEntity, Organisation, UploadSignature, UploadedFile,
+  ActionResult, AttachmentEntity, Organisation, UploadSignature, UploadedFile,
 } from '@/lib/types';
 
 /** The action that governs writing media onto each kind of record. */
@@ -42,14 +39,6 @@ const ATTACHMENT_ACTION: Record<AttachmentEntity, ActionKey> = {
   vendor: 'PAYABLES_VENDOR_MANAGE',
 };
 
-const ATTACHMENT_PATH: Record<AttachmentEntity, (id: number) => string> = {
-  patient: () => '/patients',
-  visit: () => '/visits',
-  imaging_order: () => '/imaging',
-  insurance_claim: () => '/claims',
-  customer: () => '/receivables',
-  vendor: () => '/payables',
-};
 
 function attachmentAction(entity: unknown): ActionKey {
   // The entity arrives from the browser — only a known one names a permission.
@@ -217,47 +206,5 @@ export async function saveEmployeeEditImage(
     revalidatePath('/self-service/record');
     revalidatePath('/self-service/employee-editing');
     return { value };
-  });
-}
-
-/* ------------------------------------------------------------ attachments */
-
-export async function addAttachment(
-  entity: AttachmentEntity,
-  entityId: number,
-  file: UploadedFile,
-  category: string,
-): Promise<ActionResult<Attachment>> {
-  return actionResult(async () => {
-    const user = await requireAction(attachmentAction(entity));
-    if (!Number.isInteger(entityId) || entityId <= 0) throw new AppError('Invalid record', 'VALIDATION');
-    const asset = await verifyUpload(file.publicId, 'attachment', file.resourceType);
-    const saved = await recordAttachment({
-      entity,
-      entityId,
-      asset,
-      filename: String(file.originalFilename || asset.public_id.split('/').pop() || 'file').slice(0, 200),
-      category: String(category || '').slice(0, 80) || null,
-    }, user);
-    revalidatePath(ATTACHMENT_PATH[entity](entityId));
-    return saved;
-  });
-}
-
-export async function removeAttachment(
-  entity: AttachmentEntity,
-  entityId: number,
-  attachmentId: number,
-): Promise<ActionResult<{ deleted: true }>> {
-  return actionResult(async () => {
-    const user = await requireAction(attachmentAction(entity));
-    // Confirm the attachment really belongs to the record named in the URL,
-    // so an id from another record's file cannot be deleted through this page.
-    const owned = (await listAttachments(entity, entityId)).some((a) => a.id === attachmentId);
-    if (!owned) throw new AppError('Attachment not found on this record', 'NOT_FOUND');
-
-    const result = await deleteAttachment(attachmentId, user);
-    revalidatePath(ATTACHMENT_PATH[entity](entityId));
-    return result;
   });
 }

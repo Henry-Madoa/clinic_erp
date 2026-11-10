@@ -21,7 +21,7 @@ import type { FilterFieldDef } from './listFilters.ts';
  * shrinkage is the gap.
  */
 
-export interface StockCount {
+interface StockCount {
   id: number; no: string; location_id: number; location_code: string; location_name: string; count_date: IsoDate;
   status: 'OPEN' | 'POSTED' | 'CANCELLED'; notes: string | null; total_variance: Cents; journal_no: string | null;
   created_at: string; created_by: string; posted_at: string | null; posted_by: string | null;

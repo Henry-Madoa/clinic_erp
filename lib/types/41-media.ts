@@ -1,5 +1,4 @@
 /* media — split out of lib/types.ts; import from '@/lib/types', never from here directly. */
-import type { IsoDateTime } from '../types.ts';
 
 /* ------------------------------------------------------------------- media */
 
@@ -35,20 +34,3 @@ export interface UploadedFile {
 }
 
 export type AttachmentEntity = 'patient' | 'visit' | 'imaging_order' | 'insurance_claim' | 'customer' | 'vendor';
-
-export interface Attachment {
-  id: number;
-  entity: AttachmentEntity;
-  entity_id: number;
-  /** Cloudinary public_id — the handle used to transform and to delete. */
-  public_id: string;
-  url: string;
-  filename: string;
-  /** 'image' or 'raw', as Cloudinary classified it. */
-  resource_type: string;
-  format: string | null;
-  bytes: number;
-  category: string | null;
-  uploaded_at: IsoDateTime;
-  uploaded_by: string;
-}

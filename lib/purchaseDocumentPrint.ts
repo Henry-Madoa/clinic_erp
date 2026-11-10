@@ -17,7 +17,7 @@ import { getPurchaseDocument } from './purchaseDocuments.ts';
 import { formatDate } from './format.ts';
 import { amountInWords } from './numberToWords.ts';
 import {
-  printBrand, documentSignatories, documentMoney, currencyLabel, renderDocument,
+  printBrand, documentSignatories, documentMoney, currencyLabel,
 } from './documentPrint.ts';
 import type { PrintDocument, PrintColumn, PrintRow, PrintParty } from './documentPrint.ts';
 import type {
@@ -25,7 +25,6 @@ import type {
   PostedPurchaseDocumentType, PurchaseLine,
 } from './types.ts';
 
-export { renderDocument };
 
 const WORKING_TITLE: Record<PurchaseDocumentType, string> = {
   Quote: 'Request for Quotation',
@@ -96,7 +95,6 @@ function deliverToParty(brand: NonNullable<Awaited<ReturnType<typeof printBrand>
     lines: [...brand.address_lines, ...brand.contact_lines],
   };
 }
-
 
 /* --------------------------------------------------------------- working documents */
 

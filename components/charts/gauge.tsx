@@ -6,7 +6,7 @@
  * and a status colour + word (never colour alone — dataviz skill: status is reserved and always
  * labelled). Not a chart with many marks, so no hover layer.
  */
-export interface GaugeProps {
+interface GaugeProps {
   /** The measured value, already a percentage (e.g. 17.4 for 17.4%). */
   value: number;
   /** The regulatory minimum (or, when higherIsWorse, maximum). */

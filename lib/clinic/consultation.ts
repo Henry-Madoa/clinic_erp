@@ -15,7 +15,7 @@ import { FREQUENCIES, ROUTES } from './setup.ts';
 import type { Actor, ClinicalDocument, Consultation, Diagnosis, ImagingOrder, PrescriptionLine, ProcedureRecord } from '../types.ts';
 
 export const MODALITIES = ['XRAY', 'ULTRASOUND', 'OPG', 'CBCT', 'ECG', 'CT', 'MRI'] as const;
-export const LAB_PRIORITIES = ['ROUTINE', 'URGENT', 'STAT'] as const;
+const LAB_PRIORITIES = ['ROUTINE', 'URGENT', 'STAT'] as const;
 
 async function openVisit(visitNo: string): Promise<{ id: number; patient_id: number; department_code: string; status: string }> {
   const v = await one<{ id: number; patient_id: number; department_code: string; status: string }>('SELECT id, patient_id, department_code, status FROM visit WHERE no = ?', visitNo);
@@ -156,7 +156,7 @@ export const listVisitImaging = (visitId: number): Promise<ImagingOrder[]> => al
 export interface PrescriptionDraftLine { drug_id: number; dose: string; route: string; frequency: string; duration_days: number; quantity?: number; instructions?: string }
 
 /** Quantity to dispense: dose units × times a day × days, for solid forms; 1 pack otherwise. */
-export function suggestQuantity(form: string, dose: string, frequency: string, days: number): number {
+function suggestQuantity(form: string, dose: string, frequency: string, days: number): number {
   const perDay = FREQUENCIES.find((f) => f.code === frequency)?.perDay ?? 1;
   if (!['TABLET', 'CAPSULE', 'SUPPOSITORY'].includes(form)) return 1;
   const units = Number(String(dose).match(/^\s*(\d+(?:\.\d+)?)/)?.[1] ?? 1);

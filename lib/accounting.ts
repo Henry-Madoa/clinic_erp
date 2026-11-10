@@ -315,7 +315,7 @@ async function reverseJournalInTx(
   return rev;
 }
 
-export interface TrialBalanceOptions {
+interface TrialBalanceOptions {
   /** Only sum activity on/after this date. Left unset, the report is the usual cumulative
    *  Balance at Date; paired with `asOf`, it becomes a Net Change (period) trial balance —
    *  Business Central's Date Filter FlowField applied to a G/L account's Net Change. */
@@ -376,17 +376,6 @@ export async function trialBalance({
   });
 }
 
-/** Balance of a single account from posted journal lines (the authoritative read). */
-export async function accountBalance(code: string): Promise<Cents> {
-  const row = await one<{ type: GlAccountType; d: Cents; c: Cents }>(
-    `SELECT a.type, COALESCE(SUM(jl.debit_lcy),0) d, COALESCE(SUM(jl.credit_lcy),0) c
-     FROM gl_account a LEFT JOIN journal_line jl ON jl.gl_account_id = a.id
-     WHERE a.code = ? GROUP BY a.id`,
-    code,
-  );
-  if (!row) return 0;
-  return NATURAL_DEBIT.has(row.type) ? row.d - row.c : row.c - row.d;
-}
 
 /**
  * Balances for several accounts in one round trip.

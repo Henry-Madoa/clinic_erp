@@ -1,7 +1,7 @@
 {
   "name": "clinic_erp",
   "version": "1.0.0",
-  "description": "Calbytes ERP — business management for a software engineering company (CRM, projects, timesheets, service desk, contracts & recurring billing, finance, HR & payroll, company secretarial & compliance)",
+  "description": "Wayside Clinic — outpatient and dental clinic management on an ERP core (finance, HR & payroll, inventory, fixed assets, cash management)",
   "private": true,
   "type": "module",
   "scripts": {
@@ -29,7 +29,6 @@
     "qrcode": "^1.5.4",
     "react": "19.3.0",
     "react-dom": "19.3.0",
-    "resend": "^6.19.0",
     "server-only": "^0.0.1"
   },
   "devDependencies": {

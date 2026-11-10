@@ -20,7 +20,7 @@ export const AGED_AP_FILTER_FIELDS: FilterFieldDef[] = [
   { key: 'city', label: 'City', type: 'text', column: 'v.city' },
 ];
 
-export interface GetAgedAPOptions {
+interface GetAgedAPOptions {
   asOf?: IsoDate;
   agingBy?: 'Due Date' | 'Posting Date';
   periodLength?: string;
@@ -92,15 +92,6 @@ export async function getAgedAccountsPayable(
     rows,
     totals,
   };
-}
-
-/** Total open payables at a date — should tie to (Σ Vendor Posting Group payables accounts) on
- *  the trial balance. */
-export async function payablesTotal(asOf: IsoDate): Promise<Cents> {
-  const row = await one<{ total: Cents }>(
-    'SELECT COALESCE(SUM(remaining_amount_lcy), 0) AS total FROM vendor_ledger_entry WHERE open = 1 AND posting_date <= ?', asOf,
-  );
-  return row?.total ?? 0;
 }
 
 /* ------------------------------------------------------------- vendor statement */

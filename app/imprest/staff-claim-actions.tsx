@@ -100,7 +100,7 @@ function ClaimFields({ lookups, initial, lines, setLines }: {
   );
 }
 
-export const claimLinesOf = (c: StaffClaimDetail): StaffClaimLineDraft[] =>
+const claimLinesOf = (c: StaffClaimDetail): StaffClaimLineDraft[] =>
   c.line_items.length ? c.line_items.map((l) => ({
     glAccountCode: l.gl_account_code, narration: l.narration ?? '', expenseDate: l.expense_date ?? '', receiptRef: l.receipt_ref ?? '',
     quantity: String(l.quantity), unitCost: l.unit_cost ? toTwoDp(String(l.unit_cost / 100)) : '', amount: toTwoDp(String(l.amount / 100)),

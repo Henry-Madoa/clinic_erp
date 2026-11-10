@@ -141,41 +141,12 @@ export function formatDateFilterExpression(from: string | null | undefined, to: 
   return '';
 }
 
-/** "24 Aug 2026 09:05:19 +03:00" in the company's own timezone, regardless of what timezone the
- *  rendering server happens to be in — a printed statement's "Date & Time generated" must not
- *  drift with where the Next.js process is hosted. */
-export function formatStatementTimestamp(d: Date = new Date()): string {
-  const parts = new Intl.DateTimeFormat('en-KE', {
-    timeZone: 'Africa/Nairobi', day: '2-digit', month: 'short', year: 'numeric',
-    hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
-  }).formatToParts(d);
-  const get = (type: string) => parts.find((p) => p.type === type)?.value ?? '';
-  return `${get('day')} ${get('month')} ${get('year')} ${get('hour')}:${get('minute')}:${get('second')} +03:00`;
-}
-
-/** Whole years between a date of birth and today — the employee and HR printouts'
- *  "Age" field, since the member table stores date_of_birth, not a pre-computed age. */
-export function ageFromDob(dob: string | null | undefined): number | null {
-  if (!dob) return null;
-  const birth = new Date(dob);
-  if (Number.isNaN(birth.getTime())) return null;
-  const now = new Date();
-  let age = now.getFullYear() - birth.getFullYear();
-  const beforeBirthdayThisYear = now.getMonth() < birth.getMonth()
-    || (now.getMonth() === birth.getMonth() && now.getDate() < birth.getDate());
-  if (beforeBirthdayThisYear) age--;
-  return age;
-}
-
 export const initials = (name: string | null | undefined): string =>
   String(name || '?').trim().split(/\s+/).slice(0, 2).map((x) => x[0]).join('').toUpperCase();
 
 /** Shillings typed by a user -> integer cents. */
 export const toCents = (v: string | number | null | undefined): Cents =>
   Math.round(Number(String(v ?? 0).replace(/,/g, '') || 0) * 100);
-
-/** Integer cents -> the decimal string a number input expects. */
-export const toUnits = (cents: Cents | null | undefined): string => (Number(cents || 0) / 100).toFixed(2);
 
 export type Tone = '' | 'ok' | 'warn' | 'bad' | 'info' | 'accent';
 
@@ -188,7 +159,7 @@ const STATUS_TONE: Record<string, Tone> = {
   SUBSTANDARD: 'warn', REFERRED: 'warn', 'PENDING APPROVAL': 'warn',
   REJECTED: 'bad', REVERSED: 'bad', SUSPENDED: 'bad', FROZEN: 'bad', DOUBTFUL: 'bad', LOSS: 'bad',
   WRITTEN_OFF: 'bad', 'WRITTEN OFF': 'bad', EXITED: 'bad', DISABLED: 'bad', INACTIVE: 'bad',
-  // "Document Status" values (e.g. member_application.status) are Title Case, not SCREAMING_CASE.
+  // "Document Status" values (e.g. a requisition status) are Title Case, not SCREAMING_CASE.
   Open: 'ok', Approved: 'ok', Processed: 'ok', Fulfilled: 'ok', Cleared: 'ok', Received: 'ok', Posted: 'ok',
   'Pending Approval': 'warn', 'Pending Prepayment': 'warn', Running: 'warn',
   Rejected: 'bad', Reversed: 'bad', Terminated: 'bad', Bounced: 'bad',

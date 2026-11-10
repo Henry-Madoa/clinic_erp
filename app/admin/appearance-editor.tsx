@@ -17,7 +17,7 @@ function toHex(value: string | undefined): string {
   return '#000000';
 }
 
-export interface AppearanceEditorProps {
+interface AppearanceEditorProps {
   theme: Theme;
   presets: ThemePreset[];
   groups: TokenGroup[];
@@ -162,8 +162,8 @@ export function AppearanceEditor({ theme, presets, groups }: AppearanceEditorPro
           <div className="preview-frame">
             <div className="preview-nav">
               <div className="on">Dashboard</div>
-              <div className="off">Projects</div>
-              <div className="off">Timesheets</div>
+              <div className="off">Patients</div>
+              <div className="off">Appointments</div>
             </div>
             <div className="preview-body">
               <div className="preview-card">

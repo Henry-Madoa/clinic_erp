@@ -8,7 +8,7 @@ import { useChartTip } from './chart-tip';
  * its components. dataviz skill: 2px surface gap between segments, fixed --series colour order,
  * legend present, per-segment hover tooltip, one value axis.
  */
-export interface StackedSegment {
+interface StackedSegment {
   label: string;
   color: string;
   /** values[groupIndex] */

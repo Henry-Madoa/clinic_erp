@@ -160,7 +160,7 @@ function RequisitionFields({ type, lookups, initial, lines, setLines }: {
   );
 }
 
-export const linesOf = (r: RequisitionDetail): RequisitionLineDraft[] =>
+const linesOf = (r: RequisitionDetail): RequisitionLineDraft[] =>
   r.line_items.length ? r.line_items.map((l) => ({
     type: l.type, no: l.no, description: l.description, unitOfMeasureId: l.unit_of_measure_id ? String(l.unit_of_measure_id) : '',
     quantity: String(l.quantity), unitPrice: l.unit_price ? toTwoDp(String(l.unit_price / 100)) : '', locationId: l.location_id ? String(l.location_id) : '',

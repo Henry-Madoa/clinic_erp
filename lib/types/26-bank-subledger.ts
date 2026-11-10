@@ -79,11 +79,3 @@ export interface BankReconciliation {
   completed_at: IsoDateTime | null;
 }
 
-export interface BankReconciliationWorksheet {
-  reconciliation: BankReconciliation;
-  bankAccount: BankAccount;
-  entries: BankAccountLedgerEntryWithJournal[];
-  clearedTotal: Cents;
-  difference: Cents;
-}
-

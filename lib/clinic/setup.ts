@@ -121,7 +121,7 @@ export async function listServiceItems(opts: { q?: string; kind?: string; catego
     { q: qText(opts.q), kind: opts.kind ?? '', cat: opts.category ?? '', active: opts.activeOnly ? 1 : 0 },
   );
 }
-export const getServiceItem = (code: string): Promise<ServiceItem | undefined> => one<ServiceItem>('SELECT * FROM service_item WHERE code = ?', code);
+const getServiceItem = (code: string): Promise<ServiceItem | undefined> => one<ServiceItem>('SELECT * FROM service_item WHERE code = ?', code);
 
 export async function saveServiceItem(code: string | null, v: Record<string, unknown>, user: Actor): Promise<{ code: string }> {
   const name = req(v.name, 'Name', 120);
@@ -212,9 +212,6 @@ export async function priceFor(serviceItemId: number, priceListCode: string): Pr
 export const listSchemes = (activeOnly = false): Promise<InsuranceScheme[]> => all<InsuranceScheme>(
   `SELECT s.*, c.no AS customer_no, COALESCE(c.balance, 0) AS customer_balance FROM insurance_scheme s LEFT JOIN customer c ON c.id = s.customer_id
    WHERE (@active = 0 OR s.status = 'ACTIVE') ORDER BY CASE s.payer_type WHEN 'SHA' THEN 0 ELSE 1 END, s.name`, { active: activeOnly ? 1 : 0 },
-);
-export const getScheme = (id: number): Promise<InsuranceScheme | undefined> => one<InsuranceScheme>(
-  'SELECT s.*, c.no AS customer_no, COALESCE(c.balance, 0) AS customer_balance FROM insurance_scheme s LEFT JOIN customer c ON c.id = s.customer_id WHERE s.id = ?', id,
 );
 
 /** A new payer gets its own Receivables customer (claims are invoiced to it) and, unless one is named, the Cash tariff. */
@@ -343,7 +340,7 @@ export const listDrugs = (opts: { q?: string; activeOnly?: boolean } = {}): Prom
      AND (@a = 0 OR d.status = 'ACTIVE') ORDER BY d.generic_name, d.strength LIMIT 1000`,
   { q: qText(opts.q), a: opts.activeOnly ? 1 : 0 },
 );
-export const getDrug = (id: number): Promise<Drug | undefined> => one<Drug>(
+const getDrug = (id: number): Promise<Drug | undefined> => one<Drug>(
   `SELECT d.*, i.no AS item_no, COALESCE(i.inventory, 0) AS stock, COALESCE(s.base_price, 0) AS price, i.unit_cost, i.reorder_point
    FROM drug d JOIN item i ON i.id = d.item_id LEFT JOIN service_item s ON s.id = d.service_item_id WHERE d.id = ?`, id,
 );

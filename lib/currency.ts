@@ -9,7 +9,7 @@
  */
 import { one } from './db.ts';
 import { AppError } from './errors.ts';
-import type { Currency, IsoDate } from './types.ts';
+import type { IsoDate } from './types.ts';
 
 let baseCodeCache: string | null = null;
 
@@ -24,9 +24,6 @@ export async function baseCurrencyCode(): Promise<string> {
 
 export const isBaseCurrency = async (code: string | null | undefined): Promise<boolean> =>
   !code || code === (await baseCurrencyCode());
-
-export const getCurrency = (code: string): Promise<Currency | undefined> =>
-  one<Currency>('SELECT * FROM currency WHERE code = ?', code);
 
 /**
  * LCY per 1 unit of `currencyCode`, from the latest `currency_exchange_rate` starting on or

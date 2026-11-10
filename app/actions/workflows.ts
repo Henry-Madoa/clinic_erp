@@ -5,7 +5,7 @@ import { requireAction, requireUser } from '@/lib/session';
 import { actionResult } from '@/lib/errors';
 import * as workflow from '@/lib/workflow';
 import { decideWorkflowTask, delegateWorkflowTask, type DelegateTarget } from '@/lib/workflow';
-import type { ActionResult, DocumentTypeOption, FormValues, Workflow, WorkflowUserGroup } from '@/lib/types';
+import type { ActionResult, FormValues, Workflow, WorkflowUserGroup } from '@/lib/types';
 
 export async function saveWorkflow(
   id: number | null,
@@ -28,15 +28,6 @@ export async function saveWorkflow(
   });
 }
 
-/** The live document-type picker for the workflow creation form — every wired business document
- *  type plus every other document type an admin has registered under Table Relations (see
- *  listWorkflowDocumentTypes() in lib/workflow.ts), not every real table in the database. */
-export async function listWorkflowDocumentTypes(): Promise<ActionResult<DocumentTypeOption[]>> {
-  return actionResult(async () => {
-    await requireAction('ADMIN_WORKFLOWS_DEFINITIONS_MANAGE');
-    return workflow.listWorkflowDocumentTypes();
-  });
-}
 
 /** The condition fields currently enabled for a document type — fetched lazily as the workflow
  *  form's document-type selection changes, rather than precomputed for every document type up
@@ -121,8 +112,6 @@ export async function decideMyTask(
     const user = await requireUser();
     const result = await decideWorkflowTask(taskId, approve, comment.trim() || null, user);
     revalidatePath('/approvals');
-    revalidatePath('/timesheets');
-    revalidatePath('/contracts');
     revalidatePath('/accounting');
     return result;
   });
@@ -137,8 +126,6 @@ export async function delegateMyTask(taskId: number): Promise<ActionResult<Deleg
     const user = await requireUser();
     const target = await delegateWorkflowTask(taskId, user);
     revalidatePath('/approvals');
-    revalidatePath('/timesheets');
-    revalidatePath('/contracts');
     revalidatePath('/accounting');
     revalidatePath('/receivables');
     revalidatePath('/payables');

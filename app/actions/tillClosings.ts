@@ -5,7 +5,7 @@ import { requireAction, requireUser } from '@/lib/session';
 import { actionResult } from '@/lib/errors';
 import {
   createTillClosing, updateTillClosing, deleteTillClosing, setTillCount, refreshTillClosing, submitTillClosing, cancelTillClosingApproval,
-  approveTillClosing, rejectTillClosing, reopenTillClosing, postTillClosing, closableTillsForUser, tillDayFigures,
+  approveTillClosing, rejectTillClosing, reopenTillClosing, postTillClosing, tillDayFigures,
   type TillClosingInput, type PostTillClosingResult,
 } from '@/lib/tillClosings';
 import { findPendingRoutedTask, decideWorkflowTask } from '@/lib/workflow';
@@ -133,13 +133,6 @@ export async function postTillClosingRequest(no: string): Promise<ActionResult<P
     const res = await postTillClosing(no, user);
     revalidate(no);
     return res;
-  });
-}
-
-export async function myClosableTills() {
-  return actionResult(async () => {
-    const user = await requireAction('TILL_CLOSINGS_CREATE');
-    return closableTillsForUser(user.username);
   });
 }
 

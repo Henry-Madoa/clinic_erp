@@ -22,7 +22,7 @@ import { getOrg } from './org.ts';
 import { today } from './format.ts';
 import type { Actor, IsoDate } from './types.ts';
 
-export interface EffectivePostingRange {
+interface EffectivePostingRange {
   from: IsoDate | null;
   to: IsoDate | null;
   /** Only meaningful paired with `from`/`to` respectively — see the module doc comment. */

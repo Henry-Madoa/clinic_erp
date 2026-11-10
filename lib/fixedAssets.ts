@@ -7,7 +7,7 @@
  * hand. Depreciation-affecting fields on the FA Depreciation Book lock once depreciation has
  * been posted, mirroring how updateItem() locks the Costing Method after the first movement.
  */
-import { one, all, run, tx, nextSequence, audit, hasAnyRow } from './db.ts';
+import { one, all, run, nextSequence, audit, hasAnyRow } from './db.ts';
 import { AppError } from './errors.ts';
 import { buildFilterClause, type FilterCondition, type FilterFieldDef } from './listFilters.ts';
 import { buildOrderClause, type SortState } from './listSort.ts';
@@ -61,7 +61,7 @@ const SORT_COLUMNS: Record<string, string> = {
   book_value: 'book_value',
 };
 
-export interface ListFixedAssetsOptions {
+interface ListFixedAssetsOptions {
   search?: string;
   filters?: FilterCondition[];
   sort?: SortState | null;
@@ -81,10 +81,10 @@ export const listFixedAssets = (
   );
 };
 
-export const getFixedAsset = (no: string): Promise<FixedAssetListRow | undefined> =>
+const getFixedAsset = (no: string): Promise<FixedAssetListRow | undefined> =>
   one<FixedAssetListRow>(`${SELECT_ROW} WHERE fa.no = ?`, no);
 
-export const getFixedAssetById = (id: number): Promise<FixedAsset | undefined> =>
+const getFixedAssetById = (id: number): Promise<FixedAsset | undefined> =>
   one<FixedAsset>('SELECT * FROM fixed_asset WHERE id = ?', id);
 
 export const hasAnyFixedAssets = (): Promise<boolean> => hasAnyRow('fixed_asset');
@@ -165,7 +165,7 @@ export const getFaDepreciationBooks = (fixedAssetId: number): Promise<FaDeprecia
     fixedAssetId,
   );
 
-export const getFaDepreciationBook = (
+const getFaDepreciationBook = (
   fixedAssetId: number, bookCode: string,
 ): Promise<FaDepreciationBook | undefined> =>
   one<FaDepreciationBook>(
@@ -293,7 +293,7 @@ export const hasAnyFaLedgerEntries = (): Promise<boolean> => hasAnyRow('fa_ledge
 
 /* -------------------------------------------------------- disposal via a Sales Document */
 
-export interface FaDisposalLegs {
+interface FaDisposalLegs {
   glLines: { account: number; debit: Cents; credit: Cents; narration: string }[];
   gainLoss: Cents;
   faLedgerEntryId: number;
@@ -389,7 +389,7 @@ export async function disposeFixedAssetForSale(
 
 /* ------------------------------------------------- acquisition via a Purchase Document */
 
-export interface FaAcquisitionLegs {
+interface FaAcquisitionLegs {
   glLines: { account: number; debit: Cents; credit: Cents; narration: string }[];
   faLedgerEntryId: number;
 }

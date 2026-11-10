@@ -1,6 +1,5 @@
 /*
- * Value checks for the operations modules (CRM, projects, timesheets, service desk, contracts,
- * company secretarial). A Server Action hands its FormValues straight through; every lib function
+ * Shared value checks for form input. A Server Action hands its FormValues straight through; every lib function
  * re-validates what it is given with these, so nothing typed in a browser reaches SQL unchecked.
  * Money arrives from <Field type="currency"> as a decimal string in shillings and is stored as
  * integer cents.
@@ -88,12 +87,6 @@ export function email(v: unknown, label = 'Email'): string | null {
   return t;
 }
 
-export function kraPin(v: unknown, label = 'KRA PIN'): string | null {
-  const t = text(v, label, { max: 11 })?.toUpperCase() ?? null;
-  if (t && !/^[AP][0-9]{9}[A-Z]$/.test(t)) throw new AppError(`${label} must be a letter, nine digits and a letter (e.g. P051234567X)`, 'VALIDATION');
-  return t;
-}
-
 /** The search box, bounded. */
 export const q = (v: unknown): string => String(v ?? '').trim().slice(0, 60);
 
@@ -108,11 +101,3 @@ const now = (): Date => new Date(clock.__clinicDemoClock ?? Date.now());
 
 export const nowIso = (): string => now().toISOString();
 export const todayIso = (): string => now().toISOString().slice(0, 10);
-
-/** The Monday of the ISO week containing `iso`. */
-export function mondayOf(iso: string): string {
-  const d = new Date(`${iso}T00:00:00Z`);
-  const dow = d.getUTCDay() || 7;
-  d.setUTCDate(d.getUTCDate() - (dow - 1));
-  return d.toISOString().slice(0, 10);
-}

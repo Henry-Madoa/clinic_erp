@@ -4,7 +4,7 @@ import { ListTools } from '@/components/ui/list-tools';
 import { ADMIN_FIELDS } from '@/lib/listExports/admin';
 import { getOrg } from '@/lib/org';
 import { listUsers } from '@/lib/admin';
-import { listPostableAccounts, listActiveBankAccounts } from '@/lib/gl';
+import { listActiveBankAccounts } from '@/lib/gl';
 import { listCashierSetups } from '@/lib/cashierSetup';
 import { listDenominations } from '@/lib/denominations';
 import { Card, CardHead, EmptyState, Pill, TableWrap, Toolbar, Spacer } from '@/components/ui/primitives';

@@ -31,10 +31,7 @@ const VPG_SELECT = `
 export const listVendorPostingGroups = (): Promise<VendorPostingGroupView[]> =>
   all<VendorPostingGroupView>(`${VPG_SELECT} ORDER BY g.code`);
 
-export const getVendorPostingGroup = (code: string): Promise<VendorPostingGroup | undefined> =>
-  one<VendorPostingGroup>('SELECT * FROM vendor_posting_group WHERE code = ?', code);
-
-export const getVendorPostingGroupById = (id: number): Promise<VendorPostingGroup | undefined> =>
+const getVendorPostingGroupById = (id: number): Promise<VendorPostingGroup | undefined> =>
   one<VendorPostingGroup>('SELECT * FROM vendor_posting_group WHERE id = ?', id);
 
 export interface VendorPostingGroupInput {

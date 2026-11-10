@@ -45,7 +45,6 @@ export * from './types/46-payment-voucher.ts';
 export * from './types/47-print-slips.ts';
 export * from './types/48-vat-withholding-tax.ts';
 export * from './types/50-company-organogram.ts';
-export * from './types/51-integration.ts';
 export * from './types/52-companies.ts';
 export * from './types/54-etims.ts';
 export * from './types/60-clinic.ts';

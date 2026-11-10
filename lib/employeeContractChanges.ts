@@ -1,8 +1,8 @@
 /*
  * Employee Contract / Salary Change — maker-checker for New Contract, Contract Renewal and
  * Salary Increment (AL's Employee Exit "Type::Renewal" / the contract-focused slice of
- * Employee Change Request). A lighter document than Employee Editing: one header, no sub-lines,
- * same shape as lib/memberCharging.ts. On approval it writes a new lib/employees.ts contract row.
+ * Employee Change Request). A lighter document than Employee Editing: one header, no sub-lines.
+ * On approval it writes a new lib/employees.ts contract row.
  */
 import { one, all, run, tx, nextSequence, audit } from './db.ts';
 import { AppError } from './errors.ts';

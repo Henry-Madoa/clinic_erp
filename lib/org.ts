@@ -21,8 +21,8 @@ const ORG_FIELDS = [
   'till_shortage_account_id', 'till_overage_account_id',
 ] as const satisfies readonly (keyof Organisation)[];
 
-export type OrgField = (typeof ORG_FIELDS)[number];
-export type OrgUpdate = Partial<Record<OrgField, string | number | null>>;
+type OrgField = (typeof ORG_FIELDS)[number];
+type OrgUpdate = Partial<Record<OrgField, string | number | null>>;
 
 export function getOrg(): Promise<Organisation | undefined> {
   return one<Organisation>('SELECT * FROM organisation WHERE id = 1');

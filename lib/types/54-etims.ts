@@ -2,7 +2,7 @@
 import type { Cents, IsoDateTime } from '../types.ts';
 
 export type EtimsSourceType = 'SALES_INVOICE' | 'SALES_CREDIT_MEMO';
-export type EtimsStatus = 'PENDING' | 'SIGNED' | 'FAILED';
+type EtimsStatus = 'PENDING' | 'SIGNED' | 'FAILED';
 
 export interface EtimsInvoice {
   id: number;

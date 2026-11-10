@@ -12,7 +12,7 @@ import { encryptField, decryptField } from './fieldCrypto.ts';
  * the other fields without re-typing credentials.
  */
 
-export type IntegrationKey = 'mpesa' | 'mail' | 'etims';
+type IntegrationKey = 'mpesa' | 'mail' | 'etims';
 
 interface Row { value: Record<string, unknown>; updated_at: string; updated_by: string | null }
 

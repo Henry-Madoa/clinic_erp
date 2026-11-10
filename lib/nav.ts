@@ -8,17 +8,17 @@ export interface NavItem {
 }
 
 /** A collapsible sub-menu inside a group — one level of nesting only. */
-export interface NavSubMenu {
+interface NavSubMenu {
   submenu: string;
   icon: string;
   items: NavItem[];
 }
 
-export type NavEntry = NavItem | NavSubMenu;
+type NavEntry = NavItem | NavSubMenu;
 
 export const isSubMenu = (e: NavEntry): e is NavSubMenu => 'submenu' in e;
 
-export interface NavGroup {
+interface NavGroup {
   group: string;
   items: NavEntry[];
   /** Which Role Centres surface this group in the sidebar (Business Central: the Profile / Role

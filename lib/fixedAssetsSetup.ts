@@ -26,7 +26,7 @@ export const listFaClasses = (): Promise<FaClass[]> =>
 export const listActiveFaClasses = (): Promise<FaClass[]> =>
   all<FaClass>("SELECT * FROM fa_class WHERE status = 'ACTIVE' ORDER BY code");
 
-export const getFaClass = (id: number): Promise<FaClass | undefined> =>
+const getFaClass = (id: number): Promise<FaClass | undefined> =>
   one<FaClass>('SELECT * FROM fa_class WHERE id = ?', id);
 
 export interface FaClassInput { code: string; description: string; status: 'ACTIVE' | 'INACTIVE' }
@@ -72,7 +72,7 @@ export const listFaSubclasses = (): Promise<(FaSubclass & { fa_class_description
 export const listActiveFaSubclasses = (): Promise<FaSubclass[]> =>
   all<FaSubclass>("SELECT * FROM fa_subclass WHERE status = 'ACTIVE' ORDER BY code");
 
-export const getFaSubclass = (id: number): Promise<FaSubclass | undefined> =>
+const getFaSubclass = (id: number): Promise<FaSubclass | undefined> =>
   one<FaSubclass>('SELECT * FROM fa_subclass WHERE id = ?', id);
 
 export interface FaSubclassInput {
@@ -115,7 +115,7 @@ export const listFaLocations = (): Promise<FaLocation[]> =>
 export const listActiveFaLocations = (): Promise<FaLocation[]> =>
   all<FaLocation>("SELECT * FROM fa_location WHERE status = 'ACTIVE' ORDER BY code");
 
-export const getFaLocation = (id: number): Promise<FaLocation | undefined> =>
+const getFaLocation = (id: number): Promise<FaLocation | undefined> =>
   one<FaLocation>('SELECT * FROM fa_location WHERE id = ?', id);
 
 export interface FaLocationInput { code: string; description: string; status: 'ACTIVE' | 'INACTIVE' }
@@ -156,7 +156,7 @@ export const listMaintenanceCodes = (): Promise<Maintenance[]> =>
 export const listActiveMaintenanceCodes = (): Promise<Maintenance[]> =>
   all<Maintenance>("SELECT * FROM maintenance WHERE status = 'ACTIVE' ORDER BY code");
 
-export const getMaintenance = (id: number): Promise<Maintenance | undefined> =>
+const getMaintenance = (id: number): Promise<Maintenance | undefined> =>
   one<Maintenance>('SELECT * FROM maintenance WHERE id = ?', id);
 
 export interface MaintenanceInput { code: string; description: string; status: 'ACTIVE' | 'INACTIVE' }
@@ -194,10 +194,7 @@ export async function updateMaintenance(id: number, input: MaintenanceInput, use
 export const listDepreciationBooks = (): Promise<DepreciationBook[]> =>
   all<DepreciationBook>('SELECT * FROM depreciation_book ORDER BY code');
 
-export const getDepreciationBook = (code: string): Promise<DepreciationBook | undefined> =>
-  one<DepreciationBook>('SELECT * FROM depreciation_book WHERE code = ?', code);
-
-export const getDepreciationBookById = (id: number): Promise<DepreciationBook | undefined> =>
+const getDepreciationBookById = (id: number): Promise<DepreciationBook | undefined> =>
   one<DepreciationBook>('SELECT * FROM depreciation_book WHERE id = ?', id);
 
 export interface DepreciationBookInput {
@@ -266,10 +263,7 @@ const FAPG_SELECT = `
 export const listFaPostingGroups = (): Promise<FaPostingGroupView[]> =>
   all<FaPostingGroupView>(`${FAPG_SELECT} ORDER BY g.code`);
 
-export const getFaPostingGroup = (code: string): Promise<FaPostingGroup | undefined> =>
-  one<FaPostingGroup>('SELECT * FROM fa_posting_group WHERE code = ?', code);
-
-export const getFaPostingGroupById = (id: number): Promise<FaPostingGroup | undefined> =>
+const getFaPostingGroupById = (id: number): Promise<FaPostingGroup | undefined> =>
   one<FaPostingGroup>('SELECT * FROM fa_posting_group WHERE id = ?', id);
 
 export interface FaPostingGroupInput {

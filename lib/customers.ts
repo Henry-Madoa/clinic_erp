@@ -42,7 +42,7 @@ const SORT_COLUMNS: Record<string, string> = {
   no: 'c.no', name: 'c.name', city: 'c.city', balance: 'c.balance', balance_due: 'balance_due',
 };
 
-export interface ListCustomersOptions {
+interface ListCustomersOptions {
   search?: string; filters?: FilterCondition[]; sort?: SortState | null;
 }
 
@@ -63,7 +63,7 @@ export const listCustomers = (
 export const getCustomer = (no: string): Promise<CustomerListRow | undefined> =>
   one<CustomerListRow>(`${SELECT_ROW} WHERE c.no = @no`, { no, today: today() });
 
-export const getCustomerById = (id: number): Promise<Customer | undefined> =>
+const getCustomerById = (id: number): Promise<Customer | undefined> =>
   one<Customer>('SELECT * FROM customer WHERE id = ?', id);
 
 export const listActiveCustomers = (): Promise<Pick<Customer, 'id' | 'no' | 'name' | 'blocked' | 'customer_posting_group_code' | 'payment_terms_code'>[]> =>
@@ -226,8 +226,6 @@ export const getCustomerLedgerEntries = (
     { customerId, ...params },
   );
 };
-
-export const hasAnyCustLedgerEntries = (): Promise<boolean> => hasAnyRow('cust_ledger_entry');
 
 /** BC's "Check Cust. Blocked" — a hard block on `blocked`; a soft (returned) warning on the
  *  credit limit / overdue balance per Sales & Receivables Setup's Credit Warnings. */

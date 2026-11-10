@@ -4,7 +4,7 @@ import { ListTools } from '@/components/ui/list-tools';
 import { ADMIN_FIELDS } from '@/lib/listExports/admin';
 import { getOrg, getTheme, themePresets, TOKEN_GROUPS } from '@/lib/org';
 import { listConfigPackages, listConfigPackageTables } from '@/lib/configPackages';
-import { listPostableAccounts, listActiveBankAccounts } from '@/lib/gl';
+import { listPostableAccounts } from '@/lib/gl';
 import { imageSrc, isConfigured } from '@/lib/cloudinary';
 import { Card, CardHead, EmptyState, TableWrap, Toolbar, Spacer } from '@/components/ui/primitives';
 import { GeneralLedgerSetupForm } from '../gl-setup-form';

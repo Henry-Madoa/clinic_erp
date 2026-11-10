@@ -13,7 +13,7 @@ export type WorkflowDocumentType =
   | 'COMPANY_JOB';
 export type WorkflowApproverType = 'USER' | 'DIRECT_APPROVER' | 'USER_GROUP';
 export type WorkflowConditionOperator = '=' | '!=' | '>' | '>=' | '<' | '<=' | 'BETWEEN';
-export type WorkflowTaskStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
+type WorkflowTaskStatus = 'PENDING' | 'APPROVED' | 'REJECTED' | 'CANCELLED';
 
 export interface Workflow {
   id: number;
@@ -35,7 +35,7 @@ export interface DocumentTypeOption {
   /** Whether a submission flow actually calls findMatchingWorkflow() for this document type.
    *  False for any table beyond the wired set: an admin can still configure conditions and
    *  approval steps for it, but it stays inert — no code path creates a task from it — until
-   *  real integration code is added, the same way LOAN/JOURNAL/etc. were. */
+   *  real integration code is added. */
   wired: boolean;
 }
 
@@ -70,7 +70,7 @@ export interface WorkflowWithDetail extends Workflow {
  *  (lib/workflowConstants.ts) — the only table that type's submission code actually fetches
  *  condition values from — and for any other document type it's forced to match the document
  *  type itself, since that IS the table name there (see DocumentTypeOption). */
-export interface WorkflowTableRelation {
+interface WorkflowTableRelation {
   id: number;
   document_type: string;
   table_name: string;
@@ -161,23 +161,6 @@ export interface WorkflowUserGroupMemberRow {
   sequence: number;
 }
 
-export interface ApprovalUserSetup {
-  id: number;
-  user_id: number;
-  approver_id: number | null;
-  substitute_id: number | null;
-  is_approval_administrator: Flag;
-  can_reverse_journal: Flag;
-  /** This user's own Allow Posting From/To override — null falls back to the organisation's. */
-  allow_posting_from: IsoDate | null;
-  allow_posting_to: IsoDate | null;
-  /** Time-of-day refinement on the two boundary dates only — see the schema's own doc comment. */
-  allow_posting_from_time: string | null;
-  allow_posting_to_time: string | null;
-  /** AL User Setup "Employee No." — the employee this login is; Self Service hangs off it. */
-  employee_id: number | null;
-}
-
 /** One row of the Approval User Setup grid — the user plus their configured setup, if any. */
 export interface ApprovalUserSetupRow {
   user_id: number;
@@ -227,7 +210,7 @@ export interface WorkflowTask {
 /** A task row as shown in the "My Approvals" worklist — with display labels resolved. */
 export interface WorkflowTaskRow extends WorkflowTask {
   workflow_name: string | null;
-  /** A short human label for the document (invoice no., timesheet no., journal no.). */
+  /** A short human label for the document (invoice no., voucher no., journal no.). */
   document_label: string;
   /** Where "Review" / clicking the row should navigate. */
   link: string;

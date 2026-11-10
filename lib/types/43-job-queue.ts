@@ -11,7 +11,7 @@ export type JobQueueType =
   | 'SESSION_PURGE' | 'OUTBOX_DISPATCH' | 'ETIMS_SUBMIT';
 
 export type JobQueueStatus = 'READY' | 'ON HOLD';
-export type JobQueueRunStatus = 'SUCCESS' | 'ERROR';
+type JobQueueRunStatus = 'SUCCESS' | 'ERROR';
 
 export interface JobQueueEntry {
   id: number;

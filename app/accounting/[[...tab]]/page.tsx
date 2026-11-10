@@ -1,7 +1,6 @@
 import { notFound } from 'next/navigation';
 import { requireAction, currentCanAction, getCurrentUser, requireModuleTab } from '@/lib/session';
 import { getWorkDate } from '@/lib/postingDates';
-import Link from 'next/link';
 import {
   getTrialBalance, listJournals, hasAnyJournals, listGlAccounts, hasAnyGlAccounts, listPeriods, hasAnyPeriods,
   listPostableAccounts, totalingBalance,
@@ -18,7 +17,7 @@ import { Page } from '@/components/layout/page';
 import {
   Card, CardHead, EmptyState, Pill, TableWrap, Tabs, Toolbar, Spacer, type TabDefinition,
 } from '@/components/ui/primitives';
-import { SearchInput, DateFilterInput, DateFilterExpressionInput } from '@/components/ui/filters';
+import { SearchInput, DateFilterExpressionInput } from '@/components/ui/filters';
 import { DynamicFilterBar } from '@/components/ui/dynamic-filter';
 import { SortLink } from '@/components/ui/sort-link';
 import { Money } from '@/components/ui/money';
@@ -59,7 +58,7 @@ export default async function AccountingPage({ params, searchParams }: {
 }) {
   const user = await requireAction('GL_READ');
   const { tab: segments } = await params;
-  const { q = '', filters: filtersRaw, sort: sortRaw, asOf, from, to } = await searchParams;
+  const { q = '', filters: filtersRaw, sort: sortRaw, asOf, from } = await searchParams;
   const tab = segments?.[0] ?? 'trial-balance';
   if (!TABS.some((t) => t.key === tab)) notFound();
   const hrefFor = (k: string) => `/accounting/${k}`;

@@ -14,8 +14,8 @@ import {
 } from '@/app/actions/tillClosings';
 import type { TillClosingView } from '@/lib/types';
 
-export type ClosableTill = { id: number; code: string; name: string; balance: number; own: boolean };
-export type TreasuryAccount = { id: number; code: string; name: string };
+type ClosableTill = { id: number; code: string; name: string; balance: number; own: boolean };
+type TreasuryAccount = { id: number; code: string; name: string };
 
 /* ------------------------------------------------------------------ header */
 

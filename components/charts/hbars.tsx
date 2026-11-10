@@ -2,7 +2,7 @@
 
 import { useFormat } from '@/components/ui/format-provider';
 
-export interface HBarRow {
+interface HBarRow {
   label: string;
   value: number;
   color?: string;

@@ -28,7 +28,7 @@ const B32 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
 
 /* ------------------------------------------------------------------ base32 */
 
-export function base32Encode(buf: Buffer): string {
+function base32Encode(buf: Buffer): string {
   let bits = 0; let value = 0; let out = '';
   for (const byte of buf) {
     value = (value << 8) | byte; bits += 8;
@@ -37,7 +37,7 @@ export function base32Encode(buf: Buffer): string {
   if (bits > 0) out += B32[(value << (5 - bits)) & 31];
   return out;
 }
-export function base32Decode(s: string): Buffer {
+function base32Decode(s: string): Buffer {
   const clean = s.toUpperCase().replace(/[^A-Z2-7]/g, '');
   let bits = 0; let value = 0; const out: number[] = [];
   for (const ch of clean) {
@@ -49,7 +49,7 @@ export function base32Decode(s: string): Buffer {
 
 /* ------------------------------------------------------------------ codes */
 
-export function hotp(secret: Buffer, counter: number): string {
+function hotp(secret: Buffer, counter: number): string {
   const msg = Buffer.alloc(8);
   msg.writeBigUInt64BE(BigInt(counter));
   const h = crypto.createHmac('sha1', secret).update(msg).digest();
@@ -57,11 +57,10 @@ export function hotp(secret: Buffer, counter: number): string {
   const code = ((h[offset] & 0x7f) << 24) | ((h[offset + 1] & 0xff) << 16) | ((h[offset + 2] & 0xff) << 8) | (h[offset + 3] & 0xff);
   return String(code % 10 ** DIGITS).padStart(DIGITS, '0');
 }
-export const currentStep = (now = Date.now()): number => Math.floor(now / 1000 / STEP_SECONDS);
-export const totpAt = (secret: Buffer, step: number): string => hotp(secret, step);
+const currentStep = (now = Date.now()): number => Math.floor(now / 1000 / STEP_SECONDS);
 
 /** The step a code matches within the drift window, or null. */
-export function matchTotp(secret: Buffer, code: string, now = Date.now()): number | null {
+function matchTotp(secret: Buffer, code: string, now = Date.now()): number | null {
   const wanted = String(code ?? '').replace(/\s/g, '');
   if (!/^\d{6}$/.test(wanted)) return null;
   const step = currentStep(now);
@@ -73,8 +72,8 @@ export function matchTotp(secret: Buffer, code: string, now = Date.now()): numbe
   return null;
 }
 
-export const generateSecret = (): string => base32Encode(crypto.randomBytes(20));
-export const otpauthUrl = (issuer: string, account: string, secret: string): string =>
+const generateSecret = (): string => base32Encode(crypto.randomBytes(20));
+const otpauthUrl = (issuer: string, account: string, secret: string): string =>
   `otpauth://totp/${encodeURIComponent(issuer)}:${encodeURIComponent(account)}?secret=${secret}&issuer=${encodeURIComponent(issuer)}&algorithm=SHA1&digits=${DIGITS}&period=${STEP_SECONDS}`;
 
 /* ------------------------------------------------------------------ at-rest encryption + tickets */
@@ -84,13 +83,13 @@ function serverKey(): Buffer {
   if (env) return crypto.createHash('sha256').update(env).digest();
   return crypto.createHash('sha256').update(`totp:${devKeyMaterial()}`).digest();
 }
-export function encryptSecret(secret: string): string {
+function encryptSecret(secret: string): string {
   const iv = crypto.randomBytes(12);
   const c = crypto.createCipheriv('aes-256-gcm', serverKey(), iv);
   const enc = Buffer.concat([c.update(secret, 'utf8'), c.final()]);
   return `${iv.toString('base64url')}.${c.getAuthTag().toString('base64url')}.${enc.toString('base64url')}`;
 }
-export function decryptSecret(blob: string): string {
+function decryptSecret(blob: string): string {
   const [iv, tag, enc] = blob.split('.');
   const d = crypto.createDecipheriv('aes-256-gcm', serverKey(), Buffer.from(iv, 'base64url'));
   d.setAuthTag(Buffer.from(tag, 'base64url'));

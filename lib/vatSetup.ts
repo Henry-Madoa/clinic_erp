@@ -6,7 +6,7 @@
 import { one, all, run, audit, hasAnyRow } from './db.ts';
 import { AppError } from './errors.ts';
 import type {
-  Actor, TaxType, VatBusinessPostingGroup, VatCalculationType, VatPostingSetup, VatPostingSetupView,
+  Actor, TaxType, VatBusinessPostingGroup, VatCalculationType, VatPostingSetupView,
   VatProductPostingGroup,
 } from './types.ts';
 
@@ -20,7 +20,7 @@ const CALC_TYPES: VatCalculationType[] = ['Normal', 'Zero VAT', 'Exempt'];
 export const listVatBusinessPostingGroups = (): Promise<VatBusinessPostingGroup[]> =>
   all<VatBusinessPostingGroup>('SELECT * FROM vat_business_posting_group ORDER BY code');
 
-export interface VatBusinessPostingGroupInput { code: string; description: string }
+interface VatBusinessPostingGroupInput { code: string; description: string }
 
 export async function createVatBusinessPostingGroup(i: VatBusinessPostingGroupInput, user: Actor): Promise<{ id: number }> {
   if (!norm(i.code)) throw new AppError('A code is required', 'VALIDATION');
@@ -49,7 +49,7 @@ export const listVatProductPostingGroups = (taxType?: TaxType): Promise<VatProdu
     { taxType },
   );
 
-export interface VatProductPostingGroupInput { code: string; description: string; taxType: TaxType }
+interface VatProductPostingGroupInput { code: string; description: string; taxType: TaxType }
 
 export async function createVatProductPostingGroup(i: VatProductPostingGroupInput, user: Actor): Promise<{ id: number }> {
   if (!norm(i.code)) throw new AppError('A code is required', 'VALIDATION');
@@ -105,13 +105,7 @@ export async function vatRateMatrix(): Promise<Record<string, Record<string, num
   return rates;
 }
 
-export const getVatPostingSetup = (busCode: string, prodCode: string): Promise<VatPostingSetup | undefined> =>
-  one<VatPostingSetup>(
-    'SELECT * FROM vat_posting_setup WHERE vat_bus_posting_group_code = ? AND vat_prod_posting_group_code = ?',
-    busCode, prodCode,
-  );
-
-export interface VatPostingSetupInput {
+interface VatPostingSetupInput {
   vatBusPostingGroupCode: string;
   vatProdPostingGroupCode: string;
   vatPct: number;
@@ -143,12 +137,4 @@ export async function saveVatPostingSetup(i: VatPostingSetupInput, user: Actor):
     i.whtBase, i.blocked ? 1 : 0, now(), user.username,
   );
   await audit(user, 'VAT_POSTING_SETUP_SAVE', 'vat_posting_setup', `${bus}/${prod}`, { vatPct: i.vatPct });
-}
-
-export async function deleteVatPostingSetup(busCode: string, prodCode: string, user: Actor): Promise<void> {
-  await run(
-    'DELETE FROM vat_posting_setup WHERE vat_bus_posting_group_code = ? AND vat_prod_posting_group_code = ?',
-    norm(busCode).toUpperCase(), norm(prodCode).toUpperCase(),
-  );
-  await audit(user, 'VAT_POSTING_SETUP_DELETE', 'vat_posting_setup', `${busCode}/${prodCode}`, {});
 }

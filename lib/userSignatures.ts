@@ -14,7 +14,7 @@ import { AppError } from './errors.ts';
 import { imageSrc } from './cloudinary.ts';
 import type { Actor, SignatureBlock } from './types.ts';
 
-/** Width the signature is delivered and printed at — the same box lib/loanDocuments.ts uses. */
+/** Width the signature is delivered and printed at. */
 const SIGNATURE_WIDTH = 180;
 const SIGNATURE_HEIGHT = 70;
 
@@ -46,30 +46,6 @@ export async function signatureFor(username: string | null | undefined): Promise
   if (!username) return null;
   return (await signaturesFor([username])).get(username.trim()) ?? null;
 }
-
-/**
- * The signature block as a slip renders it: the image when one is on file, otherwise the ruled
- * line every one of these documents printed before signatures existed. Returns HTML, because the
- * slips are rendered as HTML strings rather than JSX (they are printed, not interacted with).
- */
-export function renderSignatureHtml(block: SignatureBlock | undefined | null, label: string): string {
-  const esc = (v: unknown): string => String(v ?? '')
-    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-  const name = block?.full_name || block?.username || '';
-  return `
-    <div class="sig-block">
-      ${block?.src ? `<img class="sig-img" src="${esc(block.src)}" alt="${esc(name)} signature" />` : '<div class="sig-rule"></div>'}
-      <div class="sig-label">${esc(label)}${name ? ` — ${esc(name)}` : ''}</div>
-    </div>`;
-}
-
-/** The shared print styling for the blocks above — inlined into each slip's own <style>. */
-export const SIGNATURE_STYLES = `
-  .sig-block { flex: 1; min-width: 150px; }
-  .sig-block .sig-img { display: block; max-width: 180px; max-height: 56px; margin-bottom: 2px; }
-  .sig-block .sig-rule { height: 56px; border-bottom: 1px solid #111; margin-bottom: 2px; }
-  .sig-block .sig-label { font-size: 11px; color: #444; padding-top: 3px; }
-`;
 
 /* ------------------------------------------------------------------ maintenance */
 

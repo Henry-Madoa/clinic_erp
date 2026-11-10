@@ -4,7 +4,7 @@ import { useEffect, useId, useRef, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 import { INLINE_CARD_SLOT_ID } from './inline-card-slot';
 
-export interface ModalProps {
+interface ModalProps {
   title: string;
   wide?: boolean;
   onClose: () => void;

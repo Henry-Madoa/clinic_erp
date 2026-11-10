@@ -150,7 +150,7 @@ export async function sessionUserById(userId: number): Promise<SessionUser | nul
 }
 
 /** Folds a role's permission_set_line rows into direct {table}/{page} lookups. */
-export async function loadPermissionSet(roleId: number): Promise<PermissionSet> {
+async function loadPermissionSet(roleId: number): Promise<PermissionSet> {
   const lines = await all<PermissionSetLine>('SELECT * FROM permission_set_line WHERE role_id = ?', roleId);
   const set: PermissionSet = { tables: {}, pages: {} };
   for (const line of lines) {
@@ -205,7 +205,7 @@ export async function loadGrantedPermissions(userId: number, roleId: number): Pr
  * System-admin users are unrestricted; canX() short-circuits on is_system, so their set is left
  * empty regardless of any assigned sets or override rows.
  */
-export async function loadUserEffectivePermissions(
+async function loadUserEffectivePermissions(
   userId: number, roleId: number, isSystem: boolean,
 ): Promise<PermissionSet> {
   if (isSystem) return { tables: {}, pages: {} };

@@ -18,7 +18,7 @@ import { AppError } from './errors.ts';
 import type { Cents, IsoDate, ItemCostingMethod } from './types.ts';
 
 export interface CostApplication { inboundEntryId: number; quantity: number }
-export interface CostResult {
+interface CostResult {
   /** Per base unit, rounded to the cent — for display and the ledger entry's unit_cost. */
   unitCost: Cents;
   /** The movement's exact value (cents) — what posts to the G/L and the item ledger. */

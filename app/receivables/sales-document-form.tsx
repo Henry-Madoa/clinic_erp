@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, type ReactNode } from 'react';
+import { useState } from 'react';
 import { FormModal } from '@/components/ui/form-modal';
 import { Field, MoneyInput, toTwoDp } from '@/components/ui/field';
 import { SearchableSelect } from '@/components/ui/searchable-select';
@@ -24,7 +24,7 @@ export interface SalesDocLookups {
 }
 
 const LINE_TYPES = ['G/L Account', 'Item', 'Fixed Asset', 'Comment'];
-export const emptyLine = (): SalesLineDraft => ({
+const emptyLine = (): SalesLineDraft => ({
   type: 'G/L Account', no: '', description: '', quantity: '1', unitPrice: '', lineDiscountPct: '',
   locationCode: '', faDepreciationBookCode: '',
 });

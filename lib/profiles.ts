@@ -14,15 +14,15 @@ import type { Actor, Profile } from './types.ts';
 export const listProfiles = (): Promise<Profile[]> =>
   all<Profile>('SELECT * FROM profile ORDER BY sort, id');
 
-export const getProfile = (code: string): Promise<Profile | undefined> =>
+const getProfile = (code: string): Promise<Profile | undefined> =>
   one<Profile>('SELECT * FROM profile WHERE code = ?', code);
 
 /** The Role Centre keys the dashboard dispatcher knows how to render. A custom profile must pick
  *  one of these for its `role_centre`. */
-export const ROLE_CENTRES = ['SUPER', 'SALES', 'DELIVERY', 'SUPPORT', 'FINANCE_MANAGER', 'ACCOUNTANT', 'HR_PAYROLL', 'SELF_SERVICE'] as const;
-export type RoleCentre = (typeof ROLE_CENTRES)[number];
+const ROLE_CENTRES = ['SUPER', 'RECEPTION', 'CLINICIAN', 'NURSE', 'DENTAL', 'LAB', 'PHARMACY', 'CASHIER', 'CLAIMS', 'FINANCE_MANAGER', 'ACCOUNTANT', 'HR_PAYROLL', 'SELF_SERVICE'] as const;
+type RoleCentre = (typeof ROLE_CENTRES)[number];
 
-export interface ProfileInput {
+interface ProfileInput {
   id?: number | null;
   code: string;
   name: string;

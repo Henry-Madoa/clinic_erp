@@ -13,11 +13,11 @@ const COMMON_PASSWORDS = new Set([
   'test123', 'demo123', 'calbytes123', 'calbytes2026', 'client123', 'welcome123', 'charlie', 'donald',
 ]);
 
-export interface PasswordCheckContext {
+interface PasswordCheckContext {
   username?: string | null;
 }
 
-export interface PasswordRule {
+interface PasswordRule {
   id: string;
   label: string;
   test: (password: string, ctx: PasswordCheckContext) => boolean;

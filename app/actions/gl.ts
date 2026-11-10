@@ -5,7 +5,7 @@ import { requireAction } from '@/lib/session';
 import { actionResult, AppError } from '@/lib/errors';
 import * as gl from '@/lib/gl';
 import {
-  getCloseIncomeStatementContext, listClosingRuns, previewCloseIncomeStatement, postCloseIncomeStatement,
+  listClosingRuns, previewCloseIncomeStatement, postCloseIncomeStatement,
   type CloseIncomeStatementInput,
 } from '@/lib/closeIncomeStatement';
 import { toCents } from '@/lib/format';
@@ -160,15 +160,6 @@ export async function createFiscalYearRequest(noOfPeriods = 12): Promise<ActionR
     revalidatePath('/accounting/periods');
     revalidatePath('/accounting/close-income-statement');
     return periods;
-  });
-}
-
-/* ------------------------------------------------------ close income statement */
-
-export async function closeIncomeStatementContextRequest() {
-  return actionResult(async () => {
-    await requireAction('GL_READ');
-    return getCloseIncomeStatementContext();
   });
 }
 

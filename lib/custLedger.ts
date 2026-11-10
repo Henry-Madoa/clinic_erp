@@ -24,7 +24,7 @@ import { postJournal } from './accounting.ts';
 import { today } from './format.ts';
 import type { Actor, Cents, CustLedgerDocumentType, IsoDate } from './types.ts';
 
-export interface CreateCustLedgerEntryInput {
+interface CreateCustLedgerEntryInput {
   customerId: number;
   postingDate: IsoDate;
   documentType: CustLedgerDocumentType;
@@ -105,7 +105,7 @@ async function realizedFxAccounts(code: string): Promise<{ gain: number; loss: n
   return { gain: c.realized_gains_account_id, loss: c.realized_losses_account_id };
 }
 
-export interface ApplyCustomerEntriesInput {
+interface ApplyCustomerEntriesInput {
   applyingEntryId: number;
   /** Specific target entries, or 'auto' for oldest-open-first up to the applying entry's remaining. */
   appliedTo: number[] | 'auto';

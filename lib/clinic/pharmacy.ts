@@ -43,7 +43,7 @@ export async function prescriptionLines(prescriptionId: number): Promise<Prescri
 }
 
 /** Stock on hand at the pharmacy store. */
-export async function storeStock(itemId: number): Promise<number> {
+async function storeStock(itemId: number): Promise<number> {
   const setup = await getClinicSetup();
   const r = await one<{ inventory: number }>('SELECT inventory FROM stockkeeping_unit WHERE item_id = ? AND location_id = ?', itemId, setup.pharmacy_location_id ?? 0);
   return Number(r?.inventory ?? 0);

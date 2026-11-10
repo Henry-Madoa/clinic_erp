@@ -29,7 +29,7 @@ const SELECT_SCALE = `
          (SELECT COUNT(*) FROM employee e WHERE e.salary_scale_id = s.id)::int AS employee_count
   FROM hr_salary_scale s JOIN hr_job_grade g ON g.id = s.job_grade_id`;
 
-export const listScaleBenefits = (scaleId: number): Promise<HrSalaryScaleBenefitView[]> =>
+const listScaleBenefits = (scaleId: number): Promise<HrSalaryScaleBenefitView[]> =>
   all<HrSalaryScaleBenefitView>(
     `SELECT b.*, c.code AS transaction_code, c.name AS transaction_name, c.type AS transaction_type
      FROM hr_salary_scale_benefit b JOIN payroll_transaction_code c ON c.id = b.transaction_code_id
@@ -54,7 +54,7 @@ export async function getSalaryScale(id: number): Promise<HrSalaryScaleView | un
 
 /* ------------------------------------------------------------------ notches */
 
-export interface SalaryScaleInput {
+interface SalaryScaleInput {
   id?: number | null; jobGradeId: number; code: string; name?: string | null; basicPayCents: Cents; sequence?: number | null;
   status?: 'ACTIVE' | 'INACTIVE';
 }
@@ -98,7 +98,7 @@ export async function deleteSalaryScale(id: number, user: Actor): Promise<void> 
 
 /* ------------------------------------------------------------------ benefits */
 
-export interface ScaleBenefitInput { salaryScaleId: number; transactionCodeId: number; amountCents: Cents; notes?: string | null }
+interface ScaleBenefitInput { salaryScaleId: number; transactionCodeId: number; amountCents: Cents; notes?: string | null }
 
 export async function saveScaleBenefit(input: ScaleBenefitInput, user: Actor): Promise<{ id: number }> {
   const code = await one<{ id: number; type: string; name: string }>('SELECT id, type, name FROM payroll_transaction_code WHERE id = ?', input.transactionCodeId);

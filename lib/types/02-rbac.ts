@@ -24,12 +24,6 @@ export interface SubCountyWithCounty extends SubCounty {
   county_name: string;
 }
 
-
-
-
-
-
-
 /** A value on the Global Dimension 1 or 2 pick list — both lists share this shape. */
 export interface DimensionValue {
   id: number;
@@ -37,8 +31,6 @@ export interface DimensionValue {
   name: string;
   status: 'ACTIVE' | 'INACTIVE';
 }
-
-
 
 export interface Role {
   id: number;
@@ -204,8 +196,8 @@ export interface SessionUser extends Omit<AppUser, 'password_hash'> {
   webServiceKey?: WebServiceKeyScope;
 }
 
-export type WebServiceKeyScopeKind = 'READ_ONLY' | 'READ_WRITE';
-export interface WebServiceKeyScope {
+type WebServiceKeyScopeKind = 'READ_ONLY' | 'READ_WRITE';
+interface WebServiceKeyScope {
   id: number;
   scope: WebServiceKeyScopeKind;
   /** Service names the key may call; null = every published service. */

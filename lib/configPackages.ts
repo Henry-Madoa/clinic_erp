@@ -155,7 +155,7 @@ export async function listConfigPackages(): Promise<ConfigPackageWithFields[]> {
   return packages.map((p) => ({ ...p, fields: byPackage.get(p.id) ?? [] }));
 }
 
-export async function getConfigPackage(code: string): Promise<ConfigPackageWithFields | null> {
+async function getConfigPackage(code: string): Promise<ConfigPackageWithFields | null> {
   const pkg = await one<ConfigPackage>('SELECT * FROM config_package WHERE code = ?', code);
   if (!pkg) return null;
   const fields = await all<ConfigPackageField>(
@@ -175,7 +175,7 @@ async function replaceFields(packageId: number, fieldNames: string[]): Promise<v
   }
 }
 
-export interface ConfigPackageInput {
+interface ConfigPackageInput {
   code: string;
   name: string;
   table_name: string;

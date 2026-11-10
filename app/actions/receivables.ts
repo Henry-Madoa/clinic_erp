@@ -5,34 +5,34 @@ import { requireAction, requireUser } from '@/lib/session';
 import { actionResult, AppError } from '@/lib/errors';
 import { toCents } from '@/lib/format';
 import {
-  listCustomerPostingGroups, createCustomerPostingGroup, updateCustomerPostingGroup,
+  createCustomerPostingGroup, updateCustomerPostingGroup,
   deleteCustomerPostingGroup, deletePaymentTerms, deletePaymentMethod, type CustomerPostingGroupInput,
-  listPaymentTerms, createPaymentTerms, updatePaymentTerms, type PaymentTermsInput,
-  listPaymentMethods, createPaymentMethod, updatePaymentMethod, type PaymentMethodInput,
-  listReminderTerms, listReminderLevels, createReminderTerms, updateReminderTerms,
+  createPaymentTerms, updatePaymentTerms, type PaymentTermsInput,
+  createPaymentMethod, updatePaymentMethod, type PaymentMethodInput,
+  createReminderTerms, updateReminderTerms,
   type ReminderTermsInput, type ReminderLevelInput,
-  listFinanceChargeTerms, createFinanceChargeTerms, updateFinanceChargeTerms, type FinanceChargeTermsInput,
-  getSalesReceivablesSetup, saveSalesReceivablesSetup, type SalesReceivablesSetupInput,
+  createFinanceChargeTerms, updateFinanceChargeTerms, type FinanceChargeTermsInput,
+  saveSalesReceivablesSetup, type SalesReceivablesSetupInput,
 } from '@/lib/receivablesSetup';
 import {
-  listCustomers, getCustomer, createCustomer, updateCustomer, customerStatistics, getCustomerLedgerEntries,
+  createCustomer, updateCustomer, getCustomerLedgerEntries,
   type CustomerInput,
 } from '@/lib/customers';
 import {
-  listSalesDocuments, getSalesDocument, createSalesDocument, updateSalesDocumentHeader, deleteSalesDocument,
+  createSalesDocument, updateSalesDocumentHeader, deleteSalesDocument,
   setSalesLines, makeOrder, submitSalesDocument, cancelSalesDocumentApproval, approveSalesDocument,
   rejectSalesDocument, reopenSalesDocument, postSalesDocument,
   listPostedInvoicesForCredit, getInvoiceForCreditMemo,
   type SalesHeaderInput, type SalesLineInput,
 } from '@/lib/salesDocuments';
 import {
-  listReminders, getReminder, createReminders, createFinanceChargeMemos, deleteReminder, issueReminder,
+  createReminders, createFinanceChargeMemos, deleteReminder, issueReminder,
 } from '@/lib/reminders';
 import { applyCustomerEntries, unapplyCustomerEntry } from '@/lib/custLedger';
-import { getAgedAccountsReceivable, getCustomerStatement } from '@/lib/receivablesReports';
+import { getCustomerStatement } from '@/lib/receivablesReports';
 import { findPendingRoutedTask, decideWorkflowTask } from '@/lib/workflow';
 import type {
-  ActionResult, CustomerBlocked, FormValues, ReminderDocumentType, SalesDocumentType, SalesLineType,
+  ActionResult, CustomerBlocked, FormValues, SalesDocumentType, SalesLineType,
 } from '@/lib/types';
 
 const revalidate = (): void => revalidatePath('/receivables', 'layout');
@@ -40,12 +40,6 @@ const str = (v: unknown): string => String(v ?? '').trim();
 const opt = (v: unknown): string | null => (str(v) === '' ? null : str(v));
 const numOrNull = (v: unknown): number | null => (v === undefined || v === '' || v === null ? null : Number(v));
 const bool = (v: unknown): boolean => v === 'on' || v === 'true' || v === true || v === 1 || v === '1';
-
-/* ------------------------------------------------------------------ setup masters */
-
-export async function listCustomerPostingGroupsRequest() {
-  return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return listCustomerPostingGroups(); });
-}
 const toCpg = (v: FormValues): CustomerPostingGroupInput => ({
   code: str(v.code), description: str(v.description),
   receivablesAccountId: Number(v.receivables_account_id),
@@ -61,10 +55,6 @@ export async function createCpgRequest(v: FormValues): Promise<ActionResult<{ id
 export async function updateCpgRequest(id: number, v: FormValues): Promise<ActionResult<{ id: number }>> {
   return actionResult(async () => { const u = await requireAction('RECEIVABLES_SETUP_MANAGE'); await updateCustomerPostingGroup(id, toCpg(v), u); revalidate(); return { id }; });
 }
-
-export async function listPaymentTermsRequest() {
-  return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return listPaymentTerms(); });
-}
 const toPt = (v: FormValues): PaymentTermsInput => ({
   code: str(v.code), description: str(v.description), dueDateCalculation: str(v.due_date_calculation),
   discountDateCalculation: str(v.discount_date_calculation), discountPct: Number(v.discount_pct || 0),
@@ -75,10 +65,6 @@ export async function createPaymentTermsRequest(v: FormValues): Promise<ActionRe
 }
 export async function updatePaymentTermsRequest(id: number, v: FormValues): Promise<ActionResult<{ id: number }>> {
   return actionResult(async () => { const u = await requireAction('RECEIVABLES_SETUP_MANAGE'); await updatePaymentTerms(id, toPt(v), u); revalidate(); return { id }; });
-}
-
-export async function listPaymentMethodsRequest() {
-  return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return listPaymentMethods(); });
 }
 const toPm = (v: FormValues): PaymentMethodInput => ({
   code: str(v.code), description: str(v.description),
@@ -103,13 +89,6 @@ export async function deletePaymentTermsRequest(id: number): Promise<ActionResul
 export async function deletePaymentMethodRequest(id: number): Promise<ActionResult<{ id: number }>> {
   return actionResult(async () => { const u = await requireAction('RECEIVABLES_SETUP_MANAGE'); await deletePaymentMethod(id, u); revalidate(); return { id }; });
 }
-
-export async function listReminderTermsRequest() {
-  return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return listReminderTerms(); });
-}
-export async function listReminderLevelsRequest(termsCode: string) {
-  return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return listReminderLevels(termsCode); });
-}
 const toRtLevels = (rows: FormValues[]): ReminderLevelInput[] => rows.map((r, idx) => ({
   levelNo: idx + 1, gracePeriod: str(r.grace_period), dueDateCalculation: str(r.due_date_calculation),
   calculateInterest: bool(r.calculate_interest), additionalFee: toCents(r.additional_fee), addFeePerLine: toCents(r.add_fee_per_line),
@@ -126,10 +105,6 @@ export async function createReminderTermsRequest(v: FormValues, levels: FormValu
 export async function updateReminderTermsRequest(id: number, v: FormValues, levels: FormValues[]): Promise<ActionResult<{ id: number }>> {
   return actionResult(async () => { const u = await requireAction('RECEIVABLES_SETUP_MANAGE'); await updateReminderTerms(id, toRt(v), toRtLevels(levels), u); revalidate(); return { id }; });
 }
-
-export async function listFinanceChargeTermsRequest() {
-  return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return listFinanceChargeTerms(); });
-}
 const toFc = (v: FormValues): FinanceChargeTermsInput => ({
   code: str(v.code), description: str(v.description), interestRate: Number(v.interest_rate || 0), minAmount: toCents(v.min_amount),
   additionalFee: toCents(v.additional_fee), gracePeriod: str(v.grace_period), dueDateCalculation: str(v.due_date_calculation),
@@ -144,10 +119,6 @@ export async function createFinanceChargeTermsRequest(v: FormValues): Promise<Ac
 }
 export async function updateFinanceChargeTermsRequest(id: number, v: FormValues): Promise<ActionResult<{ id: number }>> {
   return actionResult(async () => { const u = await requireAction('RECEIVABLES_SETUP_MANAGE'); await updateFinanceChargeTerms(id, toFc(v), u); revalidate(); return { id }; });
-}
-
-export async function getSalesReceivablesSetupRequest() {
-  return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return getSalesReceivablesSetup(); });
 }
 export async function saveSalesReceivablesSetupRequest(v: FormValues): Promise<ActionResult<{ saved: true }>> {
   return actionResult(async () => {
@@ -179,12 +150,6 @@ const toCustomerInput = (v: FormValues): CustomerInput => ({
   creditLimit: toCents(v.creditLimit), blocked: (str(v.blocked || '') as CustomerBlocked),
   globalDimension1Id: numOrNull(v.globalDimension1Id), globalDimension2Id: numOrNull(v.globalDimension2Id),
 });
-export async function listCustomersRequest(opts: Parameters<typeof listCustomers>[0]) {
-  return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return listCustomers(opts); });
-}
-export async function getCustomerRequest(no: string) {
-  return actionResult(async () => { await requireAction('RECEIVABLES_READ'); const c = await getCustomer(no); if (!c) return null; return { customer: c, stats: await customerStatistics(c.id) }; });
-}
 export async function customerLedgerEntriesRequest(customerId: number) {
   return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return getCustomerLedgerEntries({ customerId }); });
 }
@@ -193,15 +158,6 @@ export async function requestCustomer(v: FormValues): Promise<ActionResult<{ no:
 }
 export async function saveCustomer(no: string, v: FormValues): Promise<ActionResult<{ no: string }>> {
   return actionResult(async () => { const u = await requireAction('RECEIVABLES_CUSTOMER_MANAGE'); await updateCustomer(no, toCustomerInput(v), u); revalidate(); return { no }; });
-}
-
-/* ------------------------------------------------------------- sales documents */
-
-export async function listSalesDocumentsRequest(opts: Parameters<typeof listSalesDocuments>[0]) {
-  return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return listSalesDocuments(opts); });
-}
-export async function getSalesDocumentRequest(no: string) {
-  return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return getSalesDocument(no); });
 }
 const toSalesHeaderInput = (v: FormValues): SalesHeaderInput => ({
   documentType: (str(v.documentType || 'Invoice') as SalesDocumentType),
@@ -281,17 +237,6 @@ export async function reopenSalesDocumentRequest(no: string): Promise<ActionResu
 export async function postSalesDocumentRequest(no: string, ship: boolean, invoice: boolean): Promise<ActionResult<Awaited<ReturnType<typeof postSalesDocument>>>> {
   return actionResult(async () => { const u = await requireAction('RECEIVABLES_SALES_POST'); const r = await postSalesDocument(no, { ship, invoice }, u); revalidate(); return r; });
 }
-
-/* --------------------------------------------------------------- cash receipts */
-
-/* ---------------------------------------------------------------- reminders */
-
-export async function listRemindersRequest(documentType: ReminderDocumentType, view?: 'open' | 'issued', search?: string) {
-  return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return listReminders({ documentType, view, search }); });
-}
-export async function getReminderRequest(no: string) {
-  return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return getReminder(no); });
-}
 export async function createRemindersRequest(customerId: number | null, documentDate: string): Promise<ActionResult<{ created: number; skipped: number }>> {
   return actionResult(async () => { const u = await requireAction('RECEIVABLES_REMINDER_MANAGE'); const r = await createReminders({ customerId, documentDate }, u); revalidate(); return r; });
 }
@@ -312,12 +257,6 @@ export async function applyEntriesRequest(applyingEntryId: number, appliedTo: nu
 }
 export async function unapplyEntryRequest(entryId: number): Promise<ActionResult<{ done: true }>> {
   return actionResult(async () => { const u = await requireAction('RECEIVABLES_APPLY_ENTRIES'); await unapplyCustomerEntry(entryId, u); revalidate(); return { done: true }; });
-}
-
-/* ------------------------------------------------------------------ reports */
-
-export async function agedArRequest(opts: Parameters<typeof getAgedAccountsReceivable>[0]) {
-  return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return getAgedAccountsReceivable(opts); });
 }
 export async function customerStatementRequest(opts: Parameters<typeof getCustomerStatement>[0]) {
   return actionResult(async () => { await requireAction('RECEIVABLES_READ'); return getCustomerStatement(opts); });

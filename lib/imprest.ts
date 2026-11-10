@@ -37,7 +37,7 @@ import { applyDateFormula, daysBetween } from './dateFormula.ts';
 import { findMatchingWorkflow, findPendingRoutedTask, pickConditionFields, startWorkflow } from './workflow.ts';
 import { buildFilterClause, type FilterCondition, type FilterFieldDef } from './listFilters.ts';
 import { buildOrderClause, type SortState } from './listSort.ts';
-import { formatMoney, today } from './format.ts';
+import { formatMoney } from './format.ts';
 import type {
   Actor, Cents, DocumentStatus, EmployeeLedgerEntryType, EmployeeLedgerEntryView, ImprestPurpose,
   ImprestRequest, ImprestRequestDetail, ImprestRequestFor, ImprestRequestLineView, ImprestRequestView,

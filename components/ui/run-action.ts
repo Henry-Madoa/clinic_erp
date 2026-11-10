@@ -5,7 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useResultDialog } from './result-dialog';
 import { useConfirm, type ConfirmOptions } from './confirm-dialog';
 
-export interface RunActionOptions<T> {
+interface RunActionOptions<T> {
   /** Shown before the action runs; the action is skipped entirely if the user cancels. Omit
    *  for an action that doesn't warrant an "are you sure?" gate. */
   confirm?: ConfirmOptions;

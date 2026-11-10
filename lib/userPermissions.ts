@@ -166,15 +166,6 @@ export async function resetUserPermissions(userId: number, actor: Actor): Promis
   await audit(actor, 'USER_PERMISSIONS_RESET', 'app_user', userId, { removed: info.changes });
 }
 
-/* --------------------------------------------------- additional Permission Sets (BC "User Permission Sets") */
-
-export const listUserPermissionSets = (userId: number): Promise<{ id: number; name: string }[]> =>
-  all<{ id: number; name: string }>(
-    `SELECT r.id, r.name FROM user_permission_set ups JOIN role r ON r.id = ups.role_id
-     WHERE ups.user_id = ? ORDER BY r.name`,
-    userId,
-  );
-
 /** Replaces the set of additional Permission Sets granted to a user (beyond their primary role).
  *  The primary role is never listed here. */
 export async function setUserPermissionSets(userId: number, roleIds: number[], actor: Actor): Promise<void> {

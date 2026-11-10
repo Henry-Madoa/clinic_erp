@@ -34,7 +34,7 @@ export interface PurchaseDocLookups {
 }
 
 const LINE_TYPES = ['G/L Account', 'Item', 'Fixed Asset', 'Comment'];
-export const emptyLine = (): PurchaseLineDraft => ({
+const emptyLine = (): PurchaseLineDraft => ({
   type: 'G/L Account', no: '', description: '', quantity: '1', directUnitCost: '', lineDiscountPct: '',
   locationCode: '', faDepreciationBookCode: '', unitOfMeasureCode: '',
 });

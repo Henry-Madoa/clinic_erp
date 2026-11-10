@@ -17,10 +17,6 @@ export function parseSort(raw: string | null | undefined): SortState | null {
   return { field, dir: dir === 'desc' ? 'desc' : 'asc' };
 }
 
-export function encodeSort(field: string, dir: 'asc' | 'desc'): string {
-  return `${field}.${dir}`;
-}
-
 /** A safe `ORDER BY ...` clause: `sort.field` must name a key in `columns` — anything else
  *  (including a hand-edited URL) falls back to `fallback` rather than touching the query. */
 export function buildOrderClause(

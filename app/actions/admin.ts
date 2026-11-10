@@ -9,7 +9,6 @@ import * as userPerms from '@/lib/userPermissions';
 import { updateOrg, updateTheme } from '@/lib/org';
 import { unlockUser } from '@/lib/auth';
 import { disableTwoFactor } from '@/lib/totp';
-import { toCents } from '@/lib/format';
 import type {
   ActionResult, FormValues, Organisation, PermissionTableOption, Role, Theme, ThemeTokens, UserPermissionMatrix, UserStatus,
 } from '@/lib/types';
@@ -76,7 +75,7 @@ export async function saveTheme(tokens: ThemeTokens, preset: string): Promise<Ac
 
 /* ------------------------------------------------------------------ users */
 /** Create returns the new id; update just confirms. The caller only needs "it worked". */
-export type SaveUserResult = { id: number } | { updated: true };
+type SaveUserResult = { id: number } | { updated: true };
 
 export async function saveUser(id: number | null, values: FormValues): Promise<ActionResult<SaveUserResult>> {
   return actionResult(async () => {

@@ -22,10 +22,10 @@ import { applyDateFormula, daysBetween } from './dateFormula.ts';
 import { reminderLevelFor } from './receivablesSetup.ts';
 import { createCustLedgerEntry, recomputeCustomerBalance } from './custLedger.ts';
 import type {
-  Actor, Cents, IsoDate, ReminderDetail, ReminderDocumentType, ReminderHeader, ReminderHeaderView, ReminderLine,
+  Actor, Cents, IsoDate, ReminderDocumentType, ReminderHeader, ReminderHeaderView,
 } from './types.ts';
 
-export type ReminderView = 'open' | 'issued';
+type ReminderView = 'open' | 'issued';
 
 const SELECT_ROW = `
   SELECT rh.*, c.no AS customer_no, c.name AS customer_name
@@ -41,13 +41,6 @@ export const listReminders = (
    ORDER BY rh.no DESC`,
   { docType: documentType, like: `%${String(search).trim()}%` },
 );
-
-export async function getReminder(no: string): Promise<ReminderDetail | undefined> {
-  const header = await one<ReminderHeaderView>(`${SELECT_ROW} WHERE rh.no = ?`, no);
-  if (!header) return undefined;
-  const lines = await all<ReminderLine>('SELECT * FROM reminder_line WHERE reminder_header_id = ? ORDER BY line_no', header.id);
-  return { ...header, lines };
-}
 
 export const hasAnyReminders = (documentType?: ReminderDocumentType): Promise<boolean> =>
   hasAnyRow('reminder_header rh', documentType ? `rh.document_type = '${documentType}'` : undefined);
@@ -71,7 +64,7 @@ async function overdueEntriesFor(customerId: number, asOf: IsoDate): Promise<Ove
   );
 }
 
-export interface CreateRemindersInput {
+interface CreateRemindersInput {
   customerId?: number | null;
   documentDate?: IsoDate;
 }

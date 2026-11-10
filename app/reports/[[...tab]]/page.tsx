@@ -7,7 +7,7 @@ import { formatDate, today, startOfYear } from '@/lib/format';
 import { parseFilters, type FilterFieldDef } from '@/lib/listFilters';
 import { Page } from '@/components/layout/page';
 import {
-  Card, CardHead, EmptyState, Pill, Stat, TableWrap, Tabs, Toolbar, type TabDefinition,
+  Card, CardHead, EmptyState, Pill, Tabs, Toolbar, type TabDefinition,
 } from '@/components/ui/primitives';
 import { DateFilterExpressionInput } from '@/components/ui/filters';
 import { DynamicFilterBar } from '@/components/ui/dynamic-filter';

@@ -7,27 +7,15 @@
  * build fails on its `require('fs')`.
  */
 import type {
-  BankAccountType, DocumentStatus, CashTransferType, GlAccountStructureType, GlAccountType, JobQueueStatus,
-  JobQueueType, PayMode, UserStatus,
+  BankAccountType, CashTransferType, GlAccountStructureType, GlAccountType, 
+  JobQueueType, UserStatus,
 } from './types.ts';
-
-export const TITLES = ['', 'Mr.', 'Ms.', 'Mrs.', 'Dr.', 'Prof.'];
 export const GENDERS = ['', 'MALE', 'FEMALE'];
 export const MARITAL_STATUSES = ['', 'SINGLE', 'MARRIED', 'DIVORCED', 'WIDOWED'];
 
 /** Relationship options for next-of-kin, beneficiary and dependant records. */
 export const RELATIONSHIPS = [
   '', 'Spouse', 'Son', 'Daughter', 'Father', 'Mother', 'Brother', 'Sister', 'Nephew', 'Niece', 'Guardian', 'Other',
-];
-
-/** How a payment was actually made — shown alongside the Bank/Cashbook picker, not instead of it. */
-export const PAY_MODES: { value: PayMode; label: string }[] = [
-  { value: 'CASH', label: 'Cash' },
-  { value: 'CARD', label: 'Card' },
-  { value: 'MPESA', label: 'M-Pesa' },
-  { value: 'BANK', label: 'Bank Transfer' },
-  { value: 'EFT', label: 'EFT' },
-  { value: 'CHEQUE', label: 'Cheque' },
 ];
 
 export const PRODUCT_STATUSES = ['ACTIVE', 'INACTIVE'];
@@ -40,7 +28,6 @@ export const JOB_QUEUE_TYPES: { value: JobQueueType; label: string }[] = [
   { value: 'OUTBOX_DISPATCH', label: 'Message Outbox Dispatch' },
   { value: 'ETIMS_SUBMIT', label: 'KRA eTIMS Submission' },
 ];
-export const JOB_QUEUE_STATUSES: JobQueueStatus[] = ['READY', 'ON HOLD'];
 
 export const GL_ACCOUNT_TYPES: GlAccountType[] =
   ['ASSET', 'LIABILITY', 'EQUITY', 'INCOME', 'EXPENSE'];
@@ -68,16 +55,6 @@ export const COMPANY_TYPES = [
   'Company Limited by Guarantee',
   'Limited Liability Partnership',
   'Branch of a Foreign Company',
-];
-
-/** Suggested document labels; the field is free text. */
-export const ATTACHMENT_CATEGORIES = [
-  'National ID / Passport', 'Contract', 'Invoice', 'Receipt', 'Bank statement', 'Correspondence', 'Other',
-];
-
-/** The full "Document Status" vocabulary. */
-export const DOCUMENT_STATUSES: DocumentStatus[] = [
-  'Open', 'Pending Approval', 'Approved', 'Processed',
 ];
 
 export const MONTH_NAMES = [

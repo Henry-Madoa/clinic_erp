@@ -11,12 +11,11 @@ import { one, all } from './db.ts';
 import { formatDate } from './format.ts';
 import { amountInWords } from './numberToWords.ts';
 import {
-  printBrand, documentMoney, documentSignatories, currencyLabel, renderDocument,
+  printBrand, documentMoney, documentSignatories, currencyLabel,
 } from './documentPrint.ts';
 import type { PrintDocument, PrintColumn, PrintRow } from './documentPrint.ts';
 import type { PostedReceipt, PostedReceiptLine } from './types.ts';
 
-export { renderDocument };
 
 const COLUMNS: PrintColumn[] = [
   { key: 'account', label: 'Account', width: '26%' },

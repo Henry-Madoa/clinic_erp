@@ -24,8 +24,6 @@ export async function imagingWorklist(view: 'pending' | 'reporting' | 'done', q 
   );
 }
 
-export const getImagingOrder = (no: string): Promise<ImagingOrder | undefined> => one<ImagingOrder>(`${SELECT} WHERE o.no = @no`, { no });
-
 export async function markPerformed(no: string, v: Record<string, unknown>, user: Actor): Promise<void> {
   const r = await run("UPDATE imaging_order SET status = 'PERFORMED', performed_at = ?, performed_by = ?, image_url = COALESCE(?, image_url) WHERE no = ? AND status = 'ORDERED'",
     nowIso(), user.username, imageUrl(v.image_url), no);

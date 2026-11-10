@@ -68,7 +68,7 @@ export type ItemReorderingPolicy = 'Fixed Reorder Qty.' | 'Maximum Qty.';
 
 /** Business Central Table 27 "Item", trimmed — see prisma/schema.prisma's model comment for
  *  exactly what was left out and why. */
-export interface Item {
+interface Item {
   id: number;
   no: string;
   description: string;
@@ -103,7 +103,7 @@ export interface ItemListRow extends Item {
 
 /** Business Central Table 5404. `qty_per_unit_of_measure` always converts to the item's own
  *  Base UoM — never UoM-to-UoM. See lib/unitOfMeasureConversion.ts. */
-export interface ItemUnitOfMeasure {
+interface ItemUnitOfMeasure {
   id: number;
   item_id: number;
   unit_of_measure_id: number;
@@ -117,7 +117,7 @@ export interface ItemUnitOfMeasureView extends ItemUnitOfMeasure {
 
 /** Business Central Table 5700 "Stockkeeping Unit" — one item's qty-on-hand at one location,
  *  with an optional per-location override of the item's own reordering defaults. */
-export interface StockkeepingUnit {
+interface StockkeepingUnit {
   id: number;
   item_id: number;
   location_id: number;
@@ -160,7 +160,7 @@ export interface ItemQuantityByLocationRow {
 export type ItemJournalEntryType = 'Positive Adjmt.' | 'Negative Adjmt.' | 'Transfer';
 
 /** Business Central Table 83 "Item Journal Line", scoped to Positive/Negative Adjmt. only.
- *  Lifecycle Open -> Pending Approval -> Approved -> Processed, same shape as BankersCheque. */
+ *  Lifecycle Open -> Pending Approval -> Approved -> Processed. */
 export interface ItemJournalLine {
   id: number;
   no: string;
@@ -232,7 +232,7 @@ export interface ItemLedgerEntryView extends ItemLedgerEntry {
 
 /** Business Central Table 339 "Item Application Entry" — which inbound lot an outbound entry
  *  consumed, and how much of it. Written for FIFO/LIFO/Average/Specific; Standard writes none. */
-export interface ItemApplicationEntry {
+interface ItemApplicationEntry {
   id: number;
   outbound_entry_id: number;
   inbound_entry_id: number;
@@ -270,9 +270,9 @@ export interface ReplenishmentSuggestion {
 export type FaDepreciationMethod = 'Straight-Line' | 'Declining-Balance 1' | 'DB1/SL' | 'Manual';
 export type FaPostingType =
   | 'Acquisition Cost' | 'Depreciation' | 'Write-Down' | 'Appreciation' | 'Disposal' | 'Maintenance';
-export type FaJournalStatus = 'Open' | 'Pending Approval' | 'Approved' | 'Processed';
-export type FaJournalSource = 'MANUAL' | 'CALCULATE_DEPRECIATION';
-export type FaDisposalCalcMethod = 'Net' | 'Gross';
+type FaJournalStatus = 'Open' | 'Pending Approval' | 'Approved' | 'Processed';
+type FaJournalSource = 'MANUAL' | 'CALCULATE_DEPRECIATION';
+type FaDisposalCalcMethod = 'Net' | 'Gross';
 
 export interface FaClass {
   id: number;
@@ -470,7 +470,7 @@ export interface FaJournalLineView extends FaJournalLine {
 }
 
 /** Business Central Table 5601 "FA Ledger Entry" — the posted, immutable FA movement. */
-export interface FaLedgerEntry {
+interface FaLedgerEntry {
   id: number;
   fixed_asset_id: number;
   depreciation_book_code: string;
@@ -533,25 +533,21 @@ export interface FaBookValueReport {
 /* ============================================================================================
  * Receivables — Business Central Sales & Receivables (Tables 3/5/18/21/36/37/92/110-115/289/
  * 293-296/302-305/311/379). See lib/customers.ts, lib/salesDocuments.ts, lib/custLedger.ts,
- * lib/cashReceipts.ts, lib/reminders.ts, lib/receivablesReports.ts.
+ * lib/receipts.ts, lib/reminders.ts, lib/receivablesReports.ts.
  * ========================================================================================== */
 
 export type CustomerBlocked = '' | 'Ship' | 'Invoice' | 'All';
-export type PaymentMethodBalAccountType = 'None' | 'G/L Account' | 'Bank Account';
+type PaymentMethodBalAccountType = 'None' | 'G/L Account' | 'Bank Account';
 export type SalesDocumentType = 'Quote' | 'Order' | 'Invoice' | 'Credit Memo';
 export type SalesLineType = 'Comment' | 'G/L Account' | 'Item' | 'Fixed Asset';
-export type SalesDocumentStatus = 'Open' | 'Pending Approval' | 'Released';
+type SalesDocumentStatus = 'Open' | 'Pending Approval' | 'Released';
 export type PostedSalesDocumentType = 'Shipment' | 'Invoice' | 'Credit Memo';
 export type CustLedgerDocumentType =
   | 'Invoice' | 'Payment' | 'Credit Memo' | 'Reminder' | 'Finance Charge Memo' | 'Refund';
-export type DetailedCustLedgerEntryType =
-  | 'Initial Entry' | 'Application' | 'Payment Discount' | 'Correction' | 'Unapplied'
-  | 'Realized Gain' | 'Realized Loss' | 'Unrealized Gain' | 'Unrealized Loss';
 export type ReminderDocumentType = 'Reminder' | 'Finance Charge Memo';
-export type ReminderStatus = 'Open' | 'Issued';
-export type ReminderLineType = '' | 'Reminder Line' | 'G/L Account' | 'Line Fee';
-export type CreditWarnings = 'Both' | 'Credit Limit' | 'Overdue Balance' | 'No Warning';
-export type FinChargeInterestMethod = 'Average Daily Balance' | 'Balance Due';
+type ReminderStatus = 'Open' | 'Issued';
+type CreditWarnings = 'Both' | 'Credit Limit' | 'Overdue Balance' | 'No Warning';
+type FinChargeInterestMethod = 'Average Daily Balance' | 'Balance Due';
 
 export interface CustomerPostingGroup {
   id: number;
@@ -839,7 +835,7 @@ export interface PostedSalesLine {
 }
 
 /** Business Central Table 21 "Cust. Ledger Entry". */
-export interface CustLedgerEntry {
+interface CustLedgerEntry {
   id: number;
   customer_id: number;
   posting_date: IsoDate;
@@ -874,22 +870,6 @@ export interface CustLedgerEntryView extends CustLedgerEntry {
   customer_name: string;
 }
 
-export interface DetailedCustLedgerEntry {
-  id: number;
-  cust_ledger_entry_id: number;
-  entry_type: DetailedCustLedgerEntryType;
-  posting_date: IsoDate;
-  document_type: string | null;
-  document_no: string | null;
-  amount: Cents;
-  amount_lcy: Cents;
-  applied_cust_ledger_entry_id: number | null;
-  journal_id: number | null;
-  unapplied: Flag;
-  unapplied_by_entry_id: number | null;
-  created_at: IsoDateTime | null;
-}
-
 export interface ReminderHeader {
   id: number;
   document_type: ReminderDocumentType;
@@ -922,26 +902,6 @@ export interface ReminderHeaderView extends ReminderHeader {
   customer_name: string;
 }
 
-export interface ReminderLine {
-  id: number;
-  reminder_header_id: number;
-  line_no: number;
-  type: ReminderLineType;
-  cust_ledger_entry_id: number | null;
-  entry_document_type: string | null;
-  entry_document_no: string | null;
-  due_date: IsoDate | null;
-  original_amount: Cents;
-  remaining_amount: Cents;
-  no: string | null;
-  amount: Cents;
-  description: string | null;
-  line_type: '' | 'Not Due' | 'On Hold';
-}
-
-export interface ReminderDetail extends ReminderHeaderView {
-  lines: ReminderLine[];
-}
 
 /** One row of the Aged Accounts Receivable report (BC Report 120). */
 export interface AgedReceivableRow {
@@ -990,19 +950,16 @@ export interface CustomerStatementReport {
 /* ============================================================================================
  * Payables — Business Central Purchases & Payables (Tables 23/25/38/39/93/120/122/124/312/380).
  * The mirror image of Receivables. See lib/vendors.ts, lib/purchaseDocuments.ts,
- * lib/vendLedger.ts, lib/paymentJournal.ts, lib/payablesReports.ts.
+ * lib/vendLedger.ts, lib/paymentVouchers.ts, lib/payablesReports.ts.
  * ========================================================================================== */
 
 export type VendorBlocked = '' | 'Payment' | 'Invoice' | 'All';
 export type PurchaseDocumentType = 'Quote' | 'Order' | 'Invoice' | 'Credit Memo';
 export type PurchaseLineType = 'Comment' | 'G/L Account' | 'Item' | 'Fixed Asset';
-export type PurchaseDocumentStatus = 'Open' | 'Pending Approval' | 'Released';
+type PurchaseDocumentStatus = 'Open' | 'Pending Approval' | 'Released';
 export type PostedPurchaseDocumentType = 'Receipt' | 'Invoice' | 'Credit Memo';
 export type VendorLedgerDocumentType =
   | 'Invoice' | 'Payment' | 'Credit Memo' | 'Finance Charge Memo' | 'Refund';
-export type DetailedVendorLedgerEntryType =
-  | 'Initial Entry' | 'Application' | 'Payment Discount' | 'Correction' | 'Unapplied'
-  | 'Realized Gain' | 'Realized Loss' | 'Unrealized Gain' | 'Unrealized Loss';
 export interface VendorPostingGroup {
   id: number;
   code: string;
@@ -1223,7 +1180,7 @@ export interface PostedPurchaseLine {
 }
 
 /** Business Central Table 25 "Vendor Ledger Entry". */
-export interface VendorLedgerEntry {
+interface VendorLedgerEntry {
   id: number;
   vendor_id: number;
   posting_date: IsoDate;
@@ -1256,22 +1213,6 @@ export interface VendorLedgerEntry {
 export interface VendorLedgerEntryView extends VendorLedgerEntry {
   vendor_no: string;
   vendor_name: string;
-}
-
-export interface DetailedVendorLedgerEntry {
-  id: number;
-  vendor_ledger_entry_id: number;
-  entry_type: DetailedVendorLedgerEntryType;
-  posting_date: IsoDate;
-  document_type: string | null;
-  document_no: string | null;
-  amount: Cents;
-  amount_lcy: Cents;
-  applied_vendor_ledger_entry_id: number | null;
-  journal_id: number | null;
-  unapplied: Flag;
-  unapplied_by_entry_id: number | null;
-  created_at: IsoDateTime | null;
 }
 
 /** One row of the Aged Accounts Payable report (BC Report 322). */
@@ -1342,9 +1283,7 @@ export type PaymentVoucherLineType = 'Employee' | 'G/L Account' | 'Vendor' | 'Cu
 export type PaymentVoucherType =
   | 'Supplier Payment' | 'Customer Refund' | 'Bank Transfer'
   | 'Direct Expensing' | 'Payroll Settlement' | 'Remittance' | 'Employee Payment';
-export type BankLedgerDocumentType =
-  '' | 'Payment' | 'Refund' | 'Receipt' | 'Transfer' | 'Reconciliation';
-export type BankRecLineType = 'Bank Account Ledger Entry' | 'G/L Adjustment';
+type BankRecLineType = 'Bank Account Ledger Entry' | 'G/L Adjustment';
 
 export interface Currency {
   id: number;
@@ -1383,7 +1322,7 @@ export interface CurrencyExchangeRate {
   created_by: string | null;
 }
 
-export interface BankAccPostingGroup {
+interface BankAccPostingGroup {
   id: number;
   code: string;
   description: string;
@@ -1406,13 +1345,6 @@ export interface ExternalBank {
   created_by: string | null;
 }
 
-export interface ExternalBankBranch {
-  id: number;
-  bank_code: string;
-  branch_code: string;
-  branch_name: string;
-}
-
 export interface CashManagementSetup {
   id: number;
   receipt_approval_limit: Cents;
@@ -1427,7 +1359,7 @@ export interface CashManagementSetup {
   updated_by: string | null;
 }
 
-export interface BankRecLine {
+interface BankRecLine {
   id: number;
   bank_reconciliation_id: number;
   line_no: number;

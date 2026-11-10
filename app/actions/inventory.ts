@@ -5,35 +5,26 @@ import { requireAction, requireUser } from '@/lib/session';
 import { actionResult } from '@/lib/errors';
 import { toCents } from '@/lib/format';
 import {
-  listLocations, createLocation, updateLocation, type LocationInput,
-  listUnitsOfMeasure, createUnitOfMeasure, updateUnitOfMeasure, type UnitOfMeasureInput,
-  listInventoryPostingGroups, createInventoryPostingGroup, updateInventoryPostingGroup, type InventoryPostingGroupInput,
-  listProductPostingGroups, createProductPostingGroup, updateProductPostingGroup, type ProductPostingGroupInput,
+  createLocation, updateLocation, type LocationInput,
+  createUnitOfMeasure, updateUnitOfMeasure, type UnitOfMeasureInput,
+  createInventoryPostingGroup, updateInventoryPostingGroup, type InventoryPostingGroupInput,
+  createProductPostingGroup, updateProductPostingGroup, type ProductPostingGroupInput,
 } from '@/lib/inventorySetup';
 import {
-  listItems, itemStockByLocation, createItem, updateItem, type ItemInput,
+  itemStockByLocation, createItem, updateItem, type ItemInput,
 } from '@/lib/items';
 import { itemUnitsOfMeasure, type ItemUnitOfMeasureLineInput } from '@/lib/unitOfMeasureConversion';
 import * as stockCount from '@/lib/stockCount';
 import {
-  listItemJournalLines, getItemJournalLine, openLotsForItem, listItemLedgerEntries, listItemApplicationEntries,
+  openLotsForItem, listItemLedgerEntries, 
   createItemJournalLine, updateItemJournalLine, deleteItemJournalLine, submitItemJournalLine,
   cancelItemJournalLineApproval, approveItemJournalLine, rejectItemJournalLine, reopenItemJournalLine,
-  postItemJournalLine, calculateReplenishment, type ItemJournalLineInput,
+  postItemJournalLine, type ItemJournalLineInput,
 } from '@/lib/itemJournal';
 import { findPendingRoutedTask, decideWorkflowTask } from '@/lib/workflow';
 import type { ActionResult, FormValues, ItemCostingMethod, ItemJournalEntryType, ItemReorderingPolicy } from '@/lib/types';
 
 const revalidate = () => revalidatePath('/inventory', 'layout');
-
-/* --------------------------------------------------------------------- location */
-
-export async function listLocationsRequest() {
-  return actionResult(async () => {
-    await requireAction('INVENTORY_READ');
-    return listLocations();
-  });
-}
 
 const toLocationInput = (values: FormValues): LocationInput => ({
   code: String(values.code || ''),
@@ -57,15 +48,6 @@ export async function updateLocationRequest(id: number, values: FormValues): Pro
     await updateLocation(id, toLocationInput(values), user);
     revalidate();
     return { id };
-  });
-}
-
-/* ---------------------------------------------------------------- unit of measure */
-
-export async function listUnitsOfMeasureRequest() {
-  return actionResult(async () => {
-    await requireAction('INVENTORY_READ');
-    return listUnitsOfMeasure();
   });
 }
 
@@ -93,15 +75,6 @@ export async function updateUnitOfMeasureRequest(id: number, values: FormValues)
   });
 }
 
-/* ---------------------------------------------------------- inventory posting group */
-
-export async function listInventoryPostingGroupsRequest() {
-  return actionResult(async () => {
-    await requireAction('INVENTORY_READ');
-    return listInventoryPostingGroups();
-  });
-}
-
 const toInventoryPostingGroupInput = (values: FormValues): InventoryPostingGroupInput => ({
   code: String(values.code || ''),
   description: String(values.description || ''),
@@ -123,15 +96,6 @@ export async function updateInventoryPostingGroupRequest(id: number, values: For
     await updateInventoryPostingGroup(id, toInventoryPostingGroupInput(values), user);
     revalidate();
     return { id };
-  });
-}
-
-/* ------------------------------------------------------------ product posting group */
-
-export async function listProductPostingGroupsRequest() {
-  return actionResult(async () => {
-    await requireAction('INVENTORY_READ');
-    return listProductPostingGroups();
   });
 }
 
@@ -193,13 +157,6 @@ const toItemInput = (values: FormValues, unitsOfMeasure: UomLineDraft[]): ItemIn
   unitsOfMeasure: toUomLines(unitsOfMeasure),
 });
 
-export async function listItemsRequest(opts: Parameters<typeof listItems>[0]) {
-  return actionResult(async () => {
-    await requireAction('INVENTORY_READ');
-    return listItems(opts);
-  });
-}
-
 export async function itemStockByLocationRequest(no: string) {
   return actionResult(async () => {
     await requireAction('INVENTORY_READ');
@@ -234,22 +191,6 @@ export async function saveItem(
   });
 }
 
-/* -------------------------------------------------------------------- item journal */
-
-export async function listItemJournalLinesRequest(opts: Parameters<typeof listItemJournalLines>[0]) {
-  return actionResult(async () => {
-    await requireAction('INVENTORY_READ');
-    return listItemJournalLines(opts);
-  });
-}
-
-export async function getItemJournalLineRequest(no: string) {
-  return actionResult(async () => {
-    await requireAction('INVENTORY_READ');
-    return getItemJournalLine(no);
-  });
-}
-
 export async function openLotsForItemRequest(itemId: number, locationId: number) {
   return actionResult(async () => {
     await requireAction('INVENTORY_READ');
@@ -261,20 +202,6 @@ export async function listItemLedgerEntriesRequest(opts: Parameters<typeof listI
   return actionResult(async () => {
     await requireAction('INVENTORY_READ');
     return listItemLedgerEntries(opts);
-  });
-}
-
-export async function listItemApplicationEntriesRequest(outboundEntryId: number) {
-  return actionResult(async () => {
-    await requireAction('INVENTORY_READ');
-    return listItemApplicationEntries(outboundEntryId);
-  });
-}
-
-export async function calculateReplenishmentRequest() {
-  return actionResult(async () => {
-    await requireAction('INVENTORY_READ');
-    return calculateReplenishment();
   });
 }
 

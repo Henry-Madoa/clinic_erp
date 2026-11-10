@@ -93,13 +93,10 @@ export async function dropCompanyClient(schema: string): Promise<void> {
  * that exists — the registry is read straight from public and cached briefly.
  */
 const companyStore = new AsyncLocalStorage<string>();
-export function withCompany<T>(schema: string, fn: () => Promise<T>): Promise<T> {
-  return companyStore.run(schema, fn);
-}
 
 interface CompanyRow { code: string; schema_name: string }
 let registryCache: { at: number; rows: CompanyRow[] } | null = null;
-export async function companyRegistry(): Promise<CompanyRow[]> {
+async function companyRegistry(): Promise<CompanyRow[]> {
   if (registryCache && Date.now() - registryCache.at < 15_000) return registryCache.rows;
   try {
     const rows = normalise<CompanyRow[]>(await db.$queryRawUnsafe('SELECT code, schema_name FROM public.company'));
@@ -147,7 +144,7 @@ async function cookieSchema(): Promise<string | null> {
   }
 }
 
-export async function currentSchema(): Promise<string> {
+async function currentSchema(): Promise<string> {
   return companyStore.getStore() ?? (await cookieSchema()) ?? DEFAULT_SCHEMA;
 }
 
@@ -260,7 +257,7 @@ export async function hasAnyRow(from: string, where?: string, ...args: unknown[]
   return row?.exists ?? false;
 }
 
-export interface RunResult {
+interface RunResult {
   changes: number;
   /** Named for continuity with the previous driver; it is the RETURNING id. */
   lastInsertRowid: number;
@@ -292,10 +289,10 @@ export async function run(sql: string, ...args: unknown[]): Promise<RunResult> {
  * The transaction client is threaded through AsyncLocalStorage so nested
  * services need no extra argument.
  */
-export interface TxOptions {
+interface TxOptions {
   /** Milliseconds the transaction may run for. Defaults to two minutes, which covers every
-   *  ordinary document posting; a whole-company run (recurring billing over every
-   *  contract, a WIP run over every project) is legitimately longer and passes its own. */
+   *  ordinary document posting; a whole-company run (depreciation over every
+   *  fixed asset, a payroll run over every employee) is legitimately longer and passes its own. */
   timeout?: number;
 }
 
@@ -325,11 +322,6 @@ export async function nextSequence(name: string): Promise<string> {
   return fromSeries(name);
 }
 
-/** N consecutive document numbers in one round trip — see noSeries.nextSequenceBatch(). */
-export async function nextSequenceBatch(name: string, count: number): Promise<string[]> {
-  const { nextSequenceBatch: fromSeries } = await import('./noSeries.ts');
-  return fromSeries(name, count);
-}
 
 export async function audit(
   user: Actor | null | undefined,

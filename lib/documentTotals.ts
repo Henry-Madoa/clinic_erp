@@ -15,7 +15,7 @@
 import type { Cents } from './types.ts';
 
 /** Round to the whole cent, always up — AL `Round(x, 1, '>')`, as lib/vatEngine.ts posts it. */
-export const roundUpCents = (n: number): number => Math.ceil(n - 1e-9);
+const roundUpCents = (n: number): number => Math.ceil(n - 1e-9);
 
 /** VAT contained in a VAT-inclusive gross amount. */
 export const extractVatFromGross = (gross: Cents, pct: number): Cents =>
@@ -36,7 +36,7 @@ export interface DocumentLineDraft {
   vatPct?: number;
 }
 
-export interface LineAmounts {
+interface LineAmounts {
   /** What actually bills: 0 on a Comment, 1 on a Fixed Asset, the entered quantity otherwise. */
   quantity: number;
   /** Quantity × unit amount, before the line discount. */
@@ -50,7 +50,7 @@ export interface LineAmounts {
   amountInclVat: Cents;
 }
 
-export interface DocumentTotalsOptions {
+interface DocumentTotalsOptions {
   /** BC's Purchases & Payables Setup "Prices Including VAT" — the entered amount is then gross. */
   pricesInclVat?: boolean;
 }

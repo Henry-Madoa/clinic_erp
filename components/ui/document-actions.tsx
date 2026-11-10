@@ -27,7 +27,7 @@ function PrinterIcon() {
   );
 }
 
-export interface DocumentActionsMenuProps {
+interface DocumentActionsMenuProps {
   /** Only shown when supplied — most single-document views have no matching export route. */
   excel?: {
     href: string;

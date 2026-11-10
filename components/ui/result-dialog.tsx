@@ -3,8 +3,8 @@
 import { createContext, useCallback, useContext, useEffect, useState, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
-export type ResultKind = '' | 'ok' | 'err';
-export type ResultFn = (title: string, message?: string, kind?: ResultKind) => void;
+type ResultKind = '' | 'ok' | 'err';
+type ResultFn = (title: string, message?: string, kind?: ResultKind) => void;
 
 interface ResultItem {
   id: number;

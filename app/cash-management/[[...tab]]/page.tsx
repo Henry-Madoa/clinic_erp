@@ -1,9 +1,8 @@
 import { notFound } from 'next/navigation';
 import { requireAction, currentCanAction, requireModuleTab } from '@/lib/session';
-import { all } from '@/lib/db';
 import { listPostableAccounts } from '@/lib/gl';
 import {
-  listBankAccounts, hasAnyBankAccounts, listBankAccountLedgerEntries, listBankReconciliations, BANK_LEDGER_FILTER_FIELDS,
+  listBankAccounts, listBankAccountLedgerEntries, listBankReconciliations, BANK_LEDGER_FILTER_FIELDS,
 } from '@/lib/bankMgmt';
 import { filterRows, parseFilters } from '@/lib/listFilters';
 import { ListTools } from '@/components/ui/list-tools';
@@ -93,8 +92,8 @@ export default async function CashManagementPage({ params, searchParams }: {
 /* ---------------------------------------------------------------- Bank Accounts */
 
 async function BankAccountsTab({ filters }: { filters?: string }) {
-  const [allRows, empty, canManage, postingGroups, extBanks, currencies, accounts] = await Promise.all([
-    listBankAccounts(), hasAnyBankAccounts().then((a) => !a), currentCanAction('CASH_MGMT_BANK_MANAGE'),
+  const [allRows, canManage, postingGroups, extBanks, currencies, accounts] = await Promise.all([
+    listBankAccounts(), currentCanAction('CASH_MGMT_BANK_MANAGE'),
     listBankAccPostingGroups(), listExternalBanks(), listActiveCurrencies(), listPostableAccounts(),
   ]);
   const rows = filterRows(allRows, BANK_ACCOUNT_FILTER_FIELDS, parseFilters(filters));

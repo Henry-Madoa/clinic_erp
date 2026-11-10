@@ -7,7 +7,7 @@ import type { BalanceSheet, Cents, IncomeStatement, IsoDate, ReportLine } from '
 /* The statutory statements — Statement of Financial Position and Statement of Comprehensive
  * Income — computed from journal lines, never from stored balances. */
 
-export interface GetBalanceSheetOptions {
+interface GetBalanceSheetOptions {
   /** One-line Date Filter range (see lib/format.ts's parseDateFilterExpression) — left unset,
    *  the usual cumulative Balance at Date; paired with `asOf`, a Net Change for that period,
    *  the same Date Filter FlowField behaviour as the Trial Balance this reuses. */
@@ -41,7 +41,7 @@ export async function getBalanceSheet(
   return { assets, liabilities, equity, surplus, totals, balanced: totals.assets === totals.equityAndLiabilities };
 }
 
-export interface GetIncomeStatementOptions {
+interface GetIncomeStatementOptions {
   from?: string;
   to?: string;
   /** Same filter bar as the Trial Balance — see GetBalanceSheetOptions.filters. */

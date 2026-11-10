@@ -17,7 +17,7 @@ import { trialBalance } from './accounting.ts';
 import { matchesTotaling, buildDimensionJoinClause } from './gl.ts';
 import { budgetBalances } from './glBudgets.ts';
 import { applyDateFormula } from './dateFormula.ts';
-import { evalFormula, formulaIdentifiers, isValidFormula } from './expr.ts';
+import { evalFormula, isValidFormula } from './expr.ts';
 import { addDaysIso, startOfFiscalYear, endOfFiscalYear, formatDate, today } from './format.ts';
 import type { FilterCondition } from './listFilters.ts';
 import type {
@@ -31,10 +31,10 @@ import type {
 export const listColumnLayoutNames = (): Promise<ColumnLayoutName[]> =>
   all<ColumnLayoutName>('SELECT * FROM column_layout_name ORDER BY name');
 
-export const getColumnLayoutName = (name: string): Promise<ColumnLayoutName | undefined> =>
+const getColumnLayoutName = (name: string): Promise<ColumnLayoutName | undefined> =>
   one<ColumnLayoutName>('SELECT * FROM column_layout_name WHERE name = ?', name);
 
-export interface ColumnLayoutNameInput { id?: number | null; name: string; description?: string }
+interface ColumnLayoutNameInput { id?: number | null; name: string; description?: string }
 
 export async function saveColumnLayoutName(input: ColumnLayoutNameInput, user: Actor): Promise<{ id: number }> {
   const name = input.name.trim().toUpperCase();
@@ -173,10 +173,10 @@ export async function duplicateColumnLayout(name: string, newName: string, user:
 export const listAccScheduleNames = (): Promise<AccScheduleName[]> =>
   all<AccScheduleName>('SELECT * FROM acc_schedule_name ORDER BY name');
 
-export const getAccScheduleName = (name: string): Promise<AccScheduleName | undefined> =>
+const getAccScheduleName = (name: string): Promise<AccScheduleName | undefined> =>
   one<AccScheduleName>('SELECT * FROM acc_schedule_name WHERE name = ?', name);
 
-export interface AccScheduleNameInput {
+interface AccScheduleNameInput {
   id?: number | null;
   name: string;
   description?: string;
@@ -228,7 +228,7 @@ export const listAccScheduleLines = (scheduleName: string): Promise<AccScheduleL
     scheduleName,
   );
 
-export interface AccScheduleLineInput {
+interface AccScheduleLineInput {
   id?: number | null;
   scheduleName: string;
   lineNo?: number | null;
@@ -346,7 +346,7 @@ export const listFinancialReports = (): Promise<FinancialReport[]> =>
 export const getFinancialReport = (name: string): Promise<FinancialReport | undefined> =>
   one<FinancialReport>('SELECT * FROM financial_report WHERE name = ?', name);
 
-export interface FinancialReportInput {
+interface FinancialReportInput {
   id?: number | null;
   name: string;
   description?: string;
@@ -445,7 +445,7 @@ const round = (n: number, factor: string): number => {
 
 const isRatioFormula = (formula: string): boolean => formula.includes('/');
 
-export interface RunFinancialReportOptions {
+interface RunFinancialReportOptions {
   /** A Financial Report name — resolves both row + column group. */
   reportName?: string;
   /** Or drive the two directly (the run page's column-layout override, and the test suite). */
@@ -666,10 +666,4 @@ export async function runFinancialReport(opts: RunFinancialReportOptions): Promi
     columns: resultColumns,
     rows: resultRows,
   };
-}
-
-/** Field key → identifier check for a formula, so the setup screen can flag "row XYZ is unknown". */
-export function unknownFormulaRefs(formula: string, knownRefs: string[]): string[] {
-  const known = new Set(knownRefs);
-  return formulaIdentifiers(formula).filter((id) => !known.has(id));
 }

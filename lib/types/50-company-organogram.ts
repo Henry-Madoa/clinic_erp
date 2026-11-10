@@ -3,7 +3,7 @@ import type { IsoDate, IsoDateTime } from '../types.ts';
 
 /* ------------------------------------------------------------------ Company Organogram */
 
-export type CompanyJobStatus = 'Open' | 'Pending Approval' | 'Approved' | 'Retired';
+type CompanyJobStatus = 'Open' | 'Pending Approval' | 'Approved' | 'Retired';
 export const JOB_QUALIFICATION_TYPES = ['ACADEMIC', 'PROFESSIONAL', 'EXPERIENCE', 'SKILL', 'MEMBERSHIP', 'OTHER'] as const;
 export type JobQualificationType = (typeof JOB_QUALIFICATION_TYPES)[number];
 export const JOB_QUALIFICATION_PRIORITIES = ['MANDATORY', 'DESIRABLE', 'ADDED_ADVANTAGE'] as const;

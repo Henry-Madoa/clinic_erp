@@ -106,7 +106,7 @@ export function IcdPicker() {
 
 /* ------------------------------------------------------------------ lab tests */
 
-export interface PickOption { id: number; label: string; group: string; sub?: string }
+interface PickOption { id: number; label: string; group: string; sub?: string }
 
 /** Tick-list grouped by section; posts the ids comma-joined under `name`. */
 export function MultiPick({ name, options, filterPlaceholder = 'Filter…' }: { name: string; options: PickOption[]; filterPlaceholder?: string }) {
@@ -139,7 +139,7 @@ export function MultiPick({ name, options, filterPlaceholder = 'Filter…' }: { 
 
 /* ------------------------------------------------------------------ prescription */
 
-export interface DrugOption { id: number; label: string; form: string; route: string; frequency: string | null; stock: number; price: number }
+interface DrugOption { id: number; label: string; form: string; route: string; frequency: string | null; stock: number; price: number }
 const FREQS = ['OD', 'BD', 'TDS', 'QID', 'Q6H', 'Q8H', 'NOCTE', 'STAT', 'PRN', 'WEEKLY'];
 const PER_DAY: Record<string, number> = { OD: 1, BD: 2, TDS: 3, QID: 4, Q6H: 4, Q8H: 3, NOCTE: 1, STAT: 1, PRN: 1, WEEKLY: 1 / 7 };
 const ROUTES = ['PO', 'IV', 'IM', 'SC', 'TOP', 'INH', 'PR', 'SL', 'OPHTH', 'OTIC', 'NASAL', 'BUCCAL'];

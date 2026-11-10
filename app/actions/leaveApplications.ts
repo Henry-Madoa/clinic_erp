@@ -6,7 +6,7 @@ import { resolveActingEmployee } from '@/lib/selfService';
 import { actionResult } from '@/lib/errors';
 import {
   createLeaveApplication, deleteLeaveApplication, submitLeaveApplication, cancelLeaveApplicationApproval,
-  approveLeaveApplication, rejectLeaveApplication, getLeaveBalance, type LeaveApplicationInput,
+  approveLeaveApplication, rejectLeaveApplication, type LeaveApplicationInput,
 } from '@/lib/leaveManagement';
 import { findPendingRoutedTask, decideWorkflowTask } from '@/lib/workflow';
 import type { ActionResult, FormValues, LeaveApplicationNature } from '@/lib/types';
@@ -95,13 +95,5 @@ export async function rejectLeaveApplicationRequest(no: string, reason: string):
     }
     revalidate(no);
     return { updated: true };
-  });
-}
-
-export async function balanceForEmployeeType(employeeId: number, leaveTypeId: number, calendarId: number) {
-  return actionResult(async () => {
-    await requireAnyAction('LEAVE_APPLICATIONS_READ', 'SELF_SERVICE_LEAVE_READ');
-    const balance = await getLeaveBalance(employeeId, leaveTypeId, calendarId);
-    return { balance };
   });
 }

@@ -39,11 +39,10 @@ export default async function CashManagementPage({ params, searchParams }: {
   if (requested && !TABS.some((t) => t.key === requested)) notFound();
   const tab = (requested ?? 'open') as CashManagementView;
 
-  const [docs, empty, canCreate, canApprove, canPost] = await Promise.all([
+  const [docs, empty, canCreate, canPost] = await Promise.all([
     listCashTransfers({ view: tab, search: q, filters, sort }),
     hasAnyCashTransfers(tab).then((any) => !any),
     currentCanAction('CASH_MANAGEMENT_CREATE'),
-    currentCanAction('CASH_MANAGEMENT_APPROVE'),
     currentCanAction('CASH_MANAGEMENT_POST'),
   ]);
 

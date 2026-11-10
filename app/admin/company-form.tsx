@@ -13,7 +13,7 @@ import { COMPANY_TYPES } from '@/lib/constants';
 import { formatDateTime, initials } from '@/lib/format';
 import type { Organisation } from '@/lib/types';
 
-export interface CompanyFormProps {
+interface CompanyFormProps {
   org: Organisation;
   /** Resolved server-side: a Cloudinary delivery URL, or a legacy data URL. */
   logoSrc: string | null;

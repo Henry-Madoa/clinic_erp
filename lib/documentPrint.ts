@@ -22,7 +22,7 @@ import { all, one } from './db.ts';
 import { getOrg, getTheme } from './org.ts';
 import { imageSrc } from './cloudinary.ts';
 import { formatDate, formatDateTime, formatMoney } from './format.ts';
-import { renderSignatureHtml, signaturesFor } from './userSignatures.ts';
+import { signaturesFor } from './userSignatures.ts';
 import type { IsoDate } from './types.ts';
 import type { SignatureBlock, WorkflowDocumentType } from './types.ts';
 
@@ -51,7 +51,7 @@ export interface PrintParty {
   lines: string[];
 }
 
-export interface PrintMeta {
+interface PrintMeta {
   label: string;
   value: string;
   /** Renders the value in the brand colour — used for the document total on the header grid. */
@@ -76,7 +76,7 @@ export interface PrintRow {
   strong?: boolean;
 }
 
-export interface PrintTotal {
+interface PrintTotal {
   label: string;
   value: string;
   /** The grand total: reversed out in the brand colour. */
@@ -95,7 +95,7 @@ export interface PrintSignature {
   date?: IsoDate | string | null;
 }
 
-export interface PrintNote {
+interface PrintNote {
   heading: string;
   body: string;
 }
@@ -104,7 +104,7 @@ export interface PrintNote {
  * "Acknowledge receipt of the payment" — a caption and the fields the recipient fills in by
  * hand. Printed under the approval table and never pre-filled: the point is the wet signature.
  */
-export interface PrintAcknowledgement {
+interface PrintAcknowledgement {
   title: string;
   /** Defaults to Name / Signature / Date. */
   fields?: string[];
@@ -133,7 +133,7 @@ export interface PrintDocument {
   subtitle?: string | null;
   /** Diagonal stamp across the page — "DRAFT", "PENDING APPROVAL", "COPY". */
   watermark?: string | null;
-  /** A register too wide for portrait A4 — the P9 card, the banker's cheque schedule. */
+  /** A register too wide for portrait A4 — e.g. the P9 card. */
   landscape?: boolean;
   /**
    * A slip-width document: the body is SLIP_WIDTH_MM wide (the Payslip.rdl body is 9.95cm on
@@ -333,7 +333,7 @@ async function documentRaisedAt(
 const align = (c: PrintColumn): string => `ta-${c.align ?? 'left'}`;
 
 /** The letterhead on its own — for a `custom_html` document (a letter) that lays out its own body. */
-export function headerBlock(doc: PrintDocument): string {
+function headerBlock(doc: PrintDocument): string {
   const b = doc.brand;
   return `
   <header class="dp-head">
@@ -596,7 +596,7 @@ export function renderDocument(doc: PrintDocument): string {
 }
 
 /** Width of a slip-sized document body — Payslip.rdl's 9.95cm, rounded to whole millimetres. */
-export const SLIP_WIDTH_MM = 100;
+const SLIP_WIDTH_MM = 100;
 
 function documentStyles(doc: PrintDocument): string {
   const b = doc.brand;

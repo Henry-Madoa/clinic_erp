@@ -8,10 +8,15 @@ import { saveProfileRequest, deleteProfileRequest } from '@/app/actions/admin';
 import type { Profile } from '@/lib/types';
 
 const ROLE_CENTRES = [
-  { value: 'SUPER', label: 'Managing Director' },
-  { value: 'SALES', label: 'Sales & Business Development' },
-  { value: 'DELIVERY', label: 'Delivery (Projects & Resources)' },
-  { value: 'SUPPORT', label: 'Support (Service Desk)' },
+  { value: 'SUPER', label: 'Medical Director' },
+  { value: 'RECEPTION', label: 'Reception & Front Office' },
+  { value: 'CLINICIAN', label: 'Clinician' },
+  { value: 'NURSE', label: 'Nursing & Triage' },
+  { value: 'DENTAL', label: 'Dental Clinic' },
+  { value: 'LAB', label: 'Laboratory' },
+  { value: 'PHARMACY', label: 'Pharmacy' },
+  { value: 'CASHIER', label: 'Cashier' },
+  { value: 'CLAIMS', label: 'Claims & Insurance' },
   { value: 'FINANCE_MANAGER', label: 'Finance Manager' },
   { value: 'ACCOUNTANT', label: 'Accountant' },
   { value: 'HR_PAYROLL', label: 'HR & Payroll' },

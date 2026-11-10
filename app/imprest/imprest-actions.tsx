@@ -138,7 +138,7 @@ function ImprestFields({ lookups, initial, lines, setLines }: {
   );
 }
 
-export const imprestLinesOf = (r: ImprestRequestDetail): ImprestLineDraft[] =>
+const imprestLinesOf = (r: ImprestRequestDetail): ImprestLineDraft[] =>
   r.line_items.length
     ? r.line_items.map((l) => ({ glAccountCode: l.gl_account_code, narration: l.narration ?? '', quantity: String(l.quantity), unitCost: l.unit_cost ? toTwoDp(String(l.unit_cost / 100)) : '', requestAmount: toTwoDp(String(l.request_amount / 100)) }))
     : [emptyImprestLine()];
@@ -403,7 +403,7 @@ function PettyCashFields({ lookups, initial, lines, setLines, limit }: {
   );
 }
 
-export const pettyCashLinesOf = (p: PettyCashDetail): PettyCashLineDraft[] =>
+const pettyCashLinesOf = (p: PettyCashDetail): PettyCashLineDraft[] =>
   p.line_items.length ? p.line_items.map((l) => ({ glAccountCode: l.gl_account_code, description: l.description ?? '', amount: toTwoDp(String(l.amount / 100)) })) : [emptyPcLine()];
 
 export function NewPettyCashButton({ lookups, limit }: { lookups: ImprestLookups; limit: number }) {
@@ -503,7 +503,7 @@ export function ImprestPurposeRow({ row, canManage }: { row: ImprestPurpose; can
   );
 }
 
-export function DeleteImprestPurposeButton({ code, className = 'btn sm ghost' }: { code: string; className?: string }) {
+function DeleteImprestPurposeButton({ code, className = 'btn sm ghost' }: { code: string; className?: string }) {
   const { run, busy } = useRunAction();
   return (
     <button type="button" className={className} disabled={busy}

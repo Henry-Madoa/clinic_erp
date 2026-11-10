@@ -16,7 +16,7 @@ import type { OutboxMessage } from './types.ts';
  * attempt; the OUTBOX_DISPATCH job retries failures and parks what cannot be sent.
  */
 
-export interface SendSmsInput {
+interface SendSmsInput {
   /** The recipient's number. Normalised to E.164 against SMS_COUNTRY_CODE (default +254). */
   to: string;
   message: string;
@@ -30,7 +30,7 @@ export interface SendSmsInput {
  * Kenyan numbers are written locally as often as internationally, so `0722…`, `722…`,
  * `254722…` and `+254722…` all have to reach the same handset.
  */
-export function normalisePhone(raw: string, countryCode = process.env.SMS_COUNTRY_CODE || '254'): string | null {
+function normalisePhone(raw: string, countryCode = process.env.SMS_COUNTRY_CODE || '254'): string | null {
   const digits = String(raw ?? '').replace(/[^\d+]/g, '').replace(/^\+/, '');
   if (!digits) return null;
   if (digits.startsWith(countryCode)) return `+${digits}`;
@@ -41,7 +41,7 @@ export function normalisePhone(raw: string, countryCode = process.env.SMS_COUNTR
 }
 
 /** The transport: one POST to the gateway, throwing on anything but a 2xx so the outbox can retry. */
-export async function deliverSms(m: OutboxMessage): Promise<string | null> {
+async function deliverSms(m: OutboxMessage): Promise<string | null> {
   const url = process.env.SMS_GATEWAY_URL;
   if (!url) throw new TransportNotConfigured('SMS_GATEWAY_URL is not set — SMS is not configured on this server');
   const res = await fetch(url, {

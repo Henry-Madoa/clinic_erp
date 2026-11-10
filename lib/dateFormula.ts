@@ -33,11 +33,6 @@ export function addMonths(isoDate: IsoDate, n: number): IsoDate {
   return d.toISOString().slice(0, 10);
 }
 
-/** Whole nights between two ISO dates (departure − arrival). */
-export function nightsBetween(from: IsoDate, to: IsoDate): number {
-  return Math.round((parseIso(to).getTime() - parseIso(from).getTime()) / 86_400_000);
-}
-
 /** End of the calendar period containing `iso`. */
 function endOfPeriod(iso: IsoDate, unit: 'D' | 'W' | 'M' | 'Q' | 'Y'): IsoDate {
   const d = parseIso(iso);

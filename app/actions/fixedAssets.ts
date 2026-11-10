@@ -5,26 +5,25 @@ import { requireAction, requireUser } from '@/lib/session';
 import { actionResult } from '@/lib/errors';
 import { toCents } from '@/lib/format';
 import {
-  listFaClasses, createFaClass, updateFaClass, type FaClassInput,
-  listFaSubclasses, createFaSubclass, updateFaSubclass, type FaSubclassInput,
-  listFaLocations, createFaLocation, updateFaLocation, type FaLocationInput,
-  listMaintenanceCodes, createMaintenance, updateMaintenance, type MaintenanceInput,
-  listDepreciationBooks, createDepreciationBook, updateDepreciationBook, type DepreciationBookInput,
-  listFaPostingGroups, createFaPostingGroup, updateFaPostingGroup, type FaPostingGroupInput,
-  getFaSetup, saveFaSetup, type FaSetupInput,
+  createFaClass, updateFaClass, type FaClassInput,
+  createFaSubclass, updateFaSubclass, type FaSubclassInput,
+  createFaLocation, updateFaLocation, type FaLocationInput,
+  createMaintenance, updateMaintenance, type MaintenanceInput,
+  createDepreciationBook, updateDepreciationBook, type DepreciationBookInput,
+  createFaPostingGroup, updateFaPostingGroup, type FaPostingGroupInput,
+  saveFaSetup, type FaSetupInput,
 } from '@/lib/fixedAssetsSetup';
 import {
-  listFixedAssets, createFixedAsset, updateFixedAsset, type FixedAssetInput,
+  createFixedAsset, updateFixedAsset, type FixedAssetInput,
   getFaDepreciationBooks, setFaDepreciationBook, type FaDepreciationBookInput,
-  listFaLedgerEntries, getFixedAsset,
+  listFaLedgerEntries,
 } from '@/lib/fixedAssets';
 import {
-  listFaJournalLines, getFaJournalLine, createFaJournalLine, updateFaJournalLine, deleteFaJournalLine,
+  createFaJournalLine, updateFaJournalLine, deleteFaJournalLine,
   submitFaJournalLine, cancelFaJournalLineApproval, approveFaJournalLine, rejectFaJournalLine,
   reopenFaJournalLine, postFaJournalLine, postAllApprovedFaJournalLines, type FaJournalLineInput,
 } from '@/lib/faJournal';
 import { calculateDepreciation } from '@/lib/fixedAssetDepreciation';
-import { getFaBookValueReport } from '@/lib/fixedAssetReports';
 import { findPendingRoutedTask, decideWorkflowTask } from '@/lib/workflow';
 import type {
   ActionResult, FaDepreciationMethod, FaPostingType, FormValues,
@@ -35,12 +34,6 @@ const revalidate = (): void => revalidatePath('/fixed-assets', 'layout');
 const str = (v: unknown): string => String(v ?? '').trim();
 const opt = (v: unknown): string | null => (str(v) === '' ? null : str(v));
 const numOrNull = (v: unknown): number | null => (v === undefined || v === '' || v === null ? null : Number(v));
-
-/* --------------------------------------------------------------------- FA Class */
-
-export async function listFaClassesRequest() {
-  return actionResult(async () => { await requireAction('FIXED_ASSETS_READ'); return listFaClasses(); });
-}
 const toFaClassInput = (v: FormValues): FaClassInput => ({
   code: str(v.code), description: str(v.description), status: (str(v.status || 'ACTIVE') as 'ACTIVE' | 'INACTIVE'),
 });
@@ -55,12 +48,6 @@ export async function updateFaClassRequest(id: number, v: FormValues): Promise<A
     const user = await requireAction('FIXED_ASSETS_SETUP_MANAGE');
     await updateFaClass(id, toFaClassInput(v), user); revalidate(); return { id };
   });
-}
-
-/* ------------------------------------------------------------------ FA Subclass */
-
-export async function listFaSubclassesRequest() {
-  return actionResult(async () => { await requireAction('FIXED_ASSETS_READ'); return listFaSubclasses(); });
 }
 const toFaSubclassInput = (v: FormValues): FaSubclassInput => ({
   code: str(v.code), description: str(v.description), faClassCode: opt(v.fa_class_code),
@@ -78,12 +65,6 @@ export async function updateFaSubclassRequest(id: number, v: FormValues): Promis
     await updateFaSubclass(id, toFaSubclassInput(v), user); revalidate(); return { id };
   });
 }
-
-/* ------------------------------------------------------------------ FA Location */
-
-export async function listFaLocationsRequest() {
-  return actionResult(async () => { await requireAction('FIXED_ASSETS_READ'); return listFaLocations(); });
-}
 const toFaLocationInput = (v: FormValues): FaLocationInput => ({
   code: str(v.code), description: str(v.description), status: (str(v.status || 'ACTIVE') as 'ACTIVE' | 'INACTIVE'),
 });
@@ -99,12 +80,6 @@ export async function updateFaLocationRequest(id: number, v: FormValues): Promis
     await updateFaLocation(id, toFaLocationInput(v), user); revalidate(); return { id };
   });
 }
-
-/* -------------------------------------------------------------------- Maintenance */
-
-export async function listMaintenanceCodesRequest() {
-  return actionResult(async () => { await requireAction('FIXED_ASSETS_READ'); return listMaintenanceCodes(); });
-}
 const toMaintenanceInput = (v: FormValues): MaintenanceInput => ({
   code: str(v.code), description: str(v.description), status: (str(v.status || 'ACTIVE') as 'ACTIVE' | 'INACTIVE'),
 });
@@ -119,12 +94,6 @@ export async function updateMaintenanceRequest(id: number, v: FormValues): Promi
     const user = await requireAction('FIXED_ASSETS_SETUP_MANAGE');
     await updateMaintenance(id, toMaintenanceInput(v), user); revalidate(); return { id };
   });
-}
-
-/* ------------------------------------------------------------- Depreciation Book */
-
-export async function listDepreciationBooksRequest() {
-  return actionResult(async () => { await requireAction('FIXED_ASSETS_READ'); return listDepreciationBooks(); });
 }
 const toDepreciationBookInput = (v: FormValues): DepreciationBookInput => ({
   code: str(v.code), description: str(v.description),
@@ -142,12 +111,6 @@ export async function updateDepreciationBookRequest(id: number, v: FormValues): 
     const user = await requireAction('FIXED_ASSETS_SETUP_MANAGE');
     await updateDepreciationBook(id, toDepreciationBookInput(v), user); revalidate(); return { id };
   });
-}
-
-/* -------------------------------------------------------------- FA Posting Group */
-
-export async function listFaPostingGroupsRequest() {
-  return actionResult(async () => { await requireAction('FIXED_ASSETS_READ'); return listFaPostingGroups(); });
 }
 const toFaPostingGroupInput = (v: FormValues): FaPostingGroupInput => ({
   code: str(v.code),
@@ -172,12 +135,6 @@ export async function updateFaPostingGroupRequest(id: number, v: FormValues): Pr
     const user = await requireAction('FIXED_ASSETS_SETUP_MANAGE');
     await updateFaPostingGroup(id, toFaPostingGroupInput(v), user); revalidate(); return { id };
   });
-}
-
-/* -------------------------------------------------------------------- FA Setup */
-
-export async function getFaSetupRequest() {
-  return actionResult(async () => { await requireAction('FIXED_ASSETS_READ'); return getFaSetup(); });
 }
 export async function saveFaSetupRequest(v: FormValues): Promise<ActionResult<{ saved: true }>> {
   return actionResult(async () => {
@@ -209,13 +166,6 @@ const toFixedAssetInput = (v: FormValues): FixedAssetInput => ({
   blocked: v.blocked === 'on' || v.blocked === 'true',
   inactive: v.inactive === 'on' || v.inactive === 'true',
 });
-
-export async function listFixedAssetsRequest(opts: Parameters<typeof listFixedAssets>[0]) {
-  return actionResult(async () => { await requireAction('FIXED_ASSETS_READ'); return listFixedAssets(opts); });
-}
-export async function getFixedAssetRequest(no: string) {
-  return actionResult(async () => { await requireAction('FIXED_ASSETS_READ'); return getFixedAsset(no); });
-}
 export async function requestFixedAsset(v: FormValues): Promise<ActionResult<{ no: string }>> {
   return actionResult(async () => {
     const user = await requireAction('FIXED_ASSETS_ASSET_MANAGE');
@@ -251,15 +201,6 @@ export async function saveFaDepreciationBook(fixedAssetId: number, v: FormValues
     };
     await setFaDepreciationBook(fixedAssetId, input, user); revalidate(); return { saved: true };
   });
-}
-
-/* -------------------------------------------------------------------- FA Journal */
-
-export async function listFaJournalLinesRequest(opts: Parameters<typeof listFaJournalLines>[0]) {
-  return actionResult(async () => { await requireAction('FIXED_ASSETS_READ'); return listFaJournalLines(opts); });
-}
-export async function getFaJournalLineRequest(no: string) {
-  return actionResult(async () => { await requireAction('FIXED_ASSETS_READ'); return getFaJournalLine(no); });
 }
 export async function listFaLedgerEntriesRequest(opts: Parameters<typeof listFaLedgerEntries>[0]) {
   return actionResult(async () => { await requireAction('FIXED_ASSETS_READ'); return listFaLedgerEntries(opts); });
@@ -365,10 +306,4 @@ export async function calculateDepreciationRequest(
     revalidate();
     return res;
   });
-}
-
-/* -------------------------------------------------------------- Book Value report */
-
-export async function getFaBookValueReportRequest(opts: Parameters<typeof getFaBookValueReport>[0]) {
-  return actionResult(async () => { await requireAction('FIXED_ASSETS_READ'); return getFaBookValueReport(opts); });
 }

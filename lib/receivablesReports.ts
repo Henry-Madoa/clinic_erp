@@ -20,7 +20,7 @@ export const AGED_AR_FILTER_FIELDS: FilterFieldDef[] = [
   { key: 'city', label: 'City', type: 'text', column: 'c.city' },
 ];
 
-export interface GetAgedAROptions {
+interface GetAgedAROptions {
   asOf?: IsoDate;
   agingBy?: 'Due Date' | 'Posting Date';
   periodLength?: string;
@@ -93,15 +93,6 @@ export async function getAgedAccountsReceivable(
     rows,
     totals,
   };
-}
-
-/** Total open receivables at a date — should tie to (Σ Customer Posting Group receivables
- *  accounts) on the trial balance. */
-export async function receivablesTotal(asOf: IsoDate): Promise<Cents> {
-  const row = await one<{ total: Cents }>(
-    'SELECT COALESCE(SUM(remaining_amount_lcy), 0) AS total FROM cust_ledger_entry WHERE open = 1 AND posting_date <= ?', asOf,
-  );
-  return row?.total ?? 0;
 }
 
 /* ------------------------------------------------------------- customer statement */

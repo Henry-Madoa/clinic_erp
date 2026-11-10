@@ -12,7 +12,7 @@ export type RequisitionDecision = '' | 'RFQ' | 'Order' | 'Append to Order';
 /** AL "PR Closed By". */
 export type RequisitionCloseReason = 'Purchase Order' | 'Direct Receipt of Goods/Services' | 'Rejection';
 /** Open | Pending Approval | Approved, plus Received once the store requester confirms receipt. */
-export type RequisitionStatus = DocumentStatus | 'Received';
+type RequisitionStatus = DocumentStatus | 'Received';
 
 /** AL Tab52203515 "Requisition Header". */
 export interface Requisition {

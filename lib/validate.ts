@@ -44,14 +44,14 @@ export const isEmail = (value: string): boolean => EMAIL_RE.test(value.trim());
 
 /** Throws unless `value` is a usable phone number. A blank is left to the caller's own
  *  required-field check, so an optional phone stays optional. */
-export function assertPhone(value: unknown, label = 'Phone number'): void {
+function assertPhone(value: unknown, label = 'Phone number'): void {
   const raw = String(value ?? '').trim();
   if (!raw) return;
   if (!isPhone(raw)) throw new AppError(`${label} is not a valid phone number`, 'VALIDATION');
 }
 
 /** Throws unless `value` is a usable email address; a blank is left to the caller. */
-export function assertEmail(value: unknown, label = 'Email address'): void {
+function assertEmail(value: unknown, label = 'Email address'): void {
   const raw = String(value ?? '').trim();
   if (!raw) return;
   if (!isEmail(raw)) throw new AppError(`${label} is not a valid email address`, 'VALIDATION');

@@ -1,9 +1,8 @@
 /*
  * The workflow engine — Business-Central-style approval routing shared by
- * every document type (timesheets, contracts, invoices, journals).
+ * every document type (journals, vouchers, requisitions, HR and leave documents).
  *
- * A document's own service module (lib/memberApplications.ts, lib/loanService.ts,
- * lib/gl.ts) asks findMatchingWorkflow() whether an admin-defined workflow
+ * A document's own service module (lib/gl.ts, lib/imprest.ts, lib/leaveManagement.ts, …) asks findMatchingWorkflow() whether an admin-defined workflow
  * applies; if so it calls startWorkflow() instead of doing its own permission-
  * gated approval. Nothing here imports those modules at the top level — the
  * finalize step (a task's last step is approved / any step is rejected) reaches
@@ -33,11 +32,10 @@ export * from './workflowConstants.ts';
 
 /**
  * For document types whose submission code doesn't forward a full table row into
- * findMatchingWorkflow() — LOAN and JOURNAL are matched before/without ever fetching their own
- * row back (see lib/loanService.ts and lib/gl.ts) — the admin's field picker is capped to
- * exactly the columns that call already forwards, so every field an admin enables is guaranteed
- * to actually be evaluated. MEMBER_APPLICATION forwards its whole row (pickConditionFields()
- * below, called from lib/memberApplications.ts) so it carries no cap.
+ * findMatchingWorkflow() — JOURNAL is matched without ever fetching its own row back (see
+ * lib/gl.ts) — the admin's field picker is capped to exactly the columns that call already
+ * forwards, so every field an admin enables is guaranteed to actually be evaluated. Every other
+ * type forwards its whole row (pickConditionFields() below) so it carries no cap.
  */
 const RUNTIME_FIELD_CAP: Partial<Record<WorkflowDocumentType, readonly string[]>> = {
   JOURNAL: ['amount', 'global_dimension_1_id', 'global_dimension_2_id'],
@@ -181,9 +179,9 @@ export async function listWorkflowTableRelations(): Promise<WorkflowTableRelatio
 }
 
 /** The real columns of a document type's table that are still available to add as a condition
- *  field — real columns that exist, aren't already enabled, and (for LOAN/JOURNAL) fall inside
+ *  field — real columns that exist, aren't already enabled, and (for JOURNAL) fall inside
  *  the runtime cap above, so nothing offered here could ever silently fail to match. A document
- *  type with no runtime cap (every wired type but LOAN/JOURNAL, and every non-wired type) offers
+ *  type with no runtime cap (every type but JOURNAL) offers
  *  every real column. */
 export async function listAddableTableColumns(documentType: string): Promise<string[]> {
   const { columns } = await tableSchema(tableForDocumentType(documentType));
@@ -196,7 +194,7 @@ export async function listAddableTableColumns(documentType: string): Promise<str
 
 /** The field keys currently enabled for a document type's conditions — empty until an admin
  *  has configured (or re-configured) that document type's table relation. */
-export async function listConditionFieldKeys(documentType: string): Promise<string[]> {
+async function listConditionFieldKeys(documentType: string): Promise<string[]> {
   const relation = await one<{ id: number }>(
     'SELECT id FROM workflow_table_relation WHERE document_type = ?', documentType,
   );
@@ -260,8 +258,8 @@ export async function listConditionFieldDefs(documentType: string): Promise<Docu
 /** Lifts the admin-enabled condition fields off a document row, for handing to
  *  `findMatchingWorkflow()` — keeps that call in lockstep with the admin field catalogue above
  *  instead of duplicating the key list at the call site. Only meaningful for a document type
- *  whose service fetches its own full row before matching (MEMBER_APPLICATION); LOAN and
- *  JOURNAL build their fields object by hand from local variables instead. */
+ *  whose service fetches its own full row before matching; JOURNAL builds its fields
+ *  object by hand from local variables instead. */
 export async function pickConditionFields(
   documentType: WorkflowDocumentType, row: object,
 ): Promise<Record<string, number | string | null>> {
@@ -453,9 +451,9 @@ export async function isEligibleApprover(
   return (await eligibleUserIds(task)).includes(userId);
 }
 
-export interface StartWorkflowInput {
+interface StartWorkflowInput {
   documentType: WorkflowDocumentType;
-  /** The document's own key — timesheet.id, sales_header.no, or a minted journal-draft reference. */
+  /** The document's own key — sales_header.no, a voucher no., or a minted journal-draft reference. */
   entityId: string;
   requestedBy: string;
   amount: Cents;
@@ -523,22 +521,6 @@ export async function startWorkflow(
   workflow: Workflow, steps: WorkflowStep[], input: StartWorkflowInput,
 ): Promise<number> {
   return createTaskForStep(workflow.id, steps[0], input);
-}
-
-/**
- * Record a decision made through the old static-permission path (no assignee to
- * check) — kept only for documents that already have a legacy (unrouted) task from
- * before every LOAN/MEMBER_APPLICATION submission started requiring a matched,
- * enabled workflow.
- */
-export async function recordLegacyDecision(
-  documentType: WorkflowDocumentType, entityId: string, approved: boolean, reason: string | null, user: Actor,
-): Promise<void> {
-  await run(
-    `UPDATE workflow_task SET status=?, decided_by=?, decided_at=?, comment=?
-     WHERE document_type=? AND entity_id=? AND workflow_id IS NULL AND status='PENDING'`,
-    approved ? 'APPROVED' : 'REJECTED', user.username, new Date().toISOString(), reason, documentType, entityId,
-  );
 }
 
 /**
@@ -911,7 +893,7 @@ export interface DelegateTarget {
  *
  * Only active users qualify: delegating to a disabled account would strand the document.
  */
-export async function resolveDelegateTarget(currentApproverId: number): Promise<DelegateTarget | null> {
+async function resolveDelegateTarget(currentApproverId: number): Promise<DelegateTarget | null> {
   const named = async (id: number | null | undefined, via: DelegateTarget['via']): Promise<DelegateTarget | null> => {
     if (!id || id === currentApproverId) return null;
     const u = await one<{ id: number; username: string; full_name: string | null }>(
@@ -1052,7 +1034,7 @@ const WORKFLOW_TASK_SORT_COLUMNS: Record<string, string> = {
   decided_at: 't.decided_at',
 };
 
-export interface ListWorkflowTaskOptions {
+interface ListWorkflowTaskOptions {
   search?: string;
   filters?: FilterCondition[];
   sort?: SortState | null;
@@ -1135,10 +1117,6 @@ export async function listMySubmittedWorkflowTasks(
   );
   return decorateTasks(rows);
 }
-
-/** Org-wide pending task count, for the Dashboard's own KPI — not scoped to a user. */
-export const pendingWorkflowTaskCount = async (): Promise<number> =>
-  (await one<{ c: number }>("SELECT COUNT(*) c FROM workflow_task WHERE status = 'PENDING'"))!.c;
 
 /**
  * Pending tasks this specific user may actually act on — the exact same scope as the Approvals
@@ -1376,7 +1354,7 @@ export const listApprovalUserSetup = (): Promise<ApprovalUserSetupRow[]> =>
      ORDER BY u.full_name`,
   );
 
-export interface ApprovalUserSetupInput {
+interface ApprovalUserSetupInput {
   approver_id?: number | null;
   substitute_id?: number | null;
   is_approval_administrator?: number;

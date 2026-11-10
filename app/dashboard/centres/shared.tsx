@@ -44,8 +44,3 @@ export function KpiTile({ label, value, foot, spark, sparkColor, accent = true }
     />
   );
 }
-
-/** A section wrapper: renders `children` when `can`, else a LockedCard. */
-export function Gated({ can, title, children }: { can: boolean; title: string; children: ReactNode }) {
-  return can ? <>{children}</> : <LockedCard title={title} />;
-}

@@ -24,14 +24,13 @@ import { one, all } from './db.ts';
 import { formatDate, formatMoney } from './format.ts';
 import { amountInWords } from './numberToWords.ts';
 import {
-  printBrand, documentMoney, documentSignatories, currencyLabel, renderDocument,
+  printBrand, documentMoney, documentSignatories, currencyLabel,
 } from './documentPrint.ts';
 import type { PrintDocument, PrintColumn, PrintRow } from './documentPrint.ts';
 import type {
   PaymentVoucherType, PostedPaymentVoucher, PostedPaymentVoucherLine,
 } from './types.ts';
 
-export { renderDocument };
 
 /** The AL tax voucher: what was billed, what was withheld, what the payee actually gets. */
 const TAX_COLUMNS: PrintColumn[] = [

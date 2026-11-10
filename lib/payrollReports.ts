@@ -11,7 +11,7 @@
  * the five-role signature strip (Prepared / Checked / Confirmed / Approved / Authorised).
  */
 import 'server-only';
-import { one, all } from './db.ts';
+import { all } from './db.ts';
 import { AppError } from './errors.ts';
 import { formatMoney } from './format.ts';
 import { getPayrollPeriod } from './payroll.ts';
@@ -23,9 +23,9 @@ import { printBrand, documentMoney } from './documentPrint.ts';
 import type { PrintDocument, PrintRow, PrintSignature } from './documentPrint.ts';
 import type { PayrollPeriod } from './types.ts';
 
-export type CellKind = 'text' | 'money' | 'int';
+type CellKind = 'text' | 'money' | 'int';
 export interface ReportColumn { key: string; label: string; kind?: CellKind; width?: string; sum?: boolean }
-export interface ReportRow { cells: Record<string, string | number | null>; kind?: 'data' | 'group' | 'subtotal' }
+interface ReportRow { cells: Record<string, string | number | null>; kind?: 'data' | 'group' | 'subtotal' }
 /**
  * AL "Applied Filters": the request-page filters every payroll report takes — the employee's
  * dimensions, posting group and payment mode, one employee, and (on the line-based reports) one
@@ -34,7 +34,6 @@ export interface ReportRow { cells: Record<string, string | number | null>; kind
 export interface ReportFilters {
   dim1?: number; dim2?: number; employeeId?: number; postingGroupId?: number; paymentMode?: string; code?: string;
 }
-export const REPORT_FILTER_PARAMS = ['dim1', 'dim2', 'employee', 'posting', 'mode', 'code'] as const;
 
 export function parseReportFilters(q: Record<string, string | string[] | undefined>): ReportFilters {
   const s = (k: string) => { const v = q[k]; return Array.isArray(v) ? v[0] : v; };
@@ -92,7 +91,7 @@ export async function getReportFilterOptions(periodId: number): Promise<ReportFi
 }
 
 /** "Department: Finance · Payment mode: M-Pesa" — the RDLCs' "Applied Filters" line. */
-export function describeReportFilters(f: ReportFilters, o: ReportFilterOptions): string {
+function describeReportFilters(f: ReportFilters, o: ReportFilterOptions): string {
   const parts: string[] = [];
   const name = <T extends { id: number; code: string; name: string }>(list: T[], id?: number) => { const v = list.find((x) => x.id === id); return v ? `${v.code} — ${v.name}` : id ? String(id) : ''; };
   if (f.dim1) parts.push(`${o.captions.caption1}: ${name(o.dim1, f.dim1)}`);
@@ -104,7 +103,7 @@ export function describeReportFilters(f: ReportFilters, o: ReportFilterOptions):
   return parts.join(' · ');
 }
 
-export interface PayrollReport {
+interface PayrollReport {
   key: PayrollReportKey; title: string;
   filters: ReportFilters; appliedFilters: string;
   /** The RDLC's header line — "SHIF For :", "Payroll Deductions For :" … */

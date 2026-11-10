@@ -25,7 +25,7 @@ import { PERIOD_CODES, PERIOD_GROUPS, type PeriodCode, type PeriodGroup } from '
 
 export { PERIOD_CODES, PERIOD_GROUPS, type PeriodCode, type PeriodGroup };
 import type {
-  Actor, Cents, IsoDate, PayrollPeriod, PayrollPeriodStatus, PayrollPostingGroup, PayrollTransactionCode,
+  Actor, Cents, IsoDate, PayrollPeriod, PayrollPostingGroup, PayrollTransactionCode,
   PayrollTransactionType, EmployeePayrollTransactionView, PayrollPeriodTransactionView, EmployeeExitDueType, PayrollP9Line,
 } from './types.ts';
 
@@ -70,12 +70,6 @@ interface PeriodTxDraft {
   companyDeduction?: boolean; loanId?: number | null; imprestNo?: string | null;
 }
 
-/**
- * The run's own group/order for an Earnings & Deductions code — AL's "Group Text" per
- * transaction type: Income → ALLOWANCE (3), Deduction → DEDUCTIONS (8), Company Deduction →
- * EMPLOYER (10).
- */
-const groupForType = (t: PayrollTransactionType): PeriodGroup => (t === 'INCOME' ? 'ALLOWANCE' : t === 'DEDUCTION' ? 'DEDUCTIONS' : 'EMPLOYER');
 
 /* ================================================================================ calculation */
 

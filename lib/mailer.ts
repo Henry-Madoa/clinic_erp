@@ -16,7 +16,7 @@ import type { OutboxMessage } from './types.ts';
  * queued at all.
  */
 
-export interface SendMailInput {
+interface SendMailInput {
   to: string | string[];
   subject: string;
   html: string;
@@ -27,7 +27,7 @@ export interface SendMailInput {
 }
 
 /** The transport: one real send, throwing on failure so the outbox can retry or park it. */
-export async function deliverMail(m: OutboxMessage): Promise<string | null> {
+async function deliverMail(m: OutboxMessage): Promise<string | null> {
   const transport = await getMailTransport();
   if (!transport) throw new TransportNotConfigured('E-mail is not set up — Admin Centre → Integrations → Email & Notifications');
   const to = m.recipient.split(',').map((s) => s.trim()).filter(Boolean);
@@ -83,23 +83,6 @@ export function approvalDecidedEmail(
     `<p><b>${escapeHtml(documentLabel)}</b> was ${approved ? 'approved' : 'rejected'} by <b>${escapeHtml(decidedBy)}</b>.</p>
      ${comment ? `<p style="color:#555;">"${escapeHtml(comment)}"</p>` : ''}`,
     link,
-  );
-}
-
-/** To the client contact: a support ticket raised or resolved. No staff link — clients have no account. */
-export function ticketUpdateEmail(t: {
-  companyName: string; contactName: string; ticketNo: string; subject: string; status: 'raised' | 'resolved'; priority: string; resolveBy: string | null; resolution: string | null;
-}): string {
-  return wrapper(
-    t.status === 'raised' ? `Ticket ${t.ticketNo} received — ${t.companyName}` : `Ticket ${t.ticketNo} resolved — ${t.companyName}`,
-    `<p>Dear ${escapeHtml(t.contactName)},</p>
-     ${t.status === 'raised'
-      ? `<p>We have logged your request <b>${escapeHtml(t.subject)}</b> as ticket <b>${escapeHtml(t.ticketNo)}</b> (priority ${escapeHtml(t.priority)}).</p>
-         ${t.resolveBy ? `<p>Our target to resolve it is <b>${escapeHtml(t.resolveBy)}</b>.</p>` : ''}<p>Please quote the ticket number in any reply.</p>`
-      : `<p>Your ticket <b>${escapeHtml(t.ticketNo)}</b> — ${escapeHtml(t.subject)} — has been resolved:</p>
-         <blockquote style="margin:8px 0;padding:8px 12px;border-left:3px solid #0E7490;background:#f4f8fa;">${escapeHtml(t.resolution ?? '')}</blockquote>
-         <p>If the problem returns, reply quoting the ticket number and we will reopen it.</p>`}`,
-    null,
   );
 }
 

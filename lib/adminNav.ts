@@ -6,7 +6,7 @@
 import { canPage } from './permissions.ts';
 import type { TabDefinition } from '@/components/ui/primitives';
 
-export interface AdminTab extends TabDefinition {
+interface AdminTab extends TabDefinition {
   /** A tab shows up once the user can execute any one of these pages — Setup Pool
    *  merges the pages of everything nested under it. */
   page: string | string[];
@@ -20,7 +20,7 @@ export const hasTabAccess = (user: Parameters<typeof canPage>[0], t: AdminTab): 
  * its own ADMIN_* (or module) page permission; a category shows once the user can reach any one
  * of its screens. URL: /admin/pool/<category>/<screen>.
  */
-export interface PoolGroup { key: string; label: string; screens: AdminTab[] }
+interface PoolGroup { key: string; label: string; screens: AdminTab[] }
 export const POOL_GROUPS: PoolGroup[] = [
   {
     key: 'general', label: 'General', screens: [
@@ -69,7 +69,7 @@ export const POOL_GROUPS: PoolGroup[] = [
     ],
   },
 ];
-export const POOL_PAGES: string[] = POOL_GROUPS.flatMap((g) =>
+const POOL_PAGES: string[] = POOL_GROUPS.flatMap((g) =>
   g.screens.flatMap((s) => (Array.isArray(s.page) ? s.page : [s.page])));
 
 export const ADMIN_TABS: AdminTab[] = [

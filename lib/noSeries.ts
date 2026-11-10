@@ -23,12 +23,12 @@ import { today } from './format.ts';
 import { incrementNo, noExceeds, compareNo } from './noSeriesFormat.ts';
 import type { Actor } from './types.ts';
 import type {
-  NoSeries, NoSeriesLine, NoSeriesWithLines, NoSeriesListRow, DocumentNoSeriesRow,
+  NoSeries, NoSeriesLine, NoSeriesWithLines, DocumentNoSeriesRow,
 } from './types.ts';
 
 /* ------------------------------------------------------------------ catalogue */
 
-export interface NoSeriesDocument { code: string; label: string; category: string }
+interface NoSeriesDocument { code: string; label: string; category: string }
 
 /**
  * Every numbered document in the system and where it sits on the No. Series card. `code` doubles
@@ -158,7 +158,7 @@ async function computeNext(seriesCode: string, date: string, lock: boolean): Pro
  * advance the line. Serialised per series by `SELECT … FOR UPDATE` inside the surrounding
  * transaction, so two clerks can never be given the same number.
  */
-export async function getNextNo(seriesCode: string, date?: string): Promise<string> {
+async function getNextNo(seriesCode: string, date?: string): Promise<string> {
   const d = date || today();
   return tx(async () => {
     const { no, line } = await computeNext(seriesCode, d, true);
@@ -173,59 +173,8 @@ export async function getNextNo(seriesCode: string, date?: string): Promise<stri
   });
 }
 
-/**
- * GetNextNo `count` times in one round trip — the same numbers, the same line advance, but the
- * series is read and written once instead of once per document.
- *
- * For a batch that issues thousands of ledger entries at a stroke (a recurring billing run invoicing
- * every contract), asking the database for each number in turn costs more than the posting itself.
- * The numbers are still contiguous, still serialised by the same `FOR UPDATE`, and still stop at
- * the line’s Ending No.
- */
-export async function nextSequenceBatch(name: string, count: number, date?: string): Promise<string[]> {
-  if (count <= 0) return [];
-  const d = date || today();
-  const setup = await one<{ series_code: string | null }>(
-    'SELECT series_code FROM no_series_setup WHERE document_code = ?', name,
-  );
-  const seriesCode = setup?.series_code || name;
-  if (!(await hasAnyRow('no_series', 'code = ?', seriesCode))) {
-    // The legacy flat counter advances by `count` in one UPDATE and the block is expanded here.
-    const row = await one<{ prefix: string; next_no: number; width: number }>(
-      'UPDATE sequence SET next_no = next_no + ? WHERE name = ? RETURNING prefix, next_no - ? AS next_no, width',
-      count, name, count,
-    );
-    if (!row) throw new Error('Unknown sequence: ' + name);
-    return Array.from({ length: count }, (_, i) =>
-      row.prefix + String(Number(row.next_no) + i).padStart(row.width, '0'));
-  }
-
-  return tx(async () => {
-    const { no, line } = await computeNext(seriesCode, d, true);
-    const step = line.increment_by_no || 1;
-    const numbers: string[] = [no];
-    let last = no;
-    for (let i = 1; i < count; i += 1) {
-      last = incrementNo(last, step);
-      if (noExceeds(last, line.ending_no)) {
-        throw new AppError(
-          `No. Series "${seriesCode}" has only ${numbers.length} of the ${count} numbers this batch needs`,
-          'NO_SERIES_EXHAUSTED',
-        );
-      }
-      numbers.push(last);
-    }
-    const willClose = !!line.ending_no && noExceeds(incrementNo(last, step), line.ending_no);
-    await run(
-      'UPDATE no_series_line SET last_no_used = ?, last_date_used = ?, open = ? WHERE id = ?',
-      last, d, willClose ? 0 : 1, line.id,
-    );
-    return numbers;
-  });
-}
-
 /** GetNextNo with ModifySeries = false — what the number *would* be, no side effect. */
-export async function peekNextNo(seriesCode: string, date?: string): Promise<string | null> {
+async function peekNextNo(seriesCode: string, date?: string): Promise<string | null> {
   try {
     const { no } = await computeNext(seriesCode, date || today(), false);
     return no;
@@ -259,35 +208,6 @@ export async function nextSequence(name: string, date?: string): Promise<string>
   return legacyNextSequence(name);
 }
 
-/* --------------------------------------------------------------- admin: read */
-
-export async function listNoSeries(): Promise<NoSeriesListRow[]> {
-  const rows = await all<NoSeries & {
-    line_count: number; starting_no: string | null; ending_no: string | null;
-    last_no_used: string | null; last_date_used: string | null; increment_by_no: number | null;
-    starting_date: string | null; used_by: number;
-  }>(
-    `SELECT s.*,
-            COUNT(l.id)                                              AS line_count,
-            (ARRAY_AGG(l.starting_no      ORDER BY l.line_no DESC))[1] AS starting_no,
-            (ARRAY_AGG(l.ending_no        ORDER BY l.line_no DESC))[1] AS ending_no,
-            (ARRAY_AGG(l.last_no_used     ORDER BY l.line_no DESC))[1] AS last_no_used,
-            (ARRAY_AGG(l.last_date_used   ORDER BY l.line_no DESC))[1] AS last_date_used,
-            (ARRAY_AGG(l.increment_by_no  ORDER BY l.line_no DESC))[1] AS increment_by_no,
-            (ARRAY_AGG(l.starting_date    ORDER BY l.line_no DESC))[1] AS starting_date,
-            (SELECT COUNT(*) FROM no_series_setup ns WHERE ns.series_code = s.code) AS used_by
-     FROM no_series s
-     LEFT JOIN no_series_line l ON l.series_code = s.code
-     GROUP BY s.code
-     ORDER BY s.code`,
-  );
-  const out: NoSeriesListRow[] = [];
-  for (const r of rows) {
-    out.push({ ...r, line_count: Number(r.line_count), used_by: Number(r.used_by), next_no: await peekNextNo(r.code) });
-  }
-  return out;
-}
-
 /** Every series with its lines and a live next-number preview — the No. Series admin screen. */
 export async function listNoSeriesWithLines(): Promise<(NoSeriesWithLines & { next_no: string | null; used_by: number })[]> {
   const [series, lines] = await Promise.all([
@@ -308,15 +228,6 @@ export async function listNoSeriesWithLines(): Promise<(NoSeriesWithLines & { ne
     });
   }
   return out;
-}
-
-export async function getNoSeries(code: string): Promise<NoSeriesWithLines | undefined> {
-  const series = await one<NoSeries>('SELECT * FROM no_series WHERE code = ?', code);
-  if (!series) return undefined;
-  const lines = await all<NoSeriesLine>(
-    'SELECT * FROM no_series_line WHERE series_code = ? ORDER BY line_no', code,
-  );
-  return { ...series, lines };
 }
 
 /** The Admin Centre → No. Series card: one row per numbered document, grouped by module. */
@@ -356,7 +267,7 @@ export const listNoSeriesCodes = (): Promise<{ code: string; description: string
 const norm = (v: unknown): string => String(v ?? '').trim();
 const optNo = (v: unknown): string | null => (norm(v) === '' ? null : norm(v).toUpperCase());
 
-export interface NoSeriesInput {
+interface NoSeriesInput {
   code: string;
   description: string;
   defaultNos: boolean;
@@ -397,7 +308,7 @@ export async function deleteNoSeries(code: string, user: Actor): Promise<void> {
   await audit(user, 'NO_SERIES_DELETE', 'no_series', code);
 }
 
-export interface NoSeriesLineInput {
+interface NoSeriesLineInput {
   id?: number | null;
   seriesCode: string;
   startingDate: string | null;

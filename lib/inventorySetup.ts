@@ -55,7 +55,7 @@ export const listLocations = (): Promise<Location[]> =>
 export const listActiveLocations = (): Promise<Location[]> =>
   all<Location>("SELECT * FROM location WHERE status = 'ACTIVE' ORDER BY code");
 
-export const getLocation = (id: number): Promise<Location | undefined> =>
+const getLocation = (id: number): Promise<Location | undefined> =>
   one<Location>('SELECT * FROM location WHERE id = ?', id);
 
 export interface LocationInput {
@@ -101,7 +101,7 @@ export async function updateLocation(id: number, input: LocationInput, user: Act
 export const listUnitsOfMeasure = (): Promise<UnitOfMeasure[]> =>
   all<UnitOfMeasure>('SELECT * FROM unit_of_measure ORDER BY code');
 
-export const getUnitOfMeasure = (id: number): Promise<UnitOfMeasure | undefined> =>
+const getUnitOfMeasure = (id: number): Promise<UnitOfMeasure | undefined> =>
   one<UnitOfMeasure>('SELECT * FROM unit_of_measure WHERE id = ?', id);
 
 export interface UnitOfMeasureInput {
@@ -152,7 +152,7 @@ const IPG_SELECT = `
 export const listInventoryPostingGroups = (): Promise<InventoryPostingGroupView[]> =>
   all<InventoryPostingGroupView>(`${IPG_SELECT} ORDER BY ipg.code`);
 
-export const getInventoryPostingGroup = (id: number): Promise<InventoryPostingGroup | undefined> =>
+const getInventoryPostingGroup = (id: number): Promise<InventoryPostingGroup | undefined> =>
   one<InventoryPostingGroup>('SELECT * FROM inventory_posting_group WHERE id = ?', id);
 
 export interface InventoryPostingGroupInput {
@@ -207,7 +207,7 @@ const PPG_SELECT = `
 export const listProductPostingGroups = (): Promise<ProductPostingGroupView[]> =>
   all<ProductPostingGroupView>(`${PPG_SELECT} ORDER BY ppg.code`);
 
-export const getProductPostingGroup = (id: number): Promise<ProductPostingGroup | undefined> =>
+const getProductPostingGroup = (id: number): Promise<ProductPostingGroup | undefined> =>
   one<ProductPostingGroup>('SELECT * FROM product_posting_group WHERE id = ?', id);
 
 export interface ProductPostingGroupInput {

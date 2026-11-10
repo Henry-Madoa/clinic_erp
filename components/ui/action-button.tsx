@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from './toast';
 import type { ActionResult } from '@/lib/types';
 
-export interface RunActionOptions<T> {
+interface RunActionOptions<T> {
   success?: string;
   successDetail?: string | ((data: T) => string);
   onSuccess?: (data: T) => void;
@@ -16,7 +16,7 @@ export interface RunActionOptions<T> {
  *
  * Server Actions return `{ ok, … }` rather than throwing (see lib/errors.ts), so
  * the failure path here is the same shape everywhere and a business rule such
- * as "you cannot approve your own timesheet" reaches the user verbatim.
+ * as "you cannot approve your own requisition" reaches the user verbatim.
  */
 function useAction() {
   const router = useRouter();
@@ -48,7 +48,7 @@ function useAction() {
   return { runAction, busy };
 }
 
-export interface ActionButtonProps<T> extends RunActionOptions<T> {
+interface ActionButtonProps<T> extends RunActionOptions<T> {
   action: () => Promise<ActionResult<T>>;
   children: ReactNode;
   className?: string;

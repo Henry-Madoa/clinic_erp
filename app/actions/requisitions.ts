@@ -82,9 +82,6 @@ export async function reopenRequisitionAction(no: string): Promise<ActionResult<
 export async function setQuantityApprovedAction(no: string, lineId: number, quantity: number): Promise<ActionResult<{ updated: true }>> {
   return actionResult(async () => { await setQuantityApproved(no, lineId, quantity, await requireAction('REQUISITIONS_APPROVE')); revalidate(no); return { updated: true }; });
 }
-export async function setQuantityToIssueAction(no: string, quantities: { lineId: number; quantity: number }[]): Promise<ActionResult<{ updated: true }>> {
-  return actionResult(async () => { await setQuantityToIssue(no, quantities, await requireAction('REQUISITIONS_ISSUE')); revalidate(no); return { updated: true }; });
-}
 export async function issueStoreItemsAction(no: string, quantities?: { lineId: number; quantity: number }[]): Promise<ActionResult<{ issued: number; complete: boolean; journalLines: string[] }>> {
   return actionResult(async () => {
     const user = await requireAction('REQUISITIONS_ISSUE');

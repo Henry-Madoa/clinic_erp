@@ -2,13 +2,12 @@ import 'server-only';
 import { timingSafeEqual } from 'node:crypto';
 import { one, all, run, tx, audit } from './db.ts';
 import { AppError } from './errors.ts';
-import { normalisePhone } from './sms.ts';
 import { readIntegration, writeIntegration, openSecret, nextSecret, sealSecret, randomToken } from './integrationSettings.ts';
 import type { Actor, Cents } from './types.ts';
 
 /*
  * M-Pesa — Safaricom Daraja "Lipa na M-Pesa Online" (STK push), set up under Admin Centre →
- * Integrations → M-Pesa and ported from bc_member_portal's lib/mpesa-settings.ts and lib/mpesa.ts.
+ * Integrations → M-Pesa.
  *
  * Finance sends a payment prompt to a client's phone from an open invoice (or the customer card);
  * Safaricom calls back with the outcome and a paid prompt posts as a client payment (Dr the M-Pesa
@@ -25,16 +24,16 @@ import type { Actor, Cents } from './types.ts';
  *    was asked for is parked for review instead of posted.
  */
 
-export type MpesaEnvironment = 'sandbox' | 'production';
-export type MpesaTransactionType = 'CustomerPayBillOnline' | 'CustomerBuyGoodsOnline';
-export type MpesaStatus = 'PENDING' | 'POSTED' | 'PAID_UNPOSTED' | 'REVIEW' | 'FAILED' | 'CANCELLED' | 'TIMEOUT';
+type MpesaEnvironment = 'sandbox' | 'production';
+type MpesaTransactionType = 'CustomerPayBillOnline' | 'CustomerBuyGoodsOnline';
+type MpesaStatus = 'PENDING' | 'POSTED' | 'PAID_UNPOSTED' | 'REVIEW' | 'FAILED' | 'CANCELLED' | 'TIMEOUT';
 
 export const DARAJA_HOSTS: Record<MpesaEnvironment, string> = {
   sandbox: 'https://sandbox.safaricom.co.ke',
   production: 'https://api.safaricom.co.ke',
 };
 
-export interface MpesaSettingsInput {
+interface MpesaSettingsInput {
   enabled: boolean;
   environment: MpesaEnvironment;
   transactionType: MpesaTransactionType;
@@ -122,8 +121,6 @@ async function getMpesaConfig(): Promise<MpesaConfig | null> {
   return toConfig({ ...v, consumerSecret, passKey }, token);
 }
 
-export const mpesaEnabled = async (): Promise<boolean> => (await getMpesaConfig()) !== null;
-
 /* ------------------------------------------------------------------ validation & saving */
 
 const isPublicHttps = (raw: string): string | null => {
@@ -207,30 +204,17 @@ export async function testMpesaCredentials(input: MpesaSettingsInput, user: Acto
   return `Safaricom accepted the consumer key and secret (${input.environment}). The passkey and short code are checked on the first real prompt.`;
 }
 
-/** Daraja wants East Africa Time as YYYYMMDDHHmmss. */
-function timestamp(): string {
-  return new Date(Date.now() + 3 * 3_600_000).toISOString().replace(/[-:T]/g, '').slice(0, 14);
-}
-const stkPassword = (c: MpesaConfig, ts: string) => Buffer.from(`${c.shortCode}${c.passKey}${ts}`).toString('base64');
 
-/** 2547XXXXXXXX / 2541XXXXXXXX — what Daraja accepts as PartyA. */
-export function darajaPhone(raw: string): string | null {
-  const p = normalisePhone(raw, '254');
-  return p && /^\+254(7|1)\d{8}$/.test(p) ? p.slice(1) : null;
-}
 
 /* ------------------------------------------------------------------ client invoice prompts */
 
-export interface MpesaRequestRow {
+interface MpesaRequestRow {
   id: number; customer_id: number; customer_no?: string | null; customer_name?: string | null; document_no: string | null;
   environment: MpesaEnvironment; phone: string; amount: Cents;
   account_reference: string; checkout_request_id: string | null; status: MpesaStatus; result_code: number | null;
   result_desc: string | null; mpesa_receipt: string | null; paid_amount: Cents | null; journal_no: string | null;
   requested_by: string; requested_at: string; completed_at: string | null;
 }
-
-export const listMpesaRequests = (customerId: number): Promise<MpesaRequestRow[]> =>
-  all<MpesaRequestRow>('SELECT * FROM mpesa_request WHERE customer_id = ? ORDER BY id DESC LIMIT 100', customerId);
 
 /** The latest prompts across all clients — the setup screen's activity log, attention items first. */
 export const listRecentMpesaRequests = (limit = 50): Promise<MpesaRequestRow[]> =>
@@ -241,42 +225,6 @@ export const listRecentMpesaRequests = (limit = 50): Promise<MpesaRequestRow[]> 
 /** Masks a phone for display and logs: 2547••••5678. */
 export const maskPhone = (p: string): string => (p.length > 7 ? `${p.slice(0, 4)}${'•'.repeat(p.length - 8)}${p.slice(-4)}` : p);
 
-/** A prompt's amount: whole shillings, KSh 1 to 250,000. */
-function checkPromptAmount(amount: Cents): void {
-  if (!Number.isInteger(amount) || amount < 100 || amount % 100 !== 0) throw new AppError('M-Pesa takes whole shillings — enter at least KSh 1 with no cents', 'VALIDATION');
-  if (amount > 25_000_000) throw new AppError('M-Pesa limits a single payment to KSh 250,000', 'VALIDATION');
-}
-
-/**
- * Sends an STK prompt to a client's phone to pay a posted sales invoice (or, with no invoice,
- * on account). The request row is written first so a callback can never arrive for an unknown prompt.
- */
-export async function requestInvoiceMpesaPayment(
-  customerId: number, documentNo: string | null, phoneRaw: string, amount: Cents, user: Actor,
-): Promise<{ id: number; message: string }> {
-  const c = await getMpesaConfig();
-  if (!c) throw new AppError('M-Pesa is not set up — Admin Centre → Integrations → M-Pesa', 'NOT_CONFIGURED');
-  const phone = darajaPhone(phoneRaw);
-  if (!phone) throw new AppError('Enter a Safaricom number, e.g. 0712 345 678', 'VALIDATION');
-  checkPromptAmount(amount);
-  const cust = await one<{ id: number; no: string; blocked: string }>('SELECT id, no, blocked FROM customer WHERE id = ?', customerId);
-  if (!cust) throw new AppError('Client not found', 'NOT_FOUND');
-  let reference = cust.no;
-  if (documentNo) {
-    const e = await one<{ remaining_amount: Cents }>(
-      "SELECT remaining_amount FROM cust_ledger_entry WHERE customer_id = ? AND document_no = ? AND open = 1 AND positive = 1", cust.id, documentNo);
-    if (!e) throw new AppError(`Invoice ${documentNo} is not open on this client`, 'VALIDATION');
-    if (amount > Number(e.remaining_amount)) throw new AppError('The prompt cannot be for more than the invoice balance', 'VALIDATION');
-    reference = documentNo;
-  }
-  const pending = await one<{ n: number }>("SELECT COUNT(*)::int AS n FROM mpesa_request WHERE customer_id = ? AND status = 'PENDING' AND requested_at > ?", cust.id, new Date(Date.now() - 120_000).toISOString());
-  if ((pending?.n ?? 0) > 0) throw new AppError('A prompt for this client is still waiting — give it two minutes or check its status', 'VALIDATION');
-  const info = await run(
-    `INSERT INTO mpesa_request (customer_id, document_no, environment, phone, amount, account_reference, requested_by, requested_at)
-     VALUES (?,?,?,?,?,?,?,?)`, cust.id, documentNo, c.environment, phone, amount, reference, user.username, new Date().toISOString(),
-  );
-  return pushStk(c, info.lastInsertRowid, phone, amount, reference, `Inv ${reference}`, user);
-}
 
 /**
  * A confirmed M-Pesa payment from a client: Dr the M-Pesa bank account / Cr the client's
@@ -316,48 +264,11 @@ async function postClientPayment(r: MpesaRequestRow, bankCode: string, amount: C
   return j.journal_no;
 }
 
-/** Sends the STK push for a request row already written; marks it FAILED if Safaricom says no. */
-async function pushStk(
-  c: MpesaConfig, id: number, phone: string, amount: Cents, accountRef: string, desc: string, user: Actor,
-): Promise<{ id: number; message: string }> {
-
-  const auth = await requestToken(c);
-  if (!auth.ok) {
-    await run("UPDATE mpesa_request SET status = 'FAILED', result_desc = ?, completed_at = ? WHERE id = ?", auth.error, new Date().toISOString(), id);
-    throw new AppError(auth.error, 'MPESA');
-  }
-  const ts = timestamp();
-  let body: { CheckoutRequestID?: string; MerchantRequestID?: string; ResponseCode?: string; CustomerMessage?: string; errorMessage?: string };
-  try {
-    const res = await fetch(c.stkUrl, {
-      method: 'POST',
-      headers: { Authorization: `Bearer ${auth.token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        BusinessShortCode: c.shortCode, Password: stkPassword(c, ts), Timestamp: ts, TransactionType: c.transactionType,
-        Amount: amount / 100, PartyA: phone, PartyB: c.partyB || c.shortCode, PhoneNumber: phone,
-        CallBackURL: c.callbackUrl, AccountReference: accountRef.slice(0, 12), TransactionDesc: desc.slice(0, 13),
-      }),
-      signal: AbortSignal.timeout(20_000), cache: 'no-store',
-    });
-    body = await res.json();
-  } catch {
-    await run("UPDATE mpesa_request SET status = 'FAILED', result_desc = ?, completed_at = ? WHERE id = ?", 'Could not reach Safaricom', new Date().toISOString(), id);
-    throw new AppError('Could not reach Safaricom (network error or timeout)', 'MPESA');
-  }
-  if (body.ResponseCode !== '0' || !body.CheckoutRequestID) {
-    const why = String(body.errorMessage ?? body.CustomerMessage ?? 'Safaricom refused the prompt').slice(0, 200);
-    await run("UPDATE mpesa_request SET status = 'FAILED', result_desc = ?, completed_at = ? WHERE id = ?", why, new Date().toISOString(), id);
-    throw new AppError(why, 'MPESA');
-  }
-  await run('UPDATE mpesa_request SET checkout_request_id = ?, merchant_request_id = ? WHERE id = ?', body.CheckoutRequestID, body.MerchantRequestID ?? null, id);
-  await audit(user, 'MPESA_PROMPT', 'mpesa_request', accountRef, { request: id, amount, phone: maskPhone(phone) });
-  return { id, message: body.CustomerMessage ?? 'Prompt sent — ask the client to enter their M-Pesa PIN' };
-}
 
 const SYSTEM: Actor = { id: 0, username: 'M-PESA' };
 
 /** What resolving a prompt did — `newlyPosted` is true only the one time the payment posted. */
-export interface MpesaOutcome { status: MpesaStatus; id: number; newlyPosted: boolean }
+interface MpesaOutcome { status: MpesaStatus; id: number; newlyPosted: boolean }
 
 const statusForResult = (code: number): MpesaStatus => (code === 1032 ? 'CANCELLED' : code === 1037 ? 'TIMEOUT' : 'FAILED');
 
@@ -442,31 +353,4 @@ export async function handleMpesaCallback(body: unknown): Promise<MpesaOutcome |
     paidPhone: items.get('PhoneNumber') != null ? String(items.get('PhoneNumber')).slice(0, 15) : null,
     transactionDate: items.get('TransactionDate') != null ? String(items.get('TransactionDate')).slice(0, 14) : null,
   });
-}
-
-/** "Check status": asks Safaricom what became of a pending prompt (for when no callback came). */
-export async function queryMpesaRequest(id: number, user: Actor): Promise<MpesaOutcome> {
-  const r = await one<MpesaRequestRow>('SELECT * FROM mpesa_request WHERE id = ?', id);
-  if (!r) throw new AppError('M-Pesa request not found', 'NOT_FOUND');
-  if (r.status !== 'PENDING' || !r.checkout_request_id) return { status: r.status, id: r.id, newlyPosted: false };
-  const c = await getMpesaConfig();
-  if (!c) throw new AppError('M-Pesa is not set up', 'NOT_CONFIGURED');
-  const auth = await requestToken(c);
-  if (!auth.ok) throw new AppError(auth.error, 'MPESA');
-  const ts = timestamp();
-  let body: { ResultCode?: string | number; ResultDesc?: string; errorCode?: string; errorMessage?: string };
-  try {
-    const res = await fetch(c.queryUrl, {
-      method: 'POST', headers: { Authorization: `Bearer ${auth.token}`, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ BusinessShortCode: c.shortCode, Password: stkPassword(c, ts), Timestamp: ts, CheckoutRequestID: r.checkout_request_id }),
-      signal: AbortSignal.timeout(20_000), cache: 'no-store',
-    });
-    body = await res.json();
-  } catch {
-    throw new AppError('Could not reach Safaricom (network error or timeout)', 'MPESA');
-  }
-  await audit(user, 'MPESA_QUERY', 'mpesa_request', id, { resultCode: body.ResultCode ?? body.errorCode ?? null });
-  // Still being processed on the handset: nothing to resolve yet.
-  if (body.ResultCode === undefined) return { status: 'PENDING', id: r.id, newlyPosted: false };
-  return (await resolveRequest(r.checkout_request_id, { resultCode: Number(body.ResultCode), resultDesc: String(body.ResultDesc ?? '') })) ?? { status: 'PENDING', id: r.id, newlyPosted: false };
 }

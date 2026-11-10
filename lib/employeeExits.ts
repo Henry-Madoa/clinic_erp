@@ -15,7 +15,7 @@ import { sendMail, escapeHtml } from './mailer.ts';
 import { buildFilterClause, type FilterCondition, type FilterFieldDef } from './listFilters.ts';
 import { buildOrderClause, type SortState } from './listSort.ts';
 import type {
-  Actor, EmployeeExit, EmployeeExitView, EmployeeExitFinalDueLine, EmployeeExitClearanceLine,
+  Actor, EmployeeExit, EmployeeExitView, EmployeeExitFinalDueLine, 
   EmployeeExitClearanceLineView,
 } from './types.ts';
 

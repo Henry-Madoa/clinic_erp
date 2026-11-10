@@ -10,7 +10,7 @@
  */
 
 /** The amount (cents) of a period transaction by code; unknown codes are 0, as in AL. */
-export type FormulaLookup = (code: string) => number | undefined;
+type FormulaLookup = (code: string) => number | undefined;
 
 /** Every `[CODE]` the formula refers to, in order, without the brackets. */
 export function formulaCodes(formula: string): string[] {

@@ -9,7 +9,7 @@ import {
   addBankRecGlAdjustmentLine, deleteBankRecLine, postBankReconciliation, type BankAccountInput,
 } from '@/lib/bankMgmt';
 import {
-  createBankAccPostingGroup, updateBankAccPostingGroup, createExternalBank, updateExternalBank,
+  createBankAccPostingGroup, updateBankAccPostingGroup, 
   createCurrency, updateCurrency, saveExchangeRate, deleteExchangeRate,
   getCashManagementSetup, saveCashManagementSetup,
   adjustExchangeRates, type BankAccPostingGroupInput, type CurrencyInput, type CashManagementSetupInput,
@@ -28,10 +28,10 @@ import { listOpenCustomerEntries, type OpenLedgerEntryOption } from '@/lib/custL
 import { listOpenVendorEntries } from '@/lib/vendLedger';
 import {
   createVatBusinessPostingGroup, updateVatBusinessPostingGroup, createVatProductPostingGroup,
-  updateVatProductPostingGroup, saveVatPostingSetup, deleteVatPostingSetup,
+  updateVatProductPostingGroup, saveVatPostingSetup,
 } from '@/lib/vatSetup';
 import { decideWorkflowTask, findPendingRoutedTask } from '@/lib/workflow';
-import type { ActionResult, FormValues, PaymentVoucherLineType, ReceiptLineType, TaxType, VatCalculationType } from '@/lib/types';
+import type { ActionResult, FormValues, ReceiptLineType, TaxType, VatCalculationType } from '@/lib/types';
 
 const revalidate = (): void => {
   revalidatePath('/cash-management', 'layout');
@@ -295,18 +295,6 @@ export async function saveBankAccPostingGroupRequest(id: number | null, v: FormV
     return r;
   });
 }
-export async function saveExternalBankRequest(id: number | null, v: FormValues): Promise<ActionResult<{ id: number }>> {
-  return actionResult(async () => {
-    const u = await requireAction('CASH_MGMT_BANK_MANAGE');
-    const branchesRaw = v.branches;
-    const branches = (typeof branchesRaw === 'string' ? JSON.parse(branchesRaw) : Array.isArray(branchesRaw) ? branchesRaw : [])
-      .map((b: Record<string, unknown>) => ({ branchCode: str(b.branchCode), branchName: str(b.branchName) }));
-    const input = { code: str(v.code), name: str(v.name) };
-    const r = id ? (await updateExternalBank(id, input, branches, u), { id }) : await createExternalBank(input, branches, u);
-    revalidate();
-    return r;
-  });
-}
 
 /* -------------------------------------------------------------- VAT / WHT */
 
@@ -339,9 +327,6 @@ export async function saveVatPostingSetupRequest(v: FormValues): Promise<ActionR
     revalidate();
     return { saved: true };
   });
-}
-export async function deleteVatPostingSetupRequest(busCode: string, prodCode: string): Promise<ActionResult<{ deleted: true }>> {
-  return actionResult(async () => { const u = await requireAction('VAT_SETUP_MANAGE'); await deleteVatPostingSetup(busCode, prodCode, u); revalidate(); return { deleted: true }; });
 }
 export async function markWhtRemittedRequest(no: string, ref: string): Promise<ActionResult<{ no: string }>> {
   return actionResult(async () => { const u = await requireAction('WHT_MARK_REMITTED'); await markWhtCertificateRemitted(no, ref, u); revalidate(); return { no }; });

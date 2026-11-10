@@ -2,8 +2,7 @@
  * Cashier Setup — AL Tab52204042. Links a user to the cash account they operate: a CASHIER to
  * their own till (bank_account.account_type = 'TILL'), or a TREASURY user to the branch vault
  * (account_type = 'TREASURY'). The capacity limits gate cash_office_transfer posting
- * (lib/cashManagement.ts); approval_limit gates whether a teller_transaction auto-posts or is
- * routed for approval first (lib/tellerTransactions.ts).
+ * (lib/cashManagement.ts).
  */
 import { one, all, run, audit } from './db.ts';
 import { AppError } from './errors.ts';
@@ -17,20 +16,12 @@ const SELECT_ROW = `
 export const listCashierSetups = (): Promise<CashierSetupWithAccount[]> =>
   all<CashierSetupWithAccount>(`${SELECT_ROW} ORDER BY ts.setup_type, ts.user_username`);
 
-export const getCashierSetup = (
+const getCashierSetup = (
   username: string, setupType: 'CASHIER' | 'TREASURY',
 ): Promise<CashierSetupWithAccount | undefined> =>
   one<CashierSetupWithAccount>(
     `${SELECT_ROW} WHERE ts.user_username = ? AND ts.setup_type = ?`, username, setupType,
   );
-
-/** The acting user's own till setup — thrown-on-missing so a caller can `TestField`-style
- *  demand it (AL: 'You are not setup as a cashier'). */
-export async function requireCashierSetup(username: string): Promise<CashierSetupWithAccount> {
-  const row = await getCashierSetup(username, 'CASHIER');
-  if (!row) throw new AppError('You are not set up as a cashier — ask an administrator to add a Cashier Setup for you', 'NO_CASHIER_SETUP');
-  return row;
-}
 
 export const cashierSetupForUser = (username: string): Promise<CashierSetupWithAccount | undefined> =>
   getCashierSetup(username, 'CASHIER');
@@ -43,10 +34,7 @@ export const treasurySetupForUser = (username: string): Promise<CashierSetupWith
 export const setupForBankAccount = (bankAccountId: number): Promise<CashierSetup | undefined> =>
   one<CashierSetup>('SELECT * FROM cashier_setup WHERE bank_account_id = ? LIMIT 1', bankAccountId);
 
-export const hasAnyCashierSetups = async (): Promise<boolean> =>
-  !!(await one('SELECT 1 FROM cashier_setup LIMIT 1'));
-
-export interface CashierSetupInput {
+interface CashierSetupInput {
   userUsername: string;
   setupType: 'CASHIER' | 'TREASURY';
   bankAccountId: number;

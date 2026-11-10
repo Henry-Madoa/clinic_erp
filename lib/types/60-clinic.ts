@@ -4,16 +4,16 @@ import type { Cents, IsoDate, IsoDateTime } from '../types.ts';
 export type Sex = 'MALE' | 'FEMALE' | 'INTERSEX';
 export type VisitPaymentMode = 'CASH' | 'INSURANCE' | 'CORPORATE';
 export type VisitStage = 'TRIAGE' | 'CONSULTATION' | 'INVESTIGATION' | 'PHARMACY' | 'CASHIER' | 'COMPLETED' | 'CANCELLED';
-export type VisitStatus = 'OPEN' | 'CLOSED' | 'CANCELLED';
+type VisitStatus = 'OPEN' | 'CLOSED' | 'CANCELLED';
 export type VisitPriority = 'ROUTINE' | 'URGENT' | 'EMERGENCY';
-export type QueueStatus = 'WAITING' | 'CALLED' | 'SERVING' | 'DONE' | 'SKIPPED';
+type QueueStatus = 'WAITING' | 'CALLED' | 'SERVING' | 'DONE' | 'SKIPPED';
 export type Acuity = 'RED' | 'ORANGE' | 'YELLOW' | 'GREEN';
 export type AppointmentStatus = 'BOOKED' | 'CONFIRMED' | 'ARRIVED' | 'COMPLETED' | 'CANCELLED' | 'NO_SHOW';
 export type ChargeSource = 'CONSULTATION' | 'REGISTRATION' | 'LAB' | 'IMAGING' | 'PHARMACY' | 'DENTAL' | 'PROCEDURE' | 'NURSING' | 'MANUAL';
 export type ServiceKind = 'CONSULTATION' | 'REGISTRATION' | 'LAB' | 'IMAGING' | 'DENTAL' | 'PROCEDURE' | 'NURSING' | 'DRUG' | 'CONSUMABLE' | 'OTHER';
 export type PatientPaymentMethod = 'CASH' | 'MPESA' | 'CARD' | 'BANK';
-export type ClaimStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'PARTIAL' | 'REJECTED';
-export type LabTestStatus = 'ORDERED' | 'COLLECTED' | 'RESULTED' | 'VERIFIED' | 'CANCELLED';
+type ClaimStatus = 'DRAFT' | 'SUBMITTED' | 'APPROVED' | 'PARTIAL' | 'REJECTED';
+type LabTestStatus = 'ORDERED' | 'COLLECTED' | 'RESULTED' | 'VERIFIED' | 'CANCELLED';
 
 export interface ClinicSetup {
   id: number;
@@ -182,7 +182,7 @@ export interface Appointment {
   visit_no?: string | null;
 }
 
-export interface Visit {
+interface Visit {
   id: number;
   no: string;
   patient_id: number;

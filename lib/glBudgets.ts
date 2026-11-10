@@ -26,7 +26,7 @@ import type { Actor, Cents, GlAccountType, IsoDate } from './types.ts';
 
 /* ================================================================== budget names */
 
-export interface GlBudgetName { name: string; description: string | null; blocked: boolean; created_at: string; created_by: string | null }
+interface GlBudgetName { name: string; description: string | null; blocked: boolean; created_at: string; created_by: string | null }
 export interface GlBudgetNameView extends GlBudgetName { entries: number; total: Cents; first_date: IsoDate | null; last_date: IsoDate | null }
 
 export const listBudgets = (): Promise<GlBudgetNameView[]> =>
@@ -77,8 +77,7 @@ async function assertOpen(name: string): Promise<GlBudgetName> {
 
 export type ViewBy = 'DAY' | 'WEEK' | 'MONTH' | 'QUARTER' | 'YEAR' | 'PERIOD';
 export type ViewAs = 'NET_CHANGE' | 'BALANCE_AT_DATE';
-export type RoundingFactor = 'NONE' | '1' | '1000' | '1000000';
-export interface BudgetPeriod { key: string; label: string; start: IsoDate; end: IsoDate }
+interface BudgetPeriod { key: string; label: string; start: IsoDate; end: IsoDate }
 
 const isoOf = (d: Date): IsoDate => d.toISOString().slice(0, 10);
 const utc = (iso: IsoDate): Date => new Date(`${iso}T00:00:00Z`);
@@ -86,7 +85,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 const MAX_COLUMNS = 120;
 
 /** The twelve months of the fiscal year that contains `date`, as YYYY-MM. */
-export async function fiscalMonths(date: IsoDate): Promise<{ start: IsoDate; end: IsoDate; months: string[] }> {
+async function fiscalMonths(date: IsoDate): Promise<{ start: IsoDate; end: IsoDate; months: string[] }> {
   const org = await one<{ fy_start_month: number | null }>('SELECT fy_start_month FROM organisation WHERE id = 1');
   const fyMonth = org?.fy_start_month ?? 1;
   const [y, m] = date.split('-').map(Number);
@@ -98,7 +97,7 @@ export async function fiscalMonths(date: IsoDate): Promise<{ start: IsoDate; end
 }
 
 /** The columns between `from` and `to` for a View by — BC's period buckets (Accounting Period reads the periods table). */
-export async function budgetPeriods(from: IsoDate, to: IsoDate, viewBy: ViewBy): Promise<BudgetPeriod[]> {
+async function budgetPeriods(from: IsoDate, to: IsoDate, viewBy: ViewBy): Promise<BudgetPeriod[]> {
   if (from > to) throw new AppError('The date filter ends before it starts', 'VALIDATION');
   const out: BudgetPeriod[] = [];
   if (viewBy === 'PERIOD') {
@@ -134,7 +133,7 @@ export async function budgetPeriods(from: IsoDate, to: IsoDate, viewBy: ViewBy):
 export type LinesBy = 'ACCOUNT' | 'DIM1' | 'DIM2';
 export type AccountScope = 'INCOME_STATEMENT' | 'BALANCE_SHEET' | 'ALL';
 
-export interface BudgetMatrixOptions {
+interface BudgetMatrixOptions {
   name: string;
   from: IsoDate;
   to: IsoDate;
@@ -151,7 +150,7 @@ export interface BudgetMatrixOptions {
   showAll?: boolean;
 }
 
-export interface BudgetMatrixRow {
+interface BudgetMatrixRow {
   /** The account's id (lines by account) or the dimension value's id (lines by dimension); 0 = no dimension value. */
   line_id: number;
   code: string;
@@ -258,7 +257,7 @@ export interface BudgetEntryView {
   id: number; budget_name: string; gl_account_id: number; account_code: string; account_name: string; date: IsoDate; amount: Cents; description: string | null;
   global_dimension_1_id: number | null; dim1_code: string | null; global_dimension_2_id: number | null; dim2_code: string | null; created_at: string; created_by: string | null;
 }
-export interface BudgetEntryFilter { name: string; from?: IsoDate | null; to?: IsoDate | null; accountFilter?: string | null; accountId?: number | null; dim1Id?: number | null; dim2Id?: number | null; limit?: number }
+interface BudgetEntryFilter { name: string; from?: IsoDate | null; to?: IsoDate | null; accountFilter?: string | null; accountId?: number | null; dim1Id?: number | null; dim2Id?: number | null; limit?: number }
 
 export async function listBudgetEntries(f: BudgetEntryFilter): Promise<BudgetEntryView[]> {
   const rows = await all<BudgetEntryView>(
@@ -274,7 +273,7 @@ export async function listBudgetEntries(f: BudgetEntryFilter): Promise<BudgetEnt
   return f.accountFilter?.trim() ? rows.filter((r) => matchesTotaling(r.account_code, f.accountFilter)) : rows;
 }
 
-export interface BudgetEntryInput { accountId: number; date: IsoDate; amount: Cents; description?: string | null; dim1Id?: number | null; dim2Id?: number | null }
+interface BudgetEntryInput { accountId: number; date: IsoDate; amount: Cents; description?: string | null; dim1Id?: number | null; dim2Id?: number | null }
 
 async function validateEntry(i: BudgetEntryInput): Promise<void> {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(i.date)) throw new AppError('A date is required', 'VALIDATION');
@@ -317,7 +316,7 @@ export async function deleteBudgetEntries(name: string, f: { from?: IsoDate | nu
 
 /* ================================================================== Copy G/L Budget (BC Report 96) */
 
-export type RoundingMethod = 'NONE' | '1' | '10' | '100' | '1000';
+type RoundingMethod = 'NONE' | '1' | '10' | '100' | '1000';
 export interface CopyBudgetOptions {
   /** Where the figures come from: the ledger (actuals) or another budget's entries. */
   source: 'GL_ENTRY' | 'GL_BUDGET_ENTRY';
@@ -398,7 +397,7 @@ export async function copyGlBudget(o: CopyBudgetOptions, user: Actor): Promise<{
 /* ================================================================== Excel (BC Reports 82 / 81) */
 
 /** The sheet layout both directions share: one row per G/L account, one column per period. */
-export interface BudgetSheet { headers: string[]; periods: BudgetPeriod[]; rows: { code: string; name: string; amounts: Cents[] }[] }
+interface BudgetSheet { headers: string[]; periods: BudgetPeriod[]; rows: { code: string; name: string; amounts: Cents[] }[] }
 
 export async function budgetSheet(o: BudgetMatrixOptions): Promise<BudgetSheet> {
   const m = await budgetMatrix({ ...o, linesBy: 'ACCOUNT', viewAs: 'NET_CHANGE', showAll: true });
@@ -409,7 +408,7 @@ export async function budgetSheet(o: BudgetMatrixOptions): Promise<BudgetSheet> 
   };
 }
 
-export interface ImportBudgetOptions { name: string; mode: 'REPLACE' | 'ADD'; description?: string | null; dim1Id?: number | null; dim2Id?: number | null }
+interface ImportBudgetOptions { name: string; mode: 'REPLACE' | 'ADD'; description?: string | null; dim1Id?: number | null; dim2Id?: number | null }
 export interface ImportBudgetResult { inserted: number; replaced: number; skipped: { row: number; reason: string }[] }
 
 /**
@@ -466,8 +465,8 @@ export async function budgetBalances(name: string, from: IsoDate | null, to: Iso
   return new Map(rows.map((r) => [r.code, Number(r.amount)]));
 }
 
-export interface BudgetVsActualRow { account_id: number; code: string; name: string; type: GlAccountType; budget: Cents; actual: Cents; variance: Cents; variance_pct: number | null }
-export interface BudgetVsActual { name: string; from: IsoDate; to: IsoDate; rows: BudgetVsActualRow[]; totals: { income: { budget: Cents; actual: Cents }; expense: { budget: Cents; actual: Cents }; surplus: { budget: Cents; actual: Cents } } }
+interface BudgetVsActualRow { account_id: number; code: string; name: string; type: GlAccountType; budget: Cents; actual: Cents; variance: Cents; variance_pct: number | null }
+interface BudgetVsActual { name: string; from: IsoDate; to: IsoDate; rows: BudgetVsActualRow[]; totals: { income: { budget: Cents; actual: Cents }; expense: { budget: Cents; actual: Cents }; surplus: { budget: Cents; actual: Cents } } }
 
 /** BC "G/L Balance/Budget": budget against actual per account for a window. */
 export async function budgetVsActual(name: string, from: IsoDate, to: IsoDate, scope: AccountScope = 'INCOME_STATEMENT', accountFilter?: string | null): Promise<BudgetVsActual> {

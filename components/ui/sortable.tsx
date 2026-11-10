@@ -2,8 +2,8 @@
 
 import { useMemo, useState, type ReactNode } from 'react';
 
-export type SortDir = 'asc' | 'desc';
-export interface SortState<K extends string> { key: K; dir: SortDir }
+type SortDir = 'asc' | 'desc';
+interface SortState<K extends string> { key: K; dir: SortDir }
 
 /**
  * Click-to-sort for a list table: `sort` is the current column and direction, `toggle(key)`

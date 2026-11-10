@@ -119,7 +119,7 @@ function putToCloudinary(
   });
 }
 
-export interface UseUploadResult {
+interface UseUploadResult {
   upload: (file: File) => Promise<UploadedFile | null>;
   busy: boolean;
   progress: number;
@@ -167,7 +167,7 @@ function useUpload(kind: UploadKind, entity?: AttachmentEntity): UseUploadResult
   return { upload, busy, progress, error, clearError: () => setError('') };
 }
 
-export interface FilePickerProps {
+interface FilePickerProps {
   kind: UploadKind;
   entity?: AttachmentEntity;
   accept?: string;

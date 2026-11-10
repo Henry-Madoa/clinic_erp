@@ -51,7 +51,7 @@ const SORT_COLUMNS: Record<string, string> = {
   status: 'i.status',
 };
 
-export interface ListItemsOptions {
+interface ListItemsOptions {
   search?: string;
   filters?: FilterCondition[];
   sort?: SortState | null;
@@ -71,7 +71,7 @@ export const listItems = (
   );
 };
 
-export const getItem = (no: string): Promise<ItemListRow | undefined> =>
+const getItem = (no: string): Promise<ItemListRow | undefined> =>
   one<ItemListRow>(`${SELECT_ROW} WHERE i.no = ?`, no);
 
 export const hasAnyItems = (): Promise<boolean> => hasAnyRow('item');
@@ -112,7 +112,7 @@ const ITEM_QUANTITY_SORT_COLUMNS: Record<string, string> = {
   value: '(sku.inventory * i.unit_cost)',
 };
 
-export interface ListItemQuantitiesByLocationOptions {
+interface ListItemQuantitiesByLocationOptions {
   search?: string;
   filters?: FilterCondition[];
   sort?: SortState | null;

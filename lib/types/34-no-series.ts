@@ -29,21 +29,6 @@ export interface NoSeriesWithLines extends NoSeries {
   lines: NoSeriesLine[];
 }
 
-export interface NoSeriesListRow extends NoSeries {
-  line_count: number;
-  /** The current (latest) line's key figures, rolled up for the list. */
-  starting_no: string | null;
-  ending_no: string | null;
-  last_no_used: string | null;
-  last_date_used: string | null;
-  increment_by_no: number | null;
-  starting_date: string | null;
-  /** How many documents point at this series. */
-  used_by: number;
-  /** What GetNextNo would hand out today (null if the series can't currently issue). */
-  next_no: string | null;
-}
-
 export interface DocumentNoSeriesRow {
   document_code: string;
   label: string;
@@ -55,19 +40,4 @@ export interface DocumentNoSeriesRow {
   next_no: string | null;
   manual_nos: number;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

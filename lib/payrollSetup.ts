@@ -16,7 +16,7 @@ import type {
 
 export const getPayrollSetup = (): Promise<HrPayrollSetup> => one<HrPayrollSetup>('SELECT * FROM hr_payroll_setup WHERE id = 1') as Promise<HrPayrollSetup>;
 
-export interface PayrollSetupInput {
+interface PayrollSetupInput {
   personalReliefCents?: number; insuranceReliefPct?: number; maxReliefCents?: number; mortgageReliefCents?: number;
   shifPct?: number; shifBasedOn?: string; nssfEmployerFactor?: number;
   housingLevyEnabled?: boolean; housingLevyPct?: number; housingLevyBasedOn?: string;
@@ -163,7 +163,6 @@ export async function deleteNssfTier(id: number, user: Actor): Promise<void> {
 /** The Earnings & Deductions catalogue. Retired codes (the run's old statutory codes) are kept
  *  for history but never offered to a picker. */
 export const listTransactionCodes = (): Promise<PayrollTransactionCode[]> => all("SELECT * FROM payroll_transaction_code WHERE status <> 'INACTIVE' ORDER BY name");
-export const getTransactionCode = (id: number): Promise<PayrollTransactionCode | undefined> => one('SELECT * FROM payroll_transaction_code WHERE id = ?', id);
 
 export interface TransactionCodeInput {
   id?: number | null; code: string; name: string; type: PayrollTransactionType; taxable?: boolean;

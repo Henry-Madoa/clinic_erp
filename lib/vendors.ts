@@ -41,7 +41,7 @@ const SORT_COLUMNS: Record<string, string> = {
   no: 'v.no', name: 'v.name', city: 'v.city', balance: 'v.balance', balance_due: 'balance_due',
 };
 
-export interface ListVendorsOptions {
+interface ListVendorsOptions {
   search?: string; filters?: FilterCondition[]; sort?: SortState | null;
 }
 
@@ -62,7 +62,7 @@ export const listVendors = (
 export const getVendor = (no: string): Promise<VendorListRow | undefined> =>
   one<VendorListRow>(`${SELECT_ROW} WHERE v.no = @no`, { no, today: today() });
 
-export const getVendorById = (id: number): Promise<Vendor | undefined> =>
+const getVendorById = (id: number): Promise<Vendor | undefined> =>
   one<Vendor>('SELECT * FROM vendor WHERE id = ?', id);
 
 export const listActiveVendors = (): Promise<Pick<Vendor,
@@ -215,8 +215,6 @@ export const getVendorLedgerEntries = (
     { vendorId, ...params },
   );
 };
-
-export const hasAnyVendorLedgerEntries = (): Promise<boolean> => hasAnyRow('vendor_ledger_entry');
 
 /** BC's "Check Vendor Blocked" — a hard block on `blocked`. */
 export async function checkVendorAllowed(

@@ -20,15 +20,15 @@ import { AGE_SQL, NAME_SQL } from './patients.ts';
 import type { Acuity, Actor, VisitPaymentMode, QueueEntry, Triage, VisitPriority, VisitStage, VisitView } from '../types.ts';
 
 export const VISIT_STAGES: VisitStage[] = ['TRIAGE', 'CONSULTATION', 'INVESTIGATION', 'PHARMACY', 'CASHIER', 'COMPLETED'];
-export const PRIORITIES: VisitPriority[] = ['ROUTINE', 'URGENT', 'EMERGENCY'];
+const PRIORITIES: VisitPriority[] = ['ROUTINE', 'URGENT', 'EMERGENCY'];
 export const OUTCOMES = ['HOME', 'FOLLOW_UP', 'REFERRED', 'ADMITTED_ELSEWHERE', 'DECEASED'] as const;
-export const ACUITIES: Acuity[] = ['RED', 'ORANGE', 'YELLOW', 'GREEN'];
+const ACUITIES: Acuity[] = ['RED', 'ORANGE', 'YELLOW', 'GREEN'];
 /** The service points orders route a patient to. */
 export const SERVICE_POINT: Record<string, string> = { LAB: 'LAB', IMAGING: 'RAD', PHARMACY: 'PHARM', PROCEDURE: 'PROC', CASHIER: 'CASH', TRIAGE: 'TRIAGE' };
 
 const WAIT_SQL = (col: string): string => `GREATEST(0, (EXTRACT(EPOCH FROM (now() - ${col}::timestamptz)) / 60)::int)`;
 
-export const VISIT_SELECT = `
+const VISIT_SELECT = `
   SELECT v.*, p.mrn, ${NAME_SQL()} AS patient_name, p.sex, p.date_of_birth, ${AGE_SQL()} AS age, p.phone, p.allergies, p.alerts,
          p.chronic_conditions, p.photo_url, d.name AS department_name, d.colour AS department_colour, u.full_name AS clinician_name,
          s.name AS scheme_name, s.code AS scheme_code,
@@ -42,8 +42,6 @@ export const VISIT_SELECT = `
   LEFT JOIN patient_bill b ON b.visit_id = v.id`;
 
 export const getVisit = (no: string): Promise<VisitView | undefined> => one<VisitView>(`${VISIT_SELECT} WHERE v.no = @no`, { no });
-export const getVisitById = (id: number): Promise<VisitView | undefined> => one<VisitView>(`${VISIT_SELECT} WHERE v.id = @id`, { id });
-export const openVisitForPatient = (patientId: number): Promise<VisitView | undefined> => one<VisitView>(`${VISIT_SELECT} WHERE v.patient_id = @id AND v.status = 'OPEN'`, { id: patientId });
 
 export async function listVisits(view: 'open' | 'today' | 'closed' | 'all', q = '', date?: string, department?: string): Promise<VisitView[]> {
   const where = view === 'open' ? "v.status = 'OPEN'" : view === 'today' ? 'v.visit_date = @d' : view === 'closed' ? "v.status = 'CLOSED' AND v.visit_date >= @from" : 'v.visit_date >= @from';
@@ -75,7 +73,7 @@ export async function enqueue(visitId: number, departmentCode: string, priority?
 }
 
 /** Finishes a visit's place in one department's queue (the work there is done). */
-export async function completeQueue(visitId: number, departmentCode: string, user: Actor): Promise<void> {
+async function completeQueue(visitId: number, departmentCode: string, user: Actor): Promise<void> {
   await run("UPDATE visit_queue SET status = 'DONE', completed_at = ?, served_by = COALESCE(served_by, ?) WHERE visit_id = ? AND department_code = ? AND status IN ('WAITING','CALLED','SERVING')",
     nowIso(), user.username, visitId, departmentCode);
 }

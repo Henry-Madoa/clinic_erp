@@ -12,7 +12,7 @@ export interface ConfirmOptions {
   danger?: boolean;
 }
 
-export type ConfirmFn = (options: ConfirmOptions | string) => Promise<boolean>;
+type ConfirmFn = (options: ConfirmOptions | string) => Promise<boolean>;
 
 const ConfirmContext = createContext<ConfirmFn>(async () => true);
 

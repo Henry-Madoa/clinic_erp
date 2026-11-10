@@ -2,8 +2,8 @@
 
 /* ----------------------------------------------------------- action results */
 
-export type ActionSuccess<T> = { ok: true; data: T };
-export type ActionFailure = { ok: false; error: string; code: string };
+type ActionSuccess<T> = { ok: true; data: T };
+type ActionFailure = { ok: false; error: string; code: string };
 
 /**
  * What every Server Action returns. Business failures come back as data because

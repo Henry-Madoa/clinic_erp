@@ -5,10 +5,10 @@ import { requireAction, requireUser } from '@/lib/session';
 import { actionResult } from '@/lib/errors';
 import {
   createEmployee, updateEmployee, deleteEmployee, submitEmployeeForApproval, cancelEmployeeApproval,
-  approveEmployee, rejectEmployee, getEmployee, listNextOfKin, listBeneficiaries, listDependants,
-  listEmergencyContacts, listProfessionalBodies, listWorkHistory, listBankAccounts, replaceNextOfKin,
+  approveEmployee, rejectEmployee, getEmployee, 
+  replaceNextOfKin,
   replaceBeneficiaries, replaceDependants, replaceEmergencyContacts, replaceProfessionalBodies,
-  replaceWorkHistory, replaceBankAccounts, listContracts, type EmployeeInput,
+  replaceWorkHistory, replaceBankAccounts, type EmployeeInput,
 } from '@/lib/employees';
 import { findPendingRoutedTask, decideWorkflowTask } from '@/lib/workflow';
 import type {
@@ -104,13 +104,6 @@ export async function rejectEmployeeRequest(id: number, reason: string): Promise
   });
 }
 
-export async function contractsForEmployee(id: number) {
-  return actionResult(async () => {
-    await requireAction('EMPLOYEES_READ');
-    return listContracts(id);
-  });
-}
-
 /* ------------------------------------------------------------------- sub-entities */
 
 async function guardEditable(id: number): Promise<void> {
@@ -186,16 +179,5 @@ export async function saveBankAccounts(id: number, rows: Omit<EmployeeBankAccoun
     await replaceBankAccounts(id, rows);
     revalidate(id);
     return { saved: true };
-  });
-}
-
-export async function subEntitiesForEmployee(id: number) {
-  return actionResult(async () => {
-    await requireAction('EMPLOYEES_READ');
-    const [nextOfKin, beneficiaries, dependants, emergencyContacts, professionalBodies, workHistory, bankAccounts] = await Promise.all([
-      listNextOfKin(id), listBeneficiaries(id), listDependants(id), listEmergencyContacts(id),
-      listProfessionalBodies(id), listWorkHistory(id), listBankAccounts(id),
-    ]);
-    return { nextOfKin, beneficiaries, dependants, emergencyContacts, professionalBodies, workHistory, bankAccounts };
   });
 }

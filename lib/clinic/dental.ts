@@ -25,8 +25,8 @@ export const PRIMARY_TEETH = {
   upperRight: ['55', '54', '53', '52', '51'], upperLeft: ['61', '62', '63', '64', '65'],
   lowerRight: ['85', '84', '83', '82', '81'], lowerLeft: ['71', '72', '73', '74', '75'],
 };
-export const TOOTH_RE = /^([1-4][1-8]|[5-8][1-5])$/;
-export const SURFACES = ['M', 'O', 'D', 'B', 'L', 'I'] as const;
+const TOOTH_RE = /^([1-4][1-8]|[5-8][1-5])$/;
+const SURFACES = ['M', 'O', 'D', 'B', 'L', 'I'] as const;
 
 /** Conditions with the colour the odontogram paints them and whether they mean work is needed. */
 export const DENTAL_CONDITIONS: { code: string; label: string; colour: string; needsTreatment: boolean }[] = [

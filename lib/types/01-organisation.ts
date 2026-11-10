@@ -99,9 +99,9 @@ export interface ThemePreset {
   tokens: ThemeTokens;
 }
 
-export type TokenType = 'color' | 'text' | 'select';
+type TokenType = 'color' | 'text' | 'select';
 
-export interface TokenDefinition {
+interface TokenDefinition {
   key: string;
   label: string;
   type: TokenType;

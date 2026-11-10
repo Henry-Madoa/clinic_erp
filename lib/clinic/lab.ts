@@ -54,7 +54,7 @@ export async function labCounts(): Promise<Record<LabView, number> & { overdue: 
 }
 
 export const getOrderTest = (id: number): Promise<LabOrderTestView | undefined> => one<LabOrderTestView>(`${SELECT} WHERE ot.id = @id`, { id });
-export const listOrderTests = (labOrderNo: string): Promise<LabOrderTestView[]> => all<LabOrderTestView>(`${SELECT} WHERE o.no = @no ORDER BY t.section, t.name`, { no: labOrderNo });
+const listOrderTests = (labOrderNo: string): Promise<LabOrderTestView[]> => all<LabOrderTestView>(`${SELECT} WHERE o.no = @no ORDER BY t.section, t.name`, { no: labOrderNo });
 export const listVisitLabTests = (visitId: number): Promise<LabOrderTestView[]> => all<LabOrderTestView>(`${SELECT} WHERE o.visit_id = @v ORDER BY o.id, t.section, t.name`, { v: visitId });
 export const listResults = (orderTestId: number): Promise<LabResultRow[]> => all<LabResultRow>(
   'SELECT id, order_test_id, parameter_id, value_text, value_num::float AS value_num, flag FROM lab_result WHERE order_test_id = ?', orderTestId,
@@ -70,7 +70,7 @@ export const resultHistory = (patientId: number) => all<{ test_name: string; par
 
 /* ------------------------------------------------------------------ reference ranges */
 
-export function rangeFor(p: LabTestParameter, sex: Sex): { low: number | null; high: number | null } {
+function rangeFor(p: LabTestParameter, sex: Sex): { low: number | null; high: number | null } {
   if (sex === 'FEMALE' && (p.ref_low_female != null || p.ref_high_female != null)) return { low: p.ref_low_female, high: p.ref_high_female };
   return { low: p.ref_low, high: p.ref_high };
 }
@@ -85,7 +85,7 @@ export function rangeText(p: LabTestParameter, sex: Sex): string {
   return '';
 }
 
-export function flagFor(p: LabTestParameter, sex: Sex, valueNum: number | null, valueText: string | null): string {
+function flagFor(p: LabTestParameter, sex: Sex, valueNum: number | null, valueText: string | null): string {
   if (p.result_type === 'NUMERIC' && valueNum != null) {
     if (p.critical_low != null && valueNum <= p.critical_low) return 'LL';
     if (p.critical_high != null && valueNum >= p.critical_high) return 'HH';

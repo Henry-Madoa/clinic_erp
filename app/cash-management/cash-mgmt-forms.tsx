@@ -19,8 +19,6 @@ type BankRow = {
   min_balance: number; blocked: number; status: string; external_bank_code: string | null; bank_branch_no: string | null;
   account_type?: string | null;
 };
-const acctOpts = (accounts: GlAccount[], none = '(none)') =>
-  [{ value: '', label: none }, ...accounts.map((a) => ({ value: String(a.id), label: `${a.code} — ${a.name}` }))];
 
 /* ---------------------------------------------------------------- Bank Account */
 

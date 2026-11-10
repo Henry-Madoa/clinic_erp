@@ -178,12 +178,6 @@ export async function updatePatient(mrn: string, v: Record<string, unknown>, use
   await audit(user, 'PATIENT_UPDATE', 'patient', mrn, idNumber ? { idNumberChanged: true } : undefined);
 }
 
-export async function setPatientPhoto(mrn: string, url: string | null, user: Actor): Promise<void> {
-  if (url && !/^https:\/\/res\.cloudinary\.com\//.test(url)) throw new AppError('Photos are uploaded to the media store', 'VALIDATION');
-  await run('UPDATE patient SET photo_url = ?, updated_at = ?, updated_by = ? WHERE mrn = ?', url, nowIso(), user.username, mrn);
-  await audit(user, 'PATIENT_PHOTO', 'patient', mrn);
-}
-
 export const maskedIdNumber = (p: Pick<Patient, 'id_number_last4'>): string | null => maskTail(p.id_number_last4);
 
 /** The full ID number — the caller has checked PATIENTS_PII_VIEW; every reveal is audited. */
@@ -237,7 +231,7 @@ export async function makeDefaultCover(coverId: number, user: Actor): Promise<vo
 
 /* ------------------------------------------------------------------ the chart */
 
-export interface PatientTimelineRow {
+interface PatientTimelineRow {
   id: number; no: string; visit_date: string; department_name: string; department_colour: string; status: string; stage: string;
   payment_mode: string; scheme_name: string | null; clinician_name: string | null; diagnoses: string | null; net: number | null; outcome: string | null;
 }

@@ -12,7 +12,7 @@ import type { OrgBrand, SessionUser } from '@/lib/types';
 const COLLAPSED_GROUPS_KEY = 'nav-collapsed-groups';
 const SCROLL_KEY = 'nav-scroll-top';
 
-export interface SidebarProps {
+interface SidebarProps {
   org: OrgBrand;
   user: SessionUser;
   /** Nav paths this user may see — resolved on the server so the permission
@@ -57,8 +57,8 @@ export function Sidebar({ org, user, allowedPaths, badges = {} }: SidebarProps) 
     setHydrated(true);
   }, []);
 
-  // Every top-level route has its own layout wrapping AppShell, so crossing from e.g. /projects to
-  // /timesheets unmounts this column and mounts a fresh <aside> scrolled to the top. Put the scroll
+  // Every top-level route has its own layout wrapping AppShell, so crossing from e.g. /patients to
+  // /appointments unmounts this column and mounts a fresh <aside> scrolled to the top. Put the scroll
   // back where the user left it, then nudge only as far as needed to keep the current page's link
   // on screen. Runs once the collapse state is in so it measures the real layout.
   useLayoutEffect(() => {

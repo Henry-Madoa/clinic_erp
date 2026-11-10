@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 import { FormModal } from '@/components/ui/form-modal';
 import { Modal } from '@/components/ui/modal';
 import { Field } from '@/components/ui/field';

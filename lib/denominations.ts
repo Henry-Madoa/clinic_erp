@@ -16,9 +16,6 @@ import type { Actor, Cents, Denomination, DenominationDocumentKind, Denomination
 export const listDenominations = (): Promise<Denomination[]> =>
   all<Denomination>('SELECT * FROM denomination ORDER BY sort_order, value DESC');
 
-export const listActiveDenominations = (): Promise<Denomination[]> =>
-  all<Denomination>('SELECT * FROM denomination WHERE active = true ORDER BY sort_order, value DESC');
-
 /** Every active denomination joined to this document's captured quantities (0 where none
  *  captured yet) — the grid a card renders. */
 export async function getDenominationLines(

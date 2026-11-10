@@ -69,7 +69,7 @@ type Row = ReactElement<Record<string, unknown>>;
 
 /** Rows re-ordered by column `col`: pinned rows (totals, data-nosort, spanning cells) keep to
  *  the bottom in their own order; blanks sink; ties keep their original order. */
-export function orderRows(rows: Row[], col: number, dir: SortDir): Row[] {
+function orderRows(rows: Row[], col: number, dir: SortDir): Row[] {
   const pinned = (r: Row) => {
     if (r.props['data-nosort'] != null || hasClass(r.props, 'total') || hasClass(r.props, 'subtotal')) return true;
     const cells = Children.toArray(r.props.children as ReactNode);

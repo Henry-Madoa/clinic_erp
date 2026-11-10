@@ -26,8 +26,8 @@ import { esc } from './documentPrint.ts';
 import { readIntegration, writeIntegration, openSecret, nextSecret } from './integrationSettings.ts';
 import type { Actor, Cents, EtimsInvoice, EtimsSourceType } from './types.ts';
 
-export type EtimsEnvironment = 'sandbox' | 'production';
-export const ETIMS_HOSTS: Record<EtimsEnvironment, string> = {
+type EtimsEnvironment = 'sandbox' | 'production';
+const ETIMS_HOSTS: Record<EtimsEnvironment, string> = {
   sandbox: 'https://etims-api-sbx.kra.go.ke/etims-api',
   production: 'https://etims-api.kra.go.ke/etims-api',
 };
@@ -37,7 +37,7 @@ const VERIFY_HOSTS: Record<EtimsEnvironment, string> = {
 };
 
 /** KRA tax bands: A exempt, B 16% VAT, C zero-rated, D non-VAT, E 8%. */
-export type TaxBand = 'A' | 'B' | 'C' | 'D' | 'E';
+type TaxBand = 'A' | 'B' | 'C' | 'D' | 'E';
 const BAND_RATE: Record<TaxBand, number> = { A: 0, B: 16, C: 0, D: 0, E: 8 };
 
 /** OSCU payment types: 01 cash, 02 credit, 03 cash/credit, 04 bank cheque, 05 card, 06 mobile money, 07 other. */
@@ -46,7 +46,7 @@ const paymentType = (code: string | null | undefined): string => PAYMENT_TYPE[St
 
 /* ---------------------------------------------------------------- settings */
 
-export interface EtimsSettingsInput {
+interface EtimsSettingsInput {
   enabled: boolean; environment: EtimsEnvironment; tin: string; bhfId: string; dvcSrlNo: string;
   itemClsCd: string; nonVatBand: TaxBand; cmcKey: string;
 }
@@ -157,7 +157,7 @@ async function getConfig(): Promise<EtimsConfig | null> {
 }
 
 /** Whether sales are being reported — the queue is only written while it is. */
-export const etimsEnabled = async (): Promise<boolean> => (await getConfig()) !== null;
+const etimsEnabled = async (): Promise<boolean> => (await getConfig()) !== null;
 
 /* -------------------------------------------------------------- the outbox */
 
@@ -166,7 +166,7 @@ export const etimsEnabled = async (): Promise<boolean> => (await getConfig()) !=
  * eTIMS is off, and a sale is queued once (unique source + receipt type). A credit memo is a
  * refund receipt (R) that names the signed invoice it corrects.
  */
-export async function queueSale(sourceType: EtimsSourceType, sourceNo: string, user: Actor, orgInvcNo: number | null = null): Promise<number | null> {
+async function queueSale(sourceType: EtimsSourceType, sourceNo: string, user: Actor, orgInvcNo: number | null = null): Promise<number | null> {
   if (!(await etimsEnabled())) return null;
   const built = await buildSale(sourceType, sourceNo);
   if (!built || built.total <= 0) return null;
@@ -194,16 +194,6 @@ export async function queueEtimsForPostedSales(postedNo: string, user: Actor): P
 
 interface SaleLine { code: string; name: string; qty: number; gross: Cents; vat: Cents; band: TaxBand }
 interface BuiltSale { lines: SaleLine[]; total: Cents; taxTotal: Cents; pmtType: string; custTin: string | null; custName: string | null; saleDate: string }
-
-/** Spreads `total` over `weights` in proportion, the rounding remainder on the largest part. */
-function allocate(total: Cents, weights: number[]): Cents[] {
-  const sum = weights.reduce((a, w) => a + w, 0);
-  if (!sum) return weights.map(() => 0);
-  const parts = weights.map((w) => Math.floor((total * w) / sum));
-  const rest = total - parts.reduce((a, p) => a + p, 0);
-  parts[weights.indexOf(Math.max(...weights))] += rest;
-  return parts;
-}
 
 async function buildSale(sourceType: EtimsSourceType, sourceNo: string): Promise<BuiltSale | null> {
   const cfg = await getConfig();
@@ -236,7 +226,7 @@ const ymd = (iso: string): string => iso.replace(/-/g, '').slice(0, 8);
 const eat = (d = new Date()): string => new Date(d.getTime() + 3 * 3_600_000).toISOString().replace(/[-:T]/g, '').slice(0, 14);
 
 /** The OSCU saveTrnsSalesOsdc body — every line balanced, the header the sum of the lines. */
-export function salePayload(cfg: Pick<EtimsConfig, 'tin' | 'bhfId' | 'itemClsCd'>, inv: { invcNo: number; orgInvcNo: number; rcptType: 'S' | 'R'; pmtType: string; custTin: string | null; custName: string | null }, sale: BuiltSale, user: string) {
+function salePayload(cfg: Pick<EtimsConfig, 'tin' | 'bhfId' | 'itemClsCd'>, inv: { invcNo: number; orgInvcNo: number; rcptType: 'S' | 'R'; pmtType: string; custTin: string | null; custName: string | null }, sale: BuiltSale, user: string) {
   const items = sale.lines.map((l, k) => {
     const taxAmt = l.vat;
     return {
@@ -350,7 +340,7 @@ export const etimsFor = (sourceType: EtimsSourceType, sourceNo: string): Promise
 /* ----------------------------------------------------------------- receipt */
 
 /** KRA's verification link: PIN + branch + receipt signature. */
-export function verificationUrl(env: EtimsEnvironment, tin: string, bhfId: string, rcptSign: string): string {
+function verificationUrl(env: EtimsEnvironment, tin: string, bhfId: string, rcptSign: string): string {
   return `${VERIFY_HOSTS[env]}/common/link/etims/receipt/indexEtimsReceiptData?Data=${encodeURIComponent(`${tin}${bhfId}${rcptSign}`)}`;
 }
 

@@ -6,14 +6,14 @@ import { one, all } from './db.ts';
 import { AppError } from './errors.ts';
 import { today } from './format.ts';
 import { buildFilterClause, type FilterCondition, type FilterFieldDef } from './listFilters.ts';
-import type { Cents, FaBookValueReport, FaBookValueRow, IsoDate } from './types.ts';
+import type { FaBookValueReport, FaBookValueRow, IsoDate } from './types.ts';
 
 export const FA_BOOK_VALUE_FILTER_FIELDS: FilterFieldDef[] = [
   { key: 'fa_class_code', label: 'FA Class', type: 'select', column: 'fa.fa_class_code' },
   { key: 'fa_location_code', label: 'FA Location', type: 'select', column: 'fa.fa_location_code' },
 ];
 
-export interface GetFaBookValueOptions {
+interface GetFaBookValueOptions {
   bookCode?: string;
   asOf?: IsoDate;
   search?: string;
@@ -70,15 +70,4 @@ export async function getFaBookValueReport(
   );
 
   return { book_code: book, as_of: cutoff, rows, totals };
-}
-
-/** Total book value across a depreciation book at a date — the figure that should tie to
- *  (cost accounts − accumulated depreciation accounts) on the trial balance. */
-export async function faBookValueTotal(bookCode: string, asOf: IsoDate): Promise<Cents> {
-  const row = await one<{ total: Cents }>(
-    `SELECT COALESCE(SUM(CASE WHEN part_of_book_value = 1 THEN amount ELSE 0 END), 0) AS total
-     FROM fa_ledger_entry WHERE depreciation_book_code = ? AND fa_posting_date <= ?`,
-    bookCode, asOf,
-  );
-  return row?.total ?? 0;
 }

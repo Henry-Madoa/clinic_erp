@@ -25,7 +25,7 @@ import { postJournal } from './accounting.ts';
 import { today } from './format.ts';
 import type { Actor, Cents, IsoDate, VendorLedgerDocumentType } from './types.ts';
 
-export interface CreateVendorLedgerEntryInput {
+interface CreateVendorLedgerEntryInput {
   vendorId: number;
   postingDate: IsoDate;
   documentType: VendorLedgerDocumentType;
@@ -104,7 +104,7 @@ async function realizedFxAccounts(code: string): Promise<{ gain: number; loss: n
   return { gain: c.realized_gains_account_id, loss: c.realized_losses_account_id };
 }
 
-export interface ApplyVendorEntriesInput {
+interface ApplyVendorEntriesInput {
   applyingEntryId: number;
   /** Specific target entries, or 'auto' for oldest-open-first up to the applying entry's remaining. */
   appliedTo: number[] | 'auto';

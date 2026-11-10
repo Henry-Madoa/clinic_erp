@@ -8,8 +8,7 @@
  *   TREASURY_RETURN    the cashier's float -> Treasury (created by a cashier)
  *   SEND_TO_BANK       Treasury vault -> Main Bank     (created by a treasury user)
  *
- * Maker-checker: Open -> Pending Approval -> Approved -> Processed, the same shape as
- * lib/standingOrders.ts. Posting is one balanced journal — credit the source bank account's
+ * Maker-checker: Open -> Pending Approval -> Approved -> Processed. Posting is one balanced journal — credit the source bank account's
  * control G/L, debit the destination's — through lib/accounting.ts's postJournal(), which then
  * maintains both bank_account balances and the reconciliation subledger automatically.
  */

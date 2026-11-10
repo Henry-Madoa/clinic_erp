@@ -6,13 +6,11 @@
  */
 import { revalidatePath } from 'next/cache';
 import { requireAction } from '@/lib/session';
-import { actionResult, AppError } from '@/lib/errors';
-import { toCents } from '@/lib/format';
+import { actionResult } from '@/lib/errors';
 import * as mpesa from '@/lib/mpesa';
 import * as mail from '@/lib/mailSettings';
 import * as etims from '@/lib/etims';
 import { escapeHtml } from '@/lib/mailer';
-import { one } from '@/lib/db';
 import { getOrgBrand } from '@/lib/org';
 import type { ActionResult, FormValues } from '@/lib/types';
 
@@ -58,18 +56,6 @@ export async function sendTestMailRequest(v: FormValues): Promise<ActionResult<{
   });
 }
 
-/** Finance: prompt a client to pay an open invoice (or on account) from their phone. */
-export async function requestMpesaPromptRequest(customerNo: string, v: FormValues): Promise<ActionResult<{ message: string }>> {
-  return actionResult(async () => {
-    const user = await requireAction('RECEIVABLES_MPESA_REQUEST');
-    const c = await one<{ id: number }>('SELECT id FROM customer WHERE no = ?', customerNo);
-    if (!c) throw new AppError('Client not found', 'NOT_FOUND');
-    const res = await mpesa.requestInvoiceMpesaPayment(c.id, str(v.document_no) || null, str(v.phone), toCents(str(v.amount) || '0'), user);
-    revalidatePath('/receivables', 'layout');
-    return { message: res.message };
-  });
-}
-
 /* ---------------------------------------------------------------- KRA eTIMS */
 
 export async function saveEtimsSetupRequest(v: FormValues): Promise<ActionResult<{ message: string }>> {
@@ -109,22 +95,5 @@ export async function retryEtimsInvoiceRequest(id: number): Promise<ActionResult
     const status = await etims.submitInvoice(Number(id), user);
     revalidatePath('/admin/integrations/etims');
     return { message: status === 'SIGNED' ? 'Signed by KRA' : status === 'FAILED' ? 'KRA refused it again — see the reason' : 'Queued — KRA could not be reached yet' };
-  });
-}
-
-export async function checkMpesaStatusRequest(customerNo: string, requestId: number): Promise<ActionResult<{ message: string }>> {
-  return actionResult(async () => {
-    const user = await requireAction('RECEIVABLES_MPESA_REQUEST');
-    // The request must belong to the client in the URL — no checking someone else's prompt by id.
-    const c = await one<{ id: number }>('SELECT id FROM customer WHERE no = ?', customerNo);
-    const rows = c ? await mpesa.listMpesaRequests(c.id) : [];
-    if (!rows.some((r) => r.id === Number(requestId))) throw new AppError('M-Pesa request not found', 'NOT_FOUND');
-    const { status } = await mpesa.queryMpesaRequest(Number(requestId), user);
-    revalidatePath('/receivables', 'layout');
-    const words: Record<string, string> = {
-      PENDING: 'Still waiting on the client', POSTED: 'Paid — posted to the client\'s account', PAID_UNPOSTED: 'Paid, but could not be posted — see the request',
-      REVIEW: 'Paid a different amount — needs review', FAILED: 'Failed', CANCELLED: 'The client cancelled the prompt', TIMEOUT: 'The client did not respond in time',
-    };
-    return { message: words[status] ?? status };
   });
 }

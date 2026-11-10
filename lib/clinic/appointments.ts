@@ -19,7 +19,7 @@ import type { Actor, Appointment, AppointmentStatus } from '../types.ts';
 
 export const APPOINTMENT_TYPES = ['NEW', 'REVIEW', 'PROCEDURE', 'DENTAL', 'LAB', 'VACCINATION'] as const;
 export const APPOINTMENT_SOURCES = ['PHONE', 'WALK_IN', 'ONLINE', 'FOLLOW_UP'] as const;
-export const OPEN_APPOINTMENT: AppointmentStatus[] = ['BOOKED', 'CONFIRMED'];
+const OPEN_APPOINTMENT: AppointmentStatus[] = ['BOOKED', 'CONFIRMED'];
 
 const SELECT = `
   SELECT a.*, ${NAME_SQL()} AS patient_name, p.mrn, p.phone, d.name AS department_name, d.colour AS department_colour,
@@ -37,8 +37,7 @@ export async function listAppointments(opts: { from: string; to: string; departm
   );
 }
 
-export const getAppointment = (no: string): Promise<Appointment | undefined> => one<Appointment>(`${SELECT} WHERE a.no = @no`, { no });
-export const patientAppointments = (patientId: number): Promise<Appointment[]> => all<Appointment>(`${SELECT} WHERE a.patient_id = @id ORDER BY a.appointment_date DESC, a.start_time DESC LIMIT 50`, { id: patientId });
+const getAppointment = (no: string): Promise<Appointment | undefined> => one<Appointment>(`${SELECT} WHERE a.no = @no`, { no });
 export const upcomingForPatient = (patientId: number): Promise<Appointment[]> => all<Appointment>(
   `${SELECT} WHERE a.patient_id = @id AND a.appointment_date >= @t AND a.status IN ('BOOKED','CONFIRMED') ORDER BY a.appointment_date, a.start_time`, { id: patientId, t: todayIso() },
 );
@@ -115,22 +114,6 @@ export async function bookFollowUp(visitNo: string, v: Record<string, unknown>, 
   if (!visit) throw new AppError('Visit not found', 'NOT_FOUND');
   return bookAppointment({ ...v, patient_id: visit.patient_id, department_code: v.department_code || visit.department_code,
     clinician_user_id: v.clinician_user_id ?? visit.clinician_user_id, appointment_type: v.appointment_type || 'REVIEW', source: 'FOLLOW_UP' }, user);
-}
-
-/** Free slots on a day for a department / clinician — the booking form's suggestions. */
-export async function freeSlots(date: string, department: string, clinicianId: number | null): Promise<string[]> {
-  const setup = await getClinicSetup();
-  const taken = await all<{ start_time: string; duration_mins: number }>(
-    "SELECT start_time, duration_mins FROM appointment WHERE appointment_date = ? AND department_code = ? AND status IN ('BOOKED','CONFIRMED','ARRIVED') AND (? = 0 OR clinician_user_id = ?)",
-    date, department, clinicianId ?? 0, clinicianId ?? 0);
-  const out: string[] = [];
-  const nowMins = date === todayIso() ? (new Date().getUTCHours() + 3) * 60 + new Date().getUTCMinutes() : 0;
-  for (let m = toMins(setup.day_start); m + setup.slot_minutes <= toMins(setup.day_end); m += setup.slot_minutes) {
-    if (m < nowMins) continue;
-    const clash = taken.some((t) => m < toMins(t.start_time) + t.duration_mins && toMins(t.start_time) < m + setup.slot_minutes);
-    if (!clash || !clinicianId) out.push(toHhmm(m));
-  }
-  return out;
 }
 
 export async function appointmentStats(date = todayIso()): Promise<{ booked: number; arrived: number; noShow: number; cancelled: number; upcoming7: number }> {

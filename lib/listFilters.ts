@@ -12,7 +12,7 @@
  */
 import type { WorkflowConditionOperator } from './types.ts';
 
-export type FilterFieldType = 'text' | 'number' | 'date' | 'select';
+type FilterFieldType = 'text' | 'number' | 'date' | 'select';
 
 export interface FilterFieldDef {
   key: string;

@@ -40,7 +40,7 @@ import type { Actor, Cents, GlAccount, IsoDate, JournalLineInput, PostedJournal 
 import { CLOSE_INCOME_STATEMENT_DESCRIPTION } from './workflowConstants.ts';
 
 /** BC's default Posting Description on the batch job. */
-export const DEFAULT_POSTING_DESCRIPTION = CLOSE_INCOME_STATEMENT_DESCRIPTION;
+const DEFAULT_POSTING_DESCRIPTION = CLOSE_INCOME_STATEMENT_DESCRIPTION;
 
 export interface CloseIncomeStatementInput {
   /** The last day of the fiscal year being closed. */
@@ -57,7 +57,7 @@ export interface CloseIncomeStatementInput {
   postToRetainedEarnings: 'Balance' | 'Details';
 }
 
-export interface ClosingLine {
+interface ClosingLine {
   accountCode: string;
   accountName: string;
   accountType: 'INCOME' | 'EXPENSE' | 'RETAINED';

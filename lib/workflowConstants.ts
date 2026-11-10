@@ -19,7 +19,7 @@ export interface DocumentFieldDef { key: string; label: string; relation?: Docum
 /** The DB table backing each document type — the parent row `listWorkflowTableRelations()`
  *  registers per document type, and what `listConditionFieldDefs()` introspects for columns
  *  and foreign keys. Never admin-editable: it's the only table the document's own submission
- *  code (lib/memberApplications.ts, lib/loanService.ts, lib/gl.ts) actually fetches condition
+ *  code (lib/gl.ts, lib/imprest.ts, …) actually fetches condition
  *  values from, so letting it be freely set would let an admin configure fields that silently
  *  never match. Which of that table's columns are actually enabled for conditioning is the
  *  admin-managed part — see Admin Centre → Workflow Management → Table Relations. */

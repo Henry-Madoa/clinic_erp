@@ -1,6 +1,6 @@
 /*
  * Employee Editing — maker-checker changes to a live (Active/On Leave) employee's bio-data and
- * sub-entity lists. A straight mirror of lib/memberEdits.ts: one edit request snapshots the
+ * sub-entity lists. One edit request snapshots the
  * employee's current editable fields plus their sub-entity lists into shadow tables the maker
  * can freely amend; on approval, the whole snapshot replaces the live rows.
  */
@@ -18,7 +18,7 @@ import { findMatchingWorkflow, findPendingRoutedTask, pickConditionFields, start
 import { buildFilterClause, type FilterCondition, type FilterFieldDef } from './listFilters.ts';
 import { buildOrderClause, type SortState } from './listSort.ts';
 import type {
-  Actor, Employee, EmployeeEditRequest, EmployeeEditRequestView,
+  Actor, EmployeeEditRequest, EmployeeEditRequestView,
   EmployeeEditNextOfKin, EmployeeEditBeneficiary, EmployeeEditDependant, EmployeeEditEmergencyContact,
   EmployeeEditProfessionalBody, EmployeeEditWorkHistory, EmployeeEditBankAccount,
 } from './types.ts';

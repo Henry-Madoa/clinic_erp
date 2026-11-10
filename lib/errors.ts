@@ -69,7 +69,7 @@ function constraintOf(err: unknown): string | null {
  * anything else — a syntax slip, a lost connection, a timeout — is a system fault whose driver
  * text belongs in the server log, not on a user's screen.
  */
-export function translateDbError(err: unknown): AppError | null {
+function translateDbError(err: unknown): AppError | null {
   const state = sqlState(err);
   if (!state) return null;
   const constraint = constraintOf(err);

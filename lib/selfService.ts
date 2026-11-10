@@ -51,7 +51,7 @@ export const getEmployeeForUser = (userId: number): Promise<SelfEmployee | undef
   );
 
 /** AL's UserSetup.TESTFIELD("Employee No.") — the message tells the employee who can fix it. */
-export async function requireSelfEmployee(user: { id: number }): Promise<SelfEmployee> {
+async function requireSelfEmployee(user: { id: number }): Promise<SelfEmployee> {
   const emp = await getEmployeeForUser(user.id);
   if (!emp) {
     throw new AppError('Your login is not matched to an employee — ask an administrator to set your Employee No. under Admin Centre → User Setup', 'NO_EMPLOYEE');
@@ -109,7 +109,7 @@ export async function stampEmployeeDimensions(
 
 /* ------------------------------------------------------------------ role centre data */
 
-export interface SelfServiceRoleCenterData {
+interface SelfServiceRoleCenterData {
   leaveBalances: { leave_type: string; balance: number }[];
   counts: {
     leaveOpen: number; leavePending: number; leaveApproved: number;

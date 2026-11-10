@@ -18,7 +18,7 @@ export interface TrendSeries {
   values: number[];
 }
 
-export interface TrendProps {
+interface TrendProps {
   labels: string[];
   series: TrendSeries[];
   height?: number;

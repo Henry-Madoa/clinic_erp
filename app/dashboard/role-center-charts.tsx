@@ -1,7 +1,6 @@
 'use client';
 
 import { Trend, type TrendSeries } from '@/components/charts/trend';
-import { Sparkline } from '@/components/charts/sparkline';
 import { Gauge } from '@/components/charts/gauge';
 import { StackedBar } from '@/components/charts/stacked-bar';
 import { Donut } from '@/components/charts/donut';
@@ -13,7 +12,6 @@ import type { Cents } from '@/lib/types';
 const S = ['var(--series-1)', 'var(--series-2)', 'var(--series-3)'];
 const SLICE = [...S, 'var(--brand-accent)', 'var(--info)', 'var(--text-muted)'];
 
-export { Sparkline, Gauge };
 
 /** A month-keyed trend. `series` values are already ordered oldest→newest to match `months`. */
 export function MonthTrend({ months, series, money = true, area = false, height }: {
@@ -27,18 +25,6 @@ export function MonthTrend({ months, series, money = true, area = false, height 
   return <Trend labels={months.map(formatMonth)} series={s} money={money} area={area} height={height} />;
 }
 
-/** A week-keyed trend (labels are each week's Monday, shown as "03 Nov"). */
-export function WeekTrend({ weeks, series, money = false, height }: {
-  weeks: string[];
-  series: { name: string; values: number[] }[];
-  money?: boolean;
-  height?: number;
-}) {
-  const s: TrendSeries[] = series.map((x, i) => ({ name: x.name, color: S[i % S.length], values: x.values }));
-  const M = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return <Trend labels={weeks.map((w) => `${w.slice(8, 10)} ${M[Number(w.slice(5, 7)) - 1]}`)} series={s} money={money} height={height} />;
-}
-
 export function MixDonut({ rows, total, centerLabel = 'total' }: {
   rows: { name: string; amount: Cents }[];
   total: Cents;
@@ -50,21 +36,6 @@ export function MixDonut({ rows, total, centerLabel = 'total' }: {
       segments={rows.filter((r) => r.amount > 0).map((r, i) => ({ label: r.name, value: r.amount, color: SLICE[i % SLICE.length] }))}
       centerValue={curShort(total)}
       centerLabel={centerLabel}
-    />
-  );
-}
-
-export function StatusDonut({ rows, centerLabel }: {
-  rows: { label: string; value: number }[];
-  centerLabel?: string;
-}) {
-  const total = rows.reduce((a, r) => a + Math.max(r.value, 0), 0);
-  return (
-    <Donut
-      money={false}
-      segments={rows.filter((r) => r.value > 0).map((r, i) => ({ label: r.label, value: r.value, color: SLICE[i % SLICE.length] }))}
-      centerValue={String(total)}
-      centerLabel={centerLabel ?? 'total'}
     />
   );
 }

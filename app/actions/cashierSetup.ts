@@ -4,8 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { requireAction } from '@/lib/session';
 import { actionResult } from '@/lib/errors';
 import { upsertCashierSetup, deleteCashierSetup } from '@/lib/cashierSetup';
-import { listActiveBankAccounts } from '@/lib/gl';
-import type { ActionResult, BankAccount, FormValues } from '@/lib/types';
+import type { ActionResult, FormValues } from '@/lib/types';
 
 export async function saveCashierSetup(values: FormValues): Promise<ActionResult<{ id: number }>> {
   return actionResult(async () => {
@@ -29,13 +28,5 @@ export async function removeCashierSetup(id: number): Promise<ActionResult<{ del
     await deleteCashierSetup(id, user);
     revalidatePath('/admin/pool/cashier-setup');
     return { deleted: true };
-  });
-}
-
-/** Bank/cash accounts — the picker filters by account_type client-side per the chosen setup type. */
-export async function bankAccountsForCashierSetup(): Promise<ActionResult<BankAccount[]>> {
-  return actionResult(async () => {
-    await requireAction('CASHIER_SETUP_MANAGE');
-    return listActiveBankAccounts();
   });
 }

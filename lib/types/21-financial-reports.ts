@@ -5,12 +5,12 @@ import type { Flag } from '../types.ts';
 
 export type ColumnLayoutType =
   | 'NET_CHANGE' | 'BALANCE_AT_DATE' | 'BEGINNING_BALANCE' | 'YEAR_TO_DATE' | 'ENTIRE_FISCAL_YEAR' | 'FORMULA';
-export type FinReportAmountType = 'NET_AMOUNT' | 'DEBIT_AMOUNT' | 'CREDIT_AMOUNT';
-export type ColumnShowType = 'ALWAYS' | 'NEVER' | 'WHEN_POSITIVE' | 'WHEN_NEGATIVE';
-export type RoundingFactor = 'NONE' | '1' | '1000' | '1000000';
-export type AccScheduleTotalingType = 'POSTING_ACCOUNTS' | 'TOTAL_ACCOUNTS' | 'FORMULA' | 'SET_BASE_FOR_PERCENT';
-export type AccScheduleRowType = 'NET_CHANGE' | 'BALANCE_AT_DATE' | 'BEGINNING_BALANCE';
-export type AccScheduleShowType = 'YES' | 'NO' | 'IF_ANY_NOT_ZERO' | 'IF_ALL_ZERO';
+type FinReportAmountType = 'NET_AMOUNT' | 'DEBIT_AMOUNT' | 'CREDIT_AMOUNT';
+type ColumnShowType = 'ALWAYS' | 'NEVER' | 'WHEN_POSITIVE' | 'WHEN_NEGATIVE';
+type RoundingFactor = 'NONE' | '1' | '1000' | '1000000';
+type AccScheduleTotalingType = 'POSTING_ACCOUNTS' | 'TOTAL_ACCOUNTS' | 'FORMULA' | 'SET_BASE_FOR_PERCENT';
+type AccScheduleRowType = 'NET_CHANGE' | 'BALANCE_AT_DATE' | 'BEGINNING_BALANCE';
+type AccScheduleShowType = 'YES' | 'NO' | 'IF_ANY_NOT_ZERO' | 'IF_ALL_ZERO';
 
 /** Business Central Table 334 "Column Layout Name". */
 export interface ColumnLayoutName {
@@ -95,7 +95,7 @@ export interface FinReportColumn {
   windowLabel: string;
 }
 
-export interface FinReportCell {
+interface FinReportCell {
   /** null when the column's Show rule blanks it. */
   value: number | null;
   /** A percentage/ratio row is rendered as a plain number, an account row as money. */

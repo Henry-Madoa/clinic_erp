@@ -17,7 +17,7 @@ import { AppError } from './errors.ts';
 import type { Actor, Company } from './types.ts';
 
 /** Shared across companies — kept in public only. */
-export const TENANT_TABLES = new Set([
+const TENANT_TABLES = new Set([
   'app_user', 'session', 'role', 'permission_set_line', 'user_permission_line', 'user_permission_set',
   'profile', 'user_profile', 'company', '_prisma_migrations',
 ]);
@@ -45,7 +45,7 @@ const TRANSACTION_EXCEPTIONS = new Set([
   // Setup that happens to share a prefix with business data.
   'customer_posting_group', 'vendor_posting_group', 'item_unit_of_measure', 'fa_class', 'fa_subclass',
 ]);
-export const isTransactionTable = (t: string): boolean =>
+const isTransactionTable = (t: string): boolean =>
   !TRANSACTION_EXCEPTIONS.has(t) && TRANSACTION_PREFIXES.some((p) => t === p || t.startsWith(p));
 
 /** BC's company creation choices: everything, setup only (production), or an empty company. */
@@ -82,7 +82,7 @@ function directConnectionString(): string {
   return process.env.DIRECT_DATABASE_URL ?? url.replace('-pooler.', '.');
 }
 
-export interface CopyCompanyInput {
+interface CopyCompanyInput {
   sourceCode: string;
   newCode: string;
   displayName: string;

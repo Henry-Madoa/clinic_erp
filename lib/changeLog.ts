@@ -80,7 +80,7 @@ export async function updateChangeLogSetup(
   );
 }
 
-export interface FieldChange {
+interface FieldChange {
   field: string;
   oldValue: unknown;
   newValue: unknown;
@@ -160,7 +160,7 @@ const CHANGE_LOG_SORT_COLUMNS: Record<string, string> = {
   type: 'type',
 };
 
-export interface ListChangeLogEntriesOptions {
+interface ListChangeLogEntriesOptions {
   search?: string;
   filters?: FilterCondition[];
   sort?: SortState | null;

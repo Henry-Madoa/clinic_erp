@@ -106,7 +106,7 @@ export async function DocumentNoSeriesTab({ filters }: { filters?: string } = {}
       <Toolbar><ListTools exportKey="document-no-series" fields={ADMIN_FIELDS['document-no-series']} filters={filters} count={docs.length} /></Toolbar>
       {categories.map((cat) => {
         const rows = docs.filter((d) => d.category === cat);
-        const icon = { 'Sales & CRM': '🤝', Projects: '🧩', 'Service Desk': '🎧', Receivables: '📄', Payables: '🧾', 'Cash Management': '💰', 'Cash Office': '🪙', Finance: '⚖️', 'Fixed Assets': '🏢', Inventory: '📦', 'Human Resources': '👥', 'Company Secretarial': '🏛️' }[cat] ?? '📁';
+        const icon = { Clinical: '🩺', 'Patient Billing': '💳', Receivables: '📄', Payables: '🧾', 'Cash Management': '💰', 'Cash Office': '🪙', Finance: '⚖️', 'Fixed Assets': '🏢', Inventory: '📦', 'Human Resources': '👥' }[cat] ?? '📁';
         const assigned = rows.filter((d) => d.series_code).length;
         return (
           <Card key={cat}>
@@ -219,7 +219,7 @@ export async function NoSeriesTab({ filters }: { filters?: string } = {}) {
 }
 
 /** One No. Series Line rendered as an inset card with a range-usage bar. */
-export function NoSeriesLineCard({ line, code }: {
+function NoSeriesLineCard({ line, code }: {
   line: Awaited<ReturnType<typeof listNoSeriesWithLines>>[number]['lines'][number]; code: string;
 }) {
   const digits = (n: string | null): number | null => {
@@ -284,7 +284,7 @@ export async function DimensionsTab({ d1, d2 }: { d1?: string; d2?: string } = {
   );
 }
 
-export function DimensionValuesCard({ slot, caption, values, filters }: {
+function DimensionValuesCard({ slot, caption, values, filters }: {
   slot: 1 | 2;
   caption: string;
   values: Awaited<ReturnType<typeof listDimensionValues>>;

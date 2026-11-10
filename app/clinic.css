@@ -71,7 +71,6 @@
 .flag.H, .flag.L, .flag.A { color: var(--warning); background: color-mix(in srgb, var(--warning) 14%, transparent); }
 .flag.HH, .flag.LL { color: #fff; background: var(--danger); }
 .flag.N { color: var(--text-muted); }
-.result-input { width: 120px; }
 
 /* The odontogram. */
 .odontogram { display: grid; gap: calc(var(--sp) * 1.5); overflow-x: auto; padding-bottom: 4px; }

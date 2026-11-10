@@ -213,7 +213,6 @@ export function CancelApprovalButton({ no, className = 'btn sm ghost' }: { no: s
   );
 }
 
-export { DelegateButton } from '@/components/ui/delegate-button';
 
 export function ApproveButton({ no, className = 'btn sm' }: { no: string; className?: string }) {
   const { run, busy } = useRunAction();

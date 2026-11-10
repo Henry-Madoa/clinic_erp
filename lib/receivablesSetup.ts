@@ -34,10 +34,7 @@ const CPG_SELECT = `
 export const listCustomerPostingGroups = (): Promise<CustomerPostingGroupView[]> =>
   all<CustomerPostingGroupView>(`${CPG_SELECT} ORDER BY g.code`);
 
-export const getCustomerPostingGroup = (code: string): Promise<CustomerPostingGroup | undefined> =>
-  one<CustomerPostingGroup>('SELECT * FROM customer_posting_group WHERE code = ?', code);
-
-export const getCustomerPostingGroupById = (id: number): Promise<CustomerPostingGroup | undefined> =>
+const getCustomerPostingGroupById = (id: number): Promise<CustomerPostingGroup | undefined> =>
   one<CustomerPostingGroup>('SELECT * FROM customer_posting_group WHERE id = ?', id);
 
 export interface CustomerPostingGroupInput {
@@ -103,9 +100,7 @@ export const listPaymentTerms = (): Promise<PaymentTerms[]> =>
   all<PaymentTerms>('SELECT * FROM payment_terms ORDER BY code');
 export const listActivePaymentTerms = (): Promise<PaymentTerms[]> =>
   all<PaymentTerms>("SELECT * FROM payment_terms WHERE status = 'ACTIVE' ORDER BY code");
-export const getPaymentTerms = (code: string): Promise<PaymentTerms | undefined> =>
-  one<PaymentTerms>('SELECT * FROM payment_terms WHERE code = ?', code);
-export const getPaymentTermsById = (id: number): Promise<PaymentTerms | undefined> =>
+const getPaymentTermsById = (id: number): Promise<PaymentTerms | undefined> =>
   one<PaymentTerms>('SELECT * FROM payment_terms WHERE id = ?', id);
 
 export interface PaymentTermsInput {
@@ -197,7 +192,7 @@ export const listPaymentMethods = (): Promise<PaymentMethod[]> =>
   all<PaymentMethod>('SELECT * FROM payment_method ORDER BY code');
 export const listActivePaymentMethods = (): Promise<PaymentMethod[]> =>
   all<PaymentMethod>("SELECT * FROM payment_method WHERE status = 'ACTIVE' ORDER BY code");
-export const getPaymentMethodById = (id: number): Promise<PaymentMethod | undefined> =>
+const getPaymentMethodById = (id: number): Promise<PaymentMethod | undefined> =>
   one<PaymentMethod>('SELECT * FROM payment_method WHERE id = ?', id);
 
 export interface PaymentMethodInput {
@@ -253,9 +248,7 @@ export const listReminderTerms = (): Promise<ReminderTerms[]> =>
   all<ReminderTerms>('SELECT * FROM reminder_terms ORDER BY code');
 export const listActiveReminderTerms = (): Promise<ReminderTerms[]> =>
   all<ReminderTerms>("SELECT * FROM reminder_terms WHERE status = 'ACTIVE' ORDER BY code");
-export const getReminderTerms = (code: string): Promise<ReminderTerms | undefined> =>
-  one<ReminderTerms>('SELECT * FROM reminder_terms WHERE code = ?', code);
-export const getReminderTermsById = (id: number): Promise<ReminderTerms | undefined> =>
+const getReminderTermsById = (id: number): Promise<ReminderTerms | undefined> =>
   one<ReminderTerms>('SELECT * FROM reminder_terms WHERE id = ?', id);
 export const listReminderLevels = (termsCode: string): Promise<ReminderLevel[]> =>
   all<ReminderLevel>('SELECT * FROM reminder_level WHERE reminder_terms_code = ? ORDER BY level_no', termsCode);
@@ -333,9 +326,7 @@ export const listFinanceChargeTerms = (): Promise<FinanceChargeTerms[]> =>
   all<FinanceChargeTerms>('SELECT * FROM finance_charge_terms ORDER BY code');
 export const listActiveFinanceChargeTerms = (): Promise<FinanceChargeTerms[]> =>
   all<FinanceChargeTerms>("SELECT * FROM finance_charge_terms WHERE status = 'ACTIVE' ORDER BY code");
-export const getFinanceChargeTerms = (code: string): Promise<FinanceChargeTerms | undefined> =>
-  one<FinanceChargeTerms>('SELECT * FROM finance_charge_terms WHERE code = ?', code);
-export const getFinanceChargeTermsById = (id: number): Promise<FinanceChargeTerms | undefined> =>
+const getFinanceChargeTermsById = (id: number): Promise<FinanceChargeTerms | undefined> =>
   one<FinanceChargeTerms>('SELECT * FROM finance_charge_terms WHERE id = ?', id);
 
 export interface FinanceChargeTermsInput {

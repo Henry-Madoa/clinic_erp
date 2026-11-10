@@ -16,7 +16,7 @@ import { formatDate } from './format.ts';
 import { amountInWords } from './numberToWords.ts';
 import { etimsReceiptHtml } from './etims.ts';
 import {
-  printBrand, documentSignatories, documentMoney, currencyLabel, renderDocument,
+  printBrand, documentSignatories, documentMoney, currencyLabel,
 } from './documentPrint.ts';
 import type { PrintDocument, PrintColumn, PrintRow, PrintParty, PrintBrand } from './documentPrint.ts';
 import type {
@@ -24,7 +24,6 @@ import type {
   PostedSalesDocumentType, SalesLine,
 } from './types.ts';
 
-export { renderDocument };
 
 /** The printed title for each document type — the working document and its posted counterpart. */
 const WORKING_TITLE: Record<SalesDocumentType, string> = {
@@ -233,7 +232,6 @@ export async function buildPostedSalesDocumentPrint(no: string): Promise<PrintDo
     acknowledgement: { title: isShipment ? 'Received by' : 'Customer acknowledgement' },
   };
 }
-
 
 /** Where to pay — the AL Sales Invoice layout's bank block, from Company Information. A credit
  *  memo asks for nothing, so it prints none. */

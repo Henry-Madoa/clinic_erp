@@ -17,7 +17,7 @@ interface Window { count: number; resetAt: number }
 const windows = new Map<string, Window>();
 const MAX_KEYS = 10_000;
 
-export interface RateLimitResult {
+interface RateLimitResult {
   ok: boolean;
   /** Attempts left in this window (0 when refused). */
   remaining: number;
@@ -58,14 +58,3 @@ export const LIMITS = {
   /** Unauthenticated web service calls per address per minute — failed Basic auth is the cheap part to abuse. */
   webServiceUnauthPerIp: { limit: 30, windowMs: 60_000 },
 } as const;
-
-/** A 429 with the standard headers. */
-export const tooManyRequests = (r: RateLimitResult, body: string | object = 'Too many requests'): Response =>
-  new Response(typeof body === 'string' ? body : JSON.stringify(body), {
-    status: 429,
-    headers: {
-      'Retry-After': String(r.retryAfterSeconds),
-      'Content-Type': typeof body === 'string' ? 'text/plain; charset=utf-8' : 'application/json; charset=utf-8',
-      'Cache-Control': 'no-store',
-    },
-  });

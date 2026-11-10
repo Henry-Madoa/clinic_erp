@@ -36,20 +36,6 @@ export async function qtyPerUnitOfMeasure(itemId: number, unitOfMeasureId: numbe
   return row.qty_per_unit_of_measure;
 }
 
-/** `quantity`, entered in `unitOfMeasureId`, converted to the item's Base UoM. */
-export async function convertToBase(itemId: number, unitOfMeasureId: number, quantity: number): Promise<number> {
-  const factor = await qtyPerUnitOfMeasure(itemId, unitOfMeasureId);
-  return quantity * factor;
-}
-
-/** `baseQuantity` (already in the item's Base UoM) expressed in `unitOfMeasureId` instead — for
- *  display only (e.g. "show qty-on-hand in BOX"); may not be a whole number if it doesn't divide
- *  evenly, which is left to the caller to round or report as a fraction. */
-export async function convertFromBase(itemId: number, unitOfMeasureId: number, baseQuantity: number): Promise<number> {
-  const factor = await qtyPerUnitOfMeasure(itemId, unitOfMeasureId);
-  return factor > 0 ? baseQuantity / factor : baseQuantity;
-}
-
 export interface ItemUnitOfMeasureLineInput {
   unitOfMeasureId: number;
   qtyPerUnitOfMeasure: number;

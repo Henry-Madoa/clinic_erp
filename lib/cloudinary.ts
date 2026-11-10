@@ -175,25 +175,6 @@ export async function verifyUpload(publicId: string, kind: UploadKind, typeHint?
   throw new AppError('Uploaded file could not be found in media storage', 'ASSET_NOT_FOUND');
 }
 
-/**
- * A short-lived, signed download link for one asset.
- *
- * Cloudinary's "restricted media types" account setting blocks unauthenticated
- * public delivery of PDF and ZIP files — the plain `imageSrc`/`deliveryUrl`
- * links 401 for those. The admin-signed `/download` endpoint is exempt from
- * that restriction (it is itself an authenticated request), so attachments
- * are served through this instead. Harmless, and just as effective, for the
- * other formats attachments can hold.
- */
-export function signedAttachmentUrl(publicId: string, resourceType: string, format: string | null): string {
-  if (!isConfigured()) return '';
-  return cloudinary.utils.private_download_url(publicId, format || '', {
-    resource_type: resourceType,
-    type: 'upload',
-    expires_at: Math.floor(Date.now() / 1000) + 3600,
-  });
-}
-
 /** Remove an asset. A failure here must not block the database delete. */
 export async function destroyAsset(publicId: string, resourceType = 'image'): Promise<void> {
   if (!isConfigured() || !publicId) return;
@@ -241,4 +222,12 @@ export function imageSrc(
   if (!stored) return null;
   if (stored.startsWith('data:') || stored.startsWith('http')) return stored;
   return deliveryUrl(stored, opts) || null;
+}
+
+/** The stock login background, held in Cloudinary like every other image (there is no public/ folder). */
+const DEFAULT_LOGIN_BACKGROUND = `${FOLDER_ROOT}/branding/login-default`;
+
+/** The login background to show when the organisation has not uploaded its own. */
+export function defaultLoginBackground(): string | null {
+  return imageSrc(DEFAULT_LOGIN_BACKGROUND, { width: 2400, crop: 'limit' });
 }

@@ -12,13 +12,13 @@ import { useChartTip } from './chart-tip';
  * --series-1..3, which are validated for colour-vision separation.
  */
 
-export interface Series {
+interface Series {
   name: string;
   color: string;
   values: number[];
 }
 
-export interface GroupedBarsProps {
+interface GroupedBarsProps {
   labels: string[];
   series: Series[];
   height?: number;

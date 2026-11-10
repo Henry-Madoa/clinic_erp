@@ -9,7 +9,7 @@ import { CompanyBadge } from './company-badge';
 import { INLINE_CARD_SLOT_ID } from '@/components/ui/inline-card-slot';
 import type { SessionUser } from '@/lib/types';
 
-export interface PageProps {
+interface PageProps {
   title: ReactNode;
   crumb?: ReactNode;
   user: SessionUser;

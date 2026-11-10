@@ -5,23 +5,23 @@ import { requireAction, requireUser } from '@/lib/session';
 import { actionResult, AppError } from '@/lib/errors';
 import { toCents } from '@/lib/format';
 import {
-  listVendorPostingGroups, createVendorPostingGroup, updateVendorPostingGroup, deleteVendorPostingGroup,
+  createVendorPostingGroup, updateVendorPostingGroup, deleteVendorPostingGroup,
   type VendorPostingGroupInput,
-  getPurchasesPayablesSetup, savePurchasesPayablesSetup, type PurchasesPayablesSetupInput,
+  savePurchasesPayablesSetup, type PurchasesPayablesSetupInput,
 } from '@/lib/payablesSetup';
 import {
-  listVendors, getVendor, createVendor, updateVendor, vendorStatistics, getVendorLedgerEntries,
+  createVendor, updateVendor, getVendorLedgerEntries,
   type VendorInput,
 } from '@/lib/vendors';
 import {
-  listPurchaseDocuments, getPurchaseDocument, createPurchaseDocument, updatePurchaseDocumentHeader, deletePurchaseDocument,
+  createPurchaseDocument, updatePurchaseDocumentHeader, deletePurchaseDocument,
   setPurchaseLines, makeOrder, submitPurchaseDocument, cancelPurchaseDocumentApproval, approvePurchaseDocument,
   rejectPurchaseDocument, reopenPurchaseDocument, postPurchaseDocument,
   listPostedInvoicesForCredit, getInvoiceForCreditMemo,
   type PurchaseHeaderInput, type PurchaseLineInput,
 } from '@/lib/purchaseDocuments';
 import { applyVendorEntries, unapplyVendorEntry } from '@/lib/vendLedger';
-import { getAgedAccountsPayable, getVendorStatement } from '@/lib/payablesReports';
+import { getVendorStatement } from '@/lib/payablesReports';
 import { findPendingRoutedTask, decideWorkflowTask } from '@/lib/workflow';
 import type {
   ActionResult, FormValues, PurchaseDocumentType, PurchaseLineType, VendorBlocked,
@@ -32,12 +32,6 @@ const str = (v: unknown): string => String(v ?? '').trim();
 const opt = (v: unknown): string | null => (str(v) === '' ? null : str(v));
 const numOrNull = (v: unknown): number | null => (v === undefined || v === '' || v === null ? null : Number(v));
 const bool = (v: unknown): boolean => v === 'on' || v === 'true' || v === true || v === 1 || v === '1';
-
-/* ------------------------------------------------------------------ setup masters */
-
-export async function listVendorPostingGroupsRequest() {
-  return actionResult(async () => { await requireAction('PAYABLES_READ'); return listVendorPostingGroups(); });
-}
 const toVpg = (v: FormValues): VendorPostingGroupInput => ({
   code: str(v.code), description: str(v.description),
   payablesAccountId: Number(v.payables_account_id),
@@ -55,10 +49,6 @@ export async function updateVpgRequest(id: number, v: FormValues): Promise<Actio
 /** Removable only while no vendor still names it — the lib function counts them. */
 export async function deleteVpgRequest(id: number): Promise<ActionResult<{ id: number }>> {
   return actionResult(async () => { const u = await requireAction('PAYABLES_SETUP_MANAGE'); await deleteVendorPostingGroup(id, u); revalidate(); return { id }; });
-}
-
-export async function getPurchasesPayablesSetupRequest() {
-  return actionResult(async () => { await requireAction('PAYABLES_READ'); return getPurchasesPayablesSetup(); });
 }
 export async function savePurchasesPayablesSetupRequest(v: FormValues): Promise<ActionResult<{ saved: true }>> {
   return actionResult(async () => {
@@ -87,12 +77,6 @@ const toVendorInput = (v: FormValues): VendorInput => ({
   creditLimit: toCents(v.creditLimit), blocked: (str(v.blocked || '') as VendorBlocked),
   globalDimension1Id: numOrNull(v.globalDimension1Id), globalDimension2Id: numOrNull(v.globalDimension2Id),
 });
-export async function listVendorsRequest(opts: Parameters<typeof listVendors>[0]) {
-  return actionResult(async () => { await requireAction('PAYABLES_READ'); return listVendors(opts); });
-}
-export async function getVendorRequest(no: string) {
-  return actionResult(async () => { await requireAction('PAYABLES_READ'); const v = await getVendor(no); if (!v) return null; return { vendor: v, stats: await vendorStatistics(v.id) }; });
-}
 export async function vendorLedgerEntriesRequest(vendorId: number) {
   return actionResult(async () => { await requireAction('PAYABLES_READ'); return getVendorLedgerEntries({ vendorId }); });
 }
@@ -101,15 +85,6 @@ export async function requestVendor(v: FormValues): Promise<ActionResult<{ no: s
 }
 export async function saveVendor(no: string, v: FormValues): Promise<ActionResult<{ no: string }>> {
   return actionResult(async () => { const u = await requireAction('PAYABLES_VENDOR_MANAGE'); await updateVendor(no, toVendorInput(v), u); revalidate(); return { no }; });
-}
-
-/* ------------------------------------------------------------- purchase documents */
-
-export async function listPurchaseDocumentsRequest(opts: Parameters<typeof listPurchaseDocuments>[0]) {
-  return actionResult(async () => { await requireAction('PAYABLES_READ'); return listPurchaseDocuments(opts); });
-}
-export async function getPurchaseDocumentRequest(no: string) {
-  return actionResult(async () => { await requireAction('PAYABLES_READ'); return getPurchaseDocument(no); });
 }
 const toPurchaseHeaderInput = (v: FormValues): PurchaseHeaderInput => ({
   documentType: (str(v.documentType || 'Invoice') as PurchaseDocumentType),
@@ -220,12 +195,6 @@ export async function applyEntriesRequest(applyingEntryId: number, appliedTo: nu
 }
 export async function unapplyEntryRequest(entryId: number): Promise<ActionResult<{ done: true }>> {
   return actionResult(async () => { const u = await requireAction('PAYABLES_APPLY_ENTRIES'); await unapplyVendorEntry(entryId, u); revalidate(); return { done: true }; });
-}
-
-/* ------------------------------------------------------------------ reports */
-
-export async function agedApRequest(opts: Parameters<typeof getAgedAccountsPayable>[0]) {
-  return actionResult(async () => { await requireAction('PAYABLES_READ'); return getAgedAccountsPayable(opts); });
 }
 export async function vendorStatementRequest(opts: Parameters<typeof getVendorStatement>[0]) {
   return actionResult(async () => { await requireAction('PAYABLES_READ'); return getVendorStatement(opts); });
