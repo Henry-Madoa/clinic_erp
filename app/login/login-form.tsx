@@ -20,14 +20,14 @@ export function LoginForm() {
     <form action={formAction}>
       <div className="field">
         <label htmlFor="u">Username</label>
-        <input id="u" name="username" type="text" autoComplete="username" required />
+        <input id="u" name="username" type="text" autoComplete="username" autoCapitalize="none" spellCheck={false} required />
       </div>
       <div className="field">
         <label htmlFor="p">Password</label>
         <input id="p" name="password" type="password" autoComplete="current-password" required />
       </div>
       <SubmitButton />
-      <div className="login-err">{state?.error}</div>
+      <div className="login-err" role="status">{state?.error}</div>
     </form>
   );
 }

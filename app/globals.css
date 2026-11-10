@@ -126,9 +126,7 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
 
 @media (max-width: 860px) { .login-wrap { grid-template-columns: 1fr; } .login-brand { padding: calc(var(--sp)*4); } }
 
-/* Sign-in, classic and modern: a serif display name over a gold rule and letter-spaced small caps,
-   and — with a background photograph from Company Information — the picture full-bleed behind
-   both halves, darkened to the set strength, with the sign-in form on a frosted-glass card. */
+/* Shared sign-in and verification typography. */
 .login-wrap { --login-gold: #c9a45c; --login-serif: 'Cormorant Garamond', 'Playfair Display', Didot, 'Bodoni MT', Georgia, 'Times New Roman', serif; }
 .login-kicker, .login-card-kicker { text-transform: uppercase; letter-spacing: .32em; font-size: 11px; font-weight: 600; color: var(--login-gold); }
 .login-kicker { margin-bottom: 10px; }
@@ -139,32 +137,64 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
 .login-card-kicker { color: var(--brand-primary); }
 .login-foot { position: absolute; left: 0; right: 0; bottom: 14px; text-align: center; font-size: 11.5px; letter-spacing: .08em; color: var(--text-muted); pointer-events: none; }
 
-.login-wrap.has-bg { background: #0d1114 var(--login-bg) center / cover no-repeat; isolation: isolate; }
-.login-wrap.has-bg::before {
-  content: ''; position: absolute; inset: 0; z-index: -1;
-  /* Darker behind the brand column, lighter behind the card — the photograph still reads. */
+.login-entry {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(8px, 2svh, 16px);
+  padding: clamp(48px, 8svh, 64px) 16px 12px;
   background:
-    linear-gradient(90deg, rgba(8, 11, 14, min(calc(var(--login-shade) + .25), .95)) 0%, rgba(8, 11, 14, var(--login-shade)) 55%, rgba(8, 11, 14, calc(var(--login-shade) * .55)) 100%);
+    linear-gradient(rgb(6 25 32 / var(--login-shade, .45)), rgb(6 25 32 / var(--login-shade, .45))),
+    #103842 var(--login-bg, url('/login-pharmacy.jpg')) center / cover no-repeat;
 }
-.login-wrap.has-bg .login-brand { background: transparent; text-shadow: 0 1px 18px rgba(0, 0, 0, .35); }
-.login-wrap.has-bg .login-brand .meta { border-top-color: rgba(255, 255, 255, .22); }
-.login-wrap.has-bg .login-form { background: transparent; }
-.login-wrap.has-bg .login-card {
-  background: color-mix(in srgb, var(--surface) 86%, transparent);
-  -webkit-backdrop-filter: blur(16px) saturate(1.15); backdrop-filter: blur(16px) saturate(1.15);
-  border: 1px solid color-mix(in srgb, #fff 32%, transparent); border-radius: 16px;
-  padding: calc(var(--sp) * 4.5) calc(var(--sp) * 4.25); box-shadow: 0 28px 70px rgba(0, 0, 0, .38);
-  animation: login-card-in .35s ease-out;
+.login-entry .login-brand {
+  align-items: center;
+  padding: 0;
+  text-align: center;
+  overflow-wrap: anywhere;
+  background: transparent;
+  color: var(--text);
 }
-.login-wrap.has-bg .login-foot { color: rgba(255, 255, 255, .7); }
-.login-wrap.has-bg .login-mode-toggle { filter: drop-shadow(0 1px 6px rgba(0, 0, 0, .4)); }
-@keyframes login-card-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: reduce) { .login-wrap.has-bg .login-card { animation: none; } }
-@media (max-width: 860px) {
-  .login-wrap.has-bg::before { background: rgba(8, 11, 14, var(--login-shade)); }
-  .login-wrap.has-bg .login-form { padding-top: 0; padding-bottom: calc(var(--sp) * 7); }
+.login-entry .login-logo { width: 52px; height: 52px; margin-bottom: 8px; }
+.login-entry .login-brand h1 { color: var(--text); font-size: clamp(26px, 5vw, 38px); }
+.login-entry .login-brand .motto { margin: 8px 0 0; font-size: 16px; }
+.login-entry .login-brand .meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 10px;
+  border: 0;
+  padding-top: 6px;
+  line-height: 1.45;
+  color: var(--text-muted);
+  opacity: 1;
 }
-
+.login-entry .login-card {
+  max-width: 440px;
+  padding: clamp(16px, 4svh, 32px) clamp(18px, 4vw, 36px);
+  background: var(--surface);
+  border-radius: 24px;
+  box-shadow: 0 18px 48px rgb(6 25 32 / .28);
+}
+.login-entry .login-card-kicker { margin-top: 12px; letter-spacing: .18em; color: var(--text-muted); text-align: center; }
+.login-entry .login-card h2 { font-family: inherit; font-size: 26px; margin: 4px 0; text-align: center; }
+.login-entry .login-card .sub { margin-bottom: 12px; line-height: 1.4; text-align: center; }
+.login-entry .login-card .field { margin-bottom: 10px; }
+.login-entry .login-err:empty { min-height: 0; margin: 0; }
+.login-entry .login-card input,
+.login-entry .login-card .btn { min-height: 44px; }
+.login-entry .login-foot {
+  position: static;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: rgb(6 25 32 / .8);
+  color: #fff;
+  overflow-wrap: anywhere;
+}
 /* The photograph behind the app itself (Company Information switch): a whisper, never competing with data. */
 .shell.has-backdrop .main {
   background:
@@ -278,6 +308,42 @@ button, input, select, textarea { font-family: inherit; font-size: inherit; colo
 .usermenu .who { font-size: 13px; font-weight: 500; line-height: 1.2; }
 .usermenu .role { font-size: 11px; color: var(--text-muted); }
 .content { padding: calc(var(--sp) * 3); flex: 1; min-width: 0; }
+
+@media screen {
+  /* Keep the browser page fixed while long content scrolls inside the workspace. */
+  body:not(.print-preview) .shell {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    grid-template-rows: minmax(0, 1fr);
+  }
+  body:not(.print-preview) .shell > .main { height: 100%; min-height: 0; }
+  body:not(.print-preview) .shell > .sidebar { height: 100%; }
+  body:not(.print-preview) .shell .topbar { flex-shrink: 0; }
+  body:not(.print-preview) .shell .content {
+    min-height: 0;
+    overflow: auto;
+  }
+  body:not(.print-preview) .shell > .sidebar,
+  body:not(.print-preview) .shell .content {
+    scrollbar-width: thin;
+    scrollbar-color: transparent transparent;
+  }
+  body:not(.print-preview) .shell > .sidebar:focus-within,
+  body:not(.print-preview) .shell .content:focus-within {
+    scrollbar-color: auto;
+  }
+  .login-entry, .login-wrap {
+    height: 100vh;
+    height: 100dvh;
+    min-height: 0;
+    overflow: auto;
+    scrollbar-width: none;
+  }
+  .login-entry { justify-content: safe center; }
+  .login-entry > .login-card,
+  .login-entry > .login-foot { flex-shrink: 0; }
+}
 
 /* ------------------------------------ record card prev/next (BC-style) */
 .card-nav-btn {
